@@ -1,0 +1,3 @@
+Ideas for file I/O:
+    - Store logs of games in FEN notation.
+    - 

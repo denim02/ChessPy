@@ -1,0 +1,4 @@
+[Color Palette]
+    [Squares]
+        Dark = #769656
+        Light = #EEEEE2
