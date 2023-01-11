@@ -1,4 +1,4 @@
-from chess import Pawn, Rook, Knight, Bishop, King, Queen
+from pieces import Pawn, Rook, Knight, Bishop, King, Queen
 
 class ChessGame:
     def __init__(self):
