@@ -11,7 +11,7 @@ class ChessGameUI:
     def __init__(self, game):
         self.game = game
         self.root = tk.Tk()
-        self.canvas = tk.Canvas(self.root, width=1280, height=860)
+        self.canvas = tk.Canvas(self.root, width=720, height=720)
         self.render_board(self.canvas)
         self.canvas.pack()
         self.root.mainloop()
