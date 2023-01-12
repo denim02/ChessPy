@@ -26,7 +26,7 @@ class ChessGame:
                         if j.isdigit():
                             board[i].extend([None] * int(j))
                         else:
-                            board[i].append(Piece.from_notation(j, (i, len(board[i]))))
+                            board[i].append(Piece.from_algebraic_notation(j, (i, len(board[i]))))
             
             return board     
 
@@ -36,9 +36,9 @@ class ChessGame:
     def move_piece(self, original_position, new_position):
         piece = self.board[original_position[0]][original_position[1]]
         piece.position = new_position
-        piece.generate_valid_moves()
+        piece.generate_possible_moves()
         self.board[original_position[0]][original_position[1]] = None
         self.board[new_position[0]][new_position[1]] = piece
 
-    def is_valid_move(self, piece_position, new_position):
-        return new_position in self.board[piece_position[0]][piece_position[1]].valid_moves
+    def is_possible_move(self, piece_position, new_position):
+        return new_position in self.board[piece_position[0]][piece_position[1]].possible_moves

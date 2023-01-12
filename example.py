@@ -42,7 +42,7 @@ class ChessGameUI:
         self.canvas.tag_raise(self.dragged_piece)
         for row in range(8):
             for col in range(8):
-                if self.game.is_valid_move(self.get_square_at_position(self.original_piece_pos[0], self.original_piece_pos[1]), (row, col)):
+                if self.game.is_possible_move(self.get_square_at_position(self.original_piece_pos[0], self.original_piece_pos[1]), (row, col)):
                     x, y = col * square_size + square_size/2, row * square_size + square_size/2
                     circle = self.canvas.create_oval(x-15, y-15, x+15, y+15, fill="#C0C0C0",outline='gray', width=1, tags="highlight")
                     self.canvas.tag_raise(circle)
@@ -55,7 +55,7 @@ class ChessGameUI:
         
     def on_drag_release(self, event):
         new_pos = self.get_square_at_position(event.x, event.y)
-        if new_pos and self.game.is_valid_move(self.get_square_at_position(self.original_piece_pos[0], self.original_piece_pos[1]), new_pos):
+        if new_pos and self.game.is_possible_move(self.get_square_at_position(self.original_piece_pos[0], self.original_piece_pos[1]), new_pos):
             x, y = new_pos[1] * square_size, new_pos[0] * square_size
             self.canvas.coords(self.dragged_piece, x, y)
             self.game.move_piece(self.get_square_at_position(self.original_piece_pos[0], self.original_piece_pos[1]), new_pos)
