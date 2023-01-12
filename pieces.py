@@ -8,8 +8,9 @@ class Piece:
         self.image = None
         self.position = position
         self.valid_moves = []
+        self.generate_valid_moves()
 
-    def get_valid_moves(self):
+    def generate_valid_moves(self):
         pass
 
     # Define a constructor to create piece from algebraic notation
@@ -42,7 +43,8 @@ class Pawn(Piece):
     def __init__(self, color, position):
         super().__init__(name="Pawn", value=1, position=position, color=color)
         
-    def get_valid_moves(self):
+    def generate_valid_moves(self):
+        self.valid_moves.clear()
         if self.color == "white":
             self.valid_moves.append((self.position[0] - 1, self.position[1]))
             if self.position[0] == 6:
@@ -51,23 +53,23 @@ class Pawn(Piece):
             self.valid_moves.append((self.position[0] + 1, self.position[1]))
             if self.position[0] == 1:
                 self.valid_moves.append((self.position[0] + 2, self.position[1]))
-        return self.valid_moves
 
 class Rook(Piece):
     def __init__(self, color, position):
         super().__init__(name="Rook", value=5, position=position, color=color)
         
-    def get_valid_moves(self):
+    def generate_valid_moves(self):
+        self.valid_moves.clear()
         for i in range(8):
             self.valid_moves.append((self.position[0], i))
             self.valid_moves.append((i, self.position[1]))
-        return self.valid_moves
 
 class Knight(Piece):
     def __init__(self, color, position):
-        super().__init__(name="Rook", value=3, position=position, color=color)
+        super().__init__(name="Knight", value=3, position=position, color=color)
 
-    def get_valid_moves(self):
+    def generate_valid_moves(self):
+        self.valid_moves.clear()
         self.valid_moves.append((self.position[0] - 2, self.position[1] - 1))
         self.valid_moves.append((self.position[0] - 2, self.position[1] + 1))
         self.valid_moves.append((self.position[0] - 1, self.position[1] - 2))
@@ -76,25 +78,25 @@ class Knight(Piece):
         self.valid_moves.append((self.position[0] + 1, self.position[1] + 2))
         self.valid_moves.append((self.position[0] + 2, self.position[1] - 1))
         self.valid_moves.append((self.position[0] + 2, self.position[1] + 1))
-        return self.valid_moves
 
 class Bishop(Piece):
     def __init__(self, color, position):
         super().__init__(name="Bishop", value=3, position=position, color=color)
         
-    def get_valid_moves(self):
+    def generate_valid_moves(self):
+        self.valid_moves.clear()
         for i in range(8):
             self.valid_moves.append((self.position[0] - i, self.position[1] - i))
             self.valid_moves.append((self.position[0] + i, self.position[1] - i))
             self.valid_moves.append((self.position[0] - i, self.position[1] + i))
             self.valid_moves.append((self.position[0] + i, self.position[1] + i))
-        return self.valid_moves
 
 class Queen(Piece):
     def __init__(self, color, position):
         super().__init__(name="Queen", value=9, position=position, color=color)
         
-    def get_valid_moves(self):
+    def generate_valid_moves(self):
+        self.valid_moves.clear()
         for i in range(8):
             self.valid_moves.append((self.position[0], i))
             self.valid_moves.append((i, self.position[1]))
@@ -102,13 +104,13 @@ class Queen(Piece):
             self.valid_moves.append((self.position[0] + i, self.position[1] - i))
             self.valid_moves.append((self.position[0] - i, self.position[1] + i))
             self.valid_moves.append((self.position[0] + i, self.position[1] + i))
-        return self.valid_moves
 
 class King(Piece):
     def __init__(self, color, position):
         super().__init__(name="King", value=100, position=position, color=color)
         
-    def get_valid_moves(self):
+    def generate_valid_moves(self):
+        self.valid_moves.clear()
         self.valid_moves.append((self.position[0] - 1, self.position[1]))
         self.valid_moves.append((self.position[0] + 1, self.position[1]))
         self.valid_moves.append((self.position[0], self.position[1] - 1))
@@ -117,4 +119,3 @@ class King(Piece):
         self.valid_moves.append((self.position[0] + 1, self.position[1] - 1))
         self.valid_moves.append((self.position[0] - 1, self.position[1] + 1))
         self.valid_moves.append((self.position[0] + 1, self.position[1] + 1))
-        return self.valid_moves

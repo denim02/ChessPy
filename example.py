@@ -18,7 +18,6 @@ class ChessGameUI:
 
 
     def render_board(self, canvas):
-        print(self.game.board)
         for row in range(8):
             for col in range(8):
                 x1, y1 = col * square_size, row * square_size
@@ -41,6 +40,13 @@ class ChessGameUI:
         self.offset_y = event.y - self.canvas.coords(self.dragged_piece)[1]
         self.dragged_piece_pos = self.canvas.coords(self.dragged_piece)
         self.canvas.tag_raise(self.dragged_piece)
+        for row in range(8):
+            for col in range(8):
+                if self.game.is_valid_move(self.get_square_at_position(self.original_piece_pos[0], self.original_piece_pos[1]), (row, col)):
+                    x, y = col * square_size + square_size/2, row * square_size + square_size/2
+                    circle = self.canvas.create_oval(x-15, y-15, x+15, y+15, fill="#C0C0C0",outline='gray', width=1, tags="highlight")
+                    self.canvas.tag_raise(circle)
+        self.canvas.tag_raise(self.dragged_piece)
         
     def on_drag_motion(self, event):
         self.canvas.move(self.dragged_piece, event.x - self.dragged_piece_pos[0] - self.offset_x, 
@@ -49,13 +55,13 @@ class ChessGameUI:
         
     def on_drag_release(self, event):
         new_pos = self.get_square_at_position(event.x, event.y)
-        if new_pos and self.game.is_valid_move(self.dragged_piece_pos, new_pos):
+        if new_pos and self.game.is_valid_move(self.get_square_at_position(self.original_piece_pos[0], self.original_piece_pos[1]), new_pos):
             x, y = new_pos[1] * square_size, new_pos[0] * square_size
             self.canvas.coords(self.dragged_piece, x, y)
-            self.game.move_piece(self.get_piece_position(self.dragged_piece), new_pos)
+            self.game.move_piece(self.get_square_at_position(self.original_piece_pos[0], self.original_piece_pos[1]), new_pos)
         else:
             self.canvas.coords(self.dragged_piece, self.original_piece_pos)
-        self.render_board()
+        self.render_board(self.canvas)
             
     def get_square_at_position(self, x, y):
         col = int(x / square_size)
@@ -67,6 +73,8 @@ class ChessGameUI:
         col = int(x / square_size)
         row = int(y / square_size)
         return (row, col)
+
+    
 
 game = ChessGame()
 ui = ChessGameUI(game)

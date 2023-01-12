@@ -33,5 +33,12 @@ class ChessGame:
     def get_piece(self, position):
         return self.board[position[0]][position[1]]
 
-    def move_piece(self, piece, position):
-        piece.position = position
+    def move_piece(self, original_position, new_position):
+        piece = self.board[original_position[0]][original_position[1]]
+        piece.position = new_position
+        piece.generate_valid_moves()
+        self.board[original_position[0]][original_position[1]] = None
+        self.board[new_position[0]][new_position[1]] = piece
+
+    def is_valid_move(self, piece_position, new_position):
+        return new_position in self.board[piece_position[0]][piece_position[1]].valid_moves
