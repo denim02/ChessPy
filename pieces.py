@@ -1,12 +1,43 @@
+from PIL import ImageTk, Image
+
 class Piece:
     def __init__(self, name, value, color, position):
         self.name = name
         self.value = value
         self.color = color
-        self.image_path = f"./assets/{color}-{name}.png"
+        self.image = None
         self.position = position
         self.valid_moves = []
+
+    def get_valid_moves(self):
+        pass
+
+    # Define a constructor to create piece from algebraic notation
+    @classmethod
+    def from_notation(cls, algebraic_notation, position):
+        name = algebraic_notation.lower()
+        color = "white" if name == algebraic_notation else "black"
+
+        if name == "p":
+            return Pawn(color, position)
+        elif name == "r":
+            return Rook(color, position)
+        elif name == "n":
+            return Knight(color, position)
+        elif name == "b":
+            return Bishop(color, position)
+        elif name == "q":
+            return Queen(color, position)
+        elif name == "k":
+            return King(color, position)
+        else:
+            raise ValueError("Invalid algebraic notation")
+
+    def __repr__(self):
+        return f"{self.color.title()} {self.name}"
         
+
+
 class Pawn(Piece):
     def __init__(self, color, position):
         super().__init__(name="Pawn", value=1, position=position, color=color)
