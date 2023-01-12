@@ -15,7 +15,7 @@ class Piece:
     @staticmethod
     def from_algebraic_notation(algebraic_notation, position):
         name = algebraic_notation.lower()
-        color = "white" if name == algebraic_notation else "black"
+        color = "black" if name == algebraic_notation else "white"
 
         if name == "p":
             return Pawn(color, position)
@@ -33,7 +33,7 @@ class Piece:
             raise ValueError("Impossible algebraic notation")
     
     def to_algebraic_notion(self):
-        return self.name[0].lower() if self.color == "white" else self.name[0].upper()
+        return self.name[0].lower() if self.color == "black" else self.name[0].upper()
 
     def __repr__(self):
         return f"{self.color.title()} {self.name}"
