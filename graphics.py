@@ -3,6 +3,7 @@ import tkinter as tk
 
 square_size = 90
 
+
 class ChessUI:
     def __init__(self, game):
         """
@@ -46,45 +47,78 @@ class ChessUI:
         piece = self.board.get_piece_at_square(position)
         if piece:
             x1, y1 = position[1] * square_size, position[0] * square_size
-            piece.image = tk.PhotoImage(file=f"./assets/{piece.color}-{piece.name}.png")
-            image_on_board = self.canvas.create_image(x1, y1, anchor=tk.NW, image=piece.image)
-            self.canvas.tag_bind(image_on_board, "<ButtonPress-1>", self.on_drag_start)
-            self.canvas.tag_bind(image_on_board, "<B1-Motion>", self.on_drag_motion)
-            self.canvas.tag_bind(image_on_board, "<ButtonRelease-1>", self.on_drag_release)
+            piece.image = tk.PhotoImage(
+                file=f"./assets/{piece.color}-{piece.name}.png")
+            image_on_board = self.canvas.create_image(
+                x1, y1, anchor=tk.NW, image=piece.image)
+            self.canvas.tag_bind(
+                image_on_board,
+                "<ButtonPress-1>",
+                self.on_drag_start)
+            self.canvas.tag_bind(
+                image_on_board,
+                "<B1-Motion>",
+                self.on_drag_motion)
+            self.canvas.tag_bind(
+                image_on_board,
+                "<ButtonRelease-1>",
+                self.on_drag_release)
 
     def on_drag_start(self, event):
-        self.dragged_piece_image = event.widget.find_closest(event.x, event.y)[0]
-        self.dragged_piece = self.board.get_piece_at_square((int(event.y//square_size), int(event.x//square_size)))
-        self.dragged_image_coords = self.canvas.coords(self.dragged_piece_image)
+        self.dragged_piece_image = event.widget.find_closest(event.x, event.y)[
+            0]
+        self.dragged_piece = self.board.get_piece_at_square(
+            (int(event.y // square_size), int(event.x // square_size)))
+        self.dragged_image_coords = self.canvas.coords(
+            self.dragged_piece_image)
 
         self.original_coords = self.canvas.coords(self.dragged_piece_image)
         self.original_position = self.dragged_piece.position
 
-        self.offset_x = event.x - self.canvas.coords(self.dragged_piece_image)[0]
-        self.offset_y = event.y - self.canvas.coords(self.dragged_piece_image)[1]
+        self.offset_x = event.x - \
+            self.canvas.coords(self.dragged_piece_image)[0]
+        self.offset_y = event.y - \
+            self.canvas.coords(self.dragged_piece_image)[1]
         for row in range(8):
             for col in range(8):
-                if (row, col) in self.board.get_legal_moves(self.board.get_piece_at_square(self.dragged_piece.position)):
-                    x, y = col * square_size + square_size/2, row * square_size + square_size/2
-                    circle = self.canvas.create_oval(x-15, y-15, x+15, y+15, fill="#C0C0C0",outline='gray', width=1, tags="highlight")
+                if (row, col) in self.board.get_legal_moves(
+                        self.board.get_piece_at_square(self.dragged_piece.position)):
+                    x, y = col * square_size + square_size / 2, row * square_size + square_size / 2
+                    circle = self.canvas.create_oval(
+                        x - 15,
+                        y - 15,
+                        x + 15,
+                        y + 15,
+                        fill="#C0C0C0",
+                        outline='gray',
+                        width=1,
+                        tags="highlight")
                     self.canvas.tag_raise(circle)
         self.canvas.tag_raise(self.dragged_piece_image)
 
-
     def on_drag_motion(self, event):
-        self.canvas.move(self.dragged_piece_image, event.x - self.dragged_image_coords[0] - self.offset_x, 
-                         event.y - self.dragged_image_coords[1] - self.offset_y)
-        self.dragged_image_coords = self.canvas.coords(self.dragged_piece_image)
-        
+        self.canvas.move(
+            self.dragged_piece_image,
+            event.x -
+            self.dragged_image_coords[0] -
+            self.offset_x,
+            event.y -
+            self.dragged_image_coords[1] -
+            self.offset_y)
+        self.dragged_image_coords = self.canvas.coords(
+            self.dragged_piece_image)
+
     def on_drag_release(self, event):
-        x, y = round(self.dragged_image_coords[0] / square_size) * square_size, round(self.dragged_image_coords[1] / square_size) * square_size
-        new_position = (y//square_size, x//square_size)
+        x, y = round(self.dragged_image_coords[0] / square_size) * square_size, round(
+            self.dragged_image_coords[1] / square_size) * square_size
+        new_position = (y // square_size, x // square_size)
         if new_position and new_position in self.dragged_piece.legal_moves:
             self.canvas.coords(self.dragged_piece_image, x, y)
             self.game.make_move(self.original_position, new_position)
         else:
             self.canvas.coords(self.dragged_piece_image, self.original_coords)
         self.render_board()
+
 
 def crop_sprites(file_path, square_size):
     # Open the spritesheet image

@@ -1,6 +1,7 @@
 from board import Board
 import chess_logic
 
+
 class ChessGame:
     def __init__(self):
         """
@@ -26,7 +27,7 @@ class ChessGame:
             raise ValueError("No piece at the given position.")
         if piece.color != self.turn:
             raise ValueError("It is not your turn.")
-        if not new_position in piece.legal_moves:
+        if new_position not in piece.legal_moves:
             raise ValueError("Invalid move.")
         self.board.move_piece_to_square(piece, new_position)
         print(self.board)
@@ -38,8 +39,10 @@ class ChessGame:
         """
         while not self.game_over:
             print(self.board)
-            original_position = tuple(map(int, Board.get_position_from_algebraic_notation(input("Enter the original position of the piece you want to move: "))))
-            new_position = tuple(map(int, Board.get_position_from_algebraic_notation(input("Enter the new position of the piece you want to move: "))))
+            original_position = tuple(map(int, Board.get_position_from_algebraic_notation(
+                input("Enter the original position of the piece you want to move: "))))
+            new_position = tuple(map(int, Board.get_position_from_algebraic_notation(
+                input("Enter the new position of the piece you want to move: "))))
             try:
                 self.make_move(original_position, new_position)
             except ValueError as e:

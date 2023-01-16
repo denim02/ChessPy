@@ -12,6 +12,7 @@ def is_possible_move(board, piece, new_position):
     """
     return new_position in piece.possible_moves
 
+
 def is_check(board, color):
     """
     Check if a king of a given color is in check.
@@ -23,11 +24,13 @@ def is_check(board, color):
     Returns:
         bool: True if the king is in check, False otherwise.
     """
-    king = [piece for piece in board.piece_list if piece.color == color and piece.name == "King"][0]
+    king = [piece for piece in board.piece_list if piece.color ==
+            color and piece.name == "King"][0]
     for piece in board.piece_list:
         if piece.color != color and king.position in piece.legal_moves:
             return True
     return False
+
 
 def is_checkmate(board, color):
     """
@@ -40,7 +43,8 @@ def is_checkmate(board, color):
     Returns:
         bool: True if the king is in checkmate, False otherwise.
     """
-    king = [piece for piece in board.piece_list if piece.color == color and piece.name == "King"][0]
+    king = [piece for piece in board.piece_list if piece.color ==
+            color and piece.name == "King"][0]
     if is_check(board, color):
         for piece in board.piece_list:
             if piece.color == color:
@@ -48,6 +52,7 @@ def is_checkmate(board, color):
                     if not is_check(board, color):
                         return False
     return True
+
 
 def is_stalemate(board, color):
     """
@@ -60,7 +65,8 @@ def is_stalemate(board, color):
     Returns:
         bool: True if the king is in stalemate, False otherwise.
     """
-    king = [piece for piece in board.piece_list if piece.color == color and piece.name == "King"][0]
+    king = [piece for piece in board.piece_list if piece.color ==
+            color and piece.name == "King"][0]
     if not is_check(board, color):
         for piece in board.piece_list:
             if piece.color == color:
@@ -68,6 +74,7 @@ def is_stalemate(board, color):
                     if not is_check(board, color):
                         return False
     return True
+
 
 def is_legal_move(board, piece, new_position):
     """
@@ -81,10 +88,9 @@ def is_legal_move(board, piece, new_position):
     Returns:
         bool: True if the move is legal, False otherwise.
     """
-    if board.get_piece_at_square(new_position) is not None and board.get_piece_at_square(new_position).color == piece.color:
+    if board.get_piece_at_square(new_position) is not None and board.get_piece_at_square(
+            new_position).color == piece.color:
         return False
     if piece.name == "Knight" and not board.is_square_occupied(new_position):
         return True
     return not board.is_path_blocked(piece.position, new_position)
-    
-    
