@@ -154,9 +154,9 @@ class King(Piece):
         
     def generate_possible_moves(self, board):
         possible_moves = []
-        for i in range(8):
-            for j in range(8):
-                if abs(i - self.position[0]) + abs(j - self.position[1]) == 1 and i != self.position[0] and j != self.position[1]:
-                    possible_moves.append((i, j))
-
+        x, y = self.position  # unpack the current position of the king
+        for i, j in [(1, 1), (1, 0), (1, -1), (0, 1), (0, -1), (-1, 1), (-1, 0), (-1, -1)]:
+            x_, y_ = x+i, y+j
+            if (i, j) != (0, 0) and 0 <= x_ < 8 and 0 <= y_ < 8:
+                possible_moves.append((x_, y_))
         return possible_moves
