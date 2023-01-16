@@ -1,6 +1,5 @@
 from game import ChessGame
-from example import ChessGameUI
+from graphics import ChessUI
 
 game = ChessGame()
-ui = ChessGameUI(game)
-
+ui = ChessUI(game)

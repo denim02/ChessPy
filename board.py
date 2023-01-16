@@ -1,37 +1,252 @@
-import tkinter as tk
+from pieces import Piece
 
-def draw_chessboard():
-    root = tk.Tk()
-    root.geometry("1280x800")
-    canvas = tk.Canvas(root, width=1280, height=800)
-    canvas.pack()
+class Board():
+    def __init__(self):
+        """
+        Initializes the board with a 2D array of pieces and a list of all pieces on the board.
+        """
+        self.board_table = self.populate_board()
+        self.piece_list = [piece for row in self.board_table for piece in row if piece is not None]
+        self.refresh_legal_moves()
 
-    square_size = 90
-    x_offset = (1280 - 720) / 2
-    y_offset = (800 - 720) / 2
+    def refresh_legal_moves(self):
+        """
+        Generates all valid moves for all pieces on the board.
+        """
+        for piece in self.piece_list:
+            piece.refresh_legal_moves(self)
+        
+    def get_piece_at_square(self, position):
+        """
+        Returns the piece at the given position on the board.
 
-    # Draw the squares
-    for row in range(8):
-        for col in range(8):
-            x1 = col * square_size + x_offset
-            y1 = row * square_size + y_offset
-            x2 = x1 + square_size
-            y2 = y1 + square_size
-            color = "#EEEEE2" if (row + col) % 2 == 0 else "#769656"
-            canvas.create_rectangle(x1, y1, x2, y2, fill=color)
+        Parameters:
+            position (tuple): position on the board in (x, y) format, where x is the row and y is the column.
 
-    # Draw the pieces
-    pieces = [
-        0, 1, 2, 3, 4, 2, 1, 0, 
-        5, 5, 5, 5, 5, 5, 5, 5,
-        None, None, None, None, None, None, None, None,
-        None, None, None, None, None, None, None, None,
-        None, None, None, None, None, None, None, None,
-        None, None, None, None, None, None, None, None,
-        11, 11, 11, 11, 11, 11, 11, 11,
-        6, 7, 8, 9, 10, 8, 7, 6
-    ]
+        Returns:
+            Piece: piece at the given position or None if the position is empty.
+        """
+        return self.board_table[position[0]][position[1]]
 
-    root.mainloop()
+    def get_legal_moves(self, piece):
+        """
+        Returns all valid moves for a given piece.
 
-draw_chessboard()
+        Parameters:
+            piece (Piece): piece to be moved.
+
+        Returns:
+            list: list of all valid moves for the given piece.
+        """
+        return piece.legal_moves
+
+    def move_piece_to_square(self, piece, new_position):
+        """
+        Move a piece to a new position on the board.
+
+        Parameters:
+            piece (Piece): piece to be moved.
+            new_position (tuple): new position on the board in (x, y) format, where x is the row and y is the column.
+        """
+        if(self.is_square_occupied(new_position)):
+            index = self.piece_list.index(self.get_piece_at_square(new_position))
+            self.piece_list.pop(index)
+        self.board_table[piece.position[0]][piece.position[1]] = None
+        piece.position = new_position
+        self.board_table[new_position[0]][new_position[1]] = piece
+        self.piece_list.append(piece)
+        self.refresh_legal_moves()
+
+    def move_from_square_to_square(self, original_position, new_position):
+        """
+        Move a piece from one position on the board to another.
+
+        Parameters:
+            original_position (tuple): original position on the board in (x, y) format, where x is the row and y is the column.
+            new_position (tuple): new position on the board in (x, y) format, where x is the row and y is the column.
+        """
+        piece = self.get_piece_at_square(original_position)
+        self.board_table[original_position[0]][original_position[1]] = None
+        piece.position = new_position
+        self.board_table[new_position[0]][new_position[1]] = piece
+        self.refresh_legal_moves()
+
+    def is_square_occupied(self, position):
+        """
+        Check if a given position on the board is occupied by a piece.
+
+        Parameters:
+            position (tuple): position on the board in (x, y) format, where x is the row and y is the column.
+
+        Returns:
+            bool: True if the position is occupied, False otherwise.
+        """
+        return self.board_table[position[0]][position[1]] is not None
+
+    def is_square_attacked(self, position, color):
+        """
+        Check if a given position on the board is attacked by any piece of a different color.
+
+        Parameters:
+            position (tuple): position on the board in (x, y) format, where x is the row and y is the column.
+            color (str): color of the attacking pieces, either "white" or "black".
+
+        Returns:
+            bool: True if the position is attacked, False otherwise.
+        """
+        for piece in self.piece_list:
+            if piece.color != color and position in piece.legal_moves:
+                return True
+        return False
+
+    def is_path_blocked(self, original_position, new_position):
+        """
+        Check if there is a piece blocking the path between two positions on the board.
+
+        Parameters:
+            original_position (tuple): original position on the board in (x, y) format, where x is the row and y is the column.
+            new_position (tuple): new position on the board in (x, y) format, where x is the row and y is the column.
+
+        Returns:
+            bool: True if the path is blocked, False otherwise.
+        """
+        # Path on same row
+        if original_position[0] == new_position[0]:
+            if original_position[1] < new_position[1]:
+                for i in range(original_position[1] + 1, new_position[1]):
+                    if self.is_square_occupied((original_position[0], i)):
+                        return True
+            else:
+                for i in range(new_position[1] + 1, original_position[1]):
+                    if self.is_square_occupied((original_position[0], i)):
+                        return True
+        # Path on same column
+        elif original_position[1] == new_position[1]:
+            if original_position[0] < new_position[0]:
+                for i in range(original_position[0] + 1, new_position[0]):
+                    if self.is_square_occupied((i, original_position[1])):
+                        return True
+            else:
+                for i in range(new_position[0] + 1, original_position[0]):
+                    if self.is_square_occupied((i, original_position[1])):
+                        return True
+        # Path on diagonal
+        elif abs(original_position[0] - new_position[0]) == abs(original_position[1] - new_position[1]):
+            if original_position[0] < new_position[0]:
+                if original_position[1] < new_position[1]:
+                    for i in range(1, abs(original_position[0] - new_position[0])):
+                        if self.is_square_occupied((original_position[0] + i, original_position[1] + i)):
+                            return True
+                else:
+                    for i in range(1, abs(original_position[0] - new_position[0])):
+                        if self.is_square_occupied((original_position[0] + i, original_position[1] - i)):
+                            return True
+            else:
+                if original_position[1] < new_position[1]:
+                    for i in range(1, abs(original_position[0] - new_position[0])):
+                        if self.is_square_occupied((original_position[0] - i, original_position[1] + i)):
+                            return True
+                else:
+                    for i in range(1, abs(original_position[0] - new_position[0])):
+                        if self.is_square_occupied((original_position[0] - i, original_position[1] - i)):
+                            return True
+        return False
+
+    def populate_board(self):
+        """
+        Populate the board with pieces from a file in FEN notation.
+
+        Returns:
+            list: 2D array of pieces representing the board.
+        """
+        return Board.parse_FEN("./game_states/init_position.fen")
+
+    def __repr__(self):
+        """
+        Print the board in a pretty readable format.
+        """
+        string = "  a b c d e f g h \n"
+        for i in range(8):
+            string += str(8 - i) + " "
+            for j in range(8):
+                if self.board_table[i][j] is None:
+                    string += ". "
+                else:
+                    string += self.board_table[i][j].to_algebraic_notation() + " "
+            string += str(8 - i) + "\n"
+        string += "  a b c d e f g h \n"
+        return string
+
+    def print_board_from_piece_list(self):
+    # Use the piece_list to draw out the board, filling all unaccounted squares with dots
+        string = "  a b c d e f g h \n"
+        for i in range(8):
+            string += str(8 - i) + " "
+            for j in range(8):
+                found = False
+                for piece in self.piece_list:
+                    if piece.position == (i, j):
+                        string += piece.to_algebraic_notation() + " "
+                        found = True
+                        break
+                if not found:
+                    string += ". "
+            string += str(8 - i) + "\n"
+        string += "  a b c d e f g h \n"
+        print(string)
+
+    @staticmethod
+    def get_algebraic_notation(position):
+        """
+        Convert a position in the board to algebraic notation.
+
+        Parameters:
+            position (tuple): position on the board in (x, y) format, where x is the row and y is the column.
+
+        Returns:
+            str: algebraic notation of the position.
+        """
+        return chr(position[1] + 97) + str(8 - position[0])
+
+    @staticmethod
+    def get_position_from_algebraic_notation(algebraic_notation):
+        """
+        Convert a position in algebraic notation to a position on the board.
+
+        Parameters:
+            algebraic_notation (str): algebraic notation of the position.
+
+        Returns:
+            tuple: position on the board in (x, y) format, where x is the row and y is the column.
+        """
+        return (8 - int(algebraic_notation[1]), ord(algebraic_notation[0]) - 97)
+
+    @staticmethod
+    def parse_FEN(file_path):
+        """
+        Parse the FEN notation from a file and return a 2D array of pieces.
+
+        Parameters:
+            file_path (str): path to the file containing the FEN notation.
+
+        Returns:
+            list: 2D array of pieces representing the board.
+        """
+        with open(file_path) as file:
+            string_FEN = file.read()
+            ranks = string_FEN.split("/")
+            
+            board = []
+
+            for i in range(8):
+                if ranks[i] == "8":
+                    board.append([None] * 8)
+                else:
+                    board.append([])
+                    for j in ranks[i]:
+                        if j.isdigit():
+                            board[i].extend([None] * int(j))
+                        else:
+                            board[i].append(Piece.from_algebraic_notation(j, (i, len(board[i]))))
+            
+            return board

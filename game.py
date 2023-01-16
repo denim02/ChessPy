@@ -1,44 +1,42 @@
-from pieces import Piece, Pawn, Rook, Knight, Bishop, King, Queen
+from board import Board
+import chess_logic
 
 class ChessGame:
     def __init__(self):
-        self.board = self.populate_board()
+        """
+        Initializes the board and the turn.
+        """
+        self.board = Board()
+        self.turn = "white"
+        self.game_over = False
 
-    def populate_board(self):
-        # Place the chess pieces on their starting positions based on the FEN notation
-        return ChessGame.parse_FEN("./game_states/init_position.fen")
+    def make_move(self, original_position, new_position):
+        """
+        Make a move on the board.
 
-    @staticmethod
-    def parse_FEN(file_path):
-        # Parse the FEN notation and return a 2D array of pieces
-        with open(file_path) as file:
-            string_FEN = file.read()
-            ranks = string_FEN.split("/")
-            
-            board = []
+        Parameters:
+            original_position (tuple): original position on the board in (x, y) format, where x is the row and y is the column.
+            new_position (tuple): new position on the board in (x, y) format, where x is the row and y is the column.
+        """
+        piece = self.board.get_piece_at_square(original_position)
+        if piece is None:
+            raise ValueError("No piece at the given position.")
+        if piece.color != self.turn:
+            raise ValueError("It is not your turn.")
+        if not new_position in piece.legal_moves:
+            raise ValueError("Invalid move.")
+        self.board.move_piece_to_square(piece, new_position)
+        self.turn = "white" if self.turn == "black" else "black"
 
-            for i in range(8):
-                if ranks[i] == "8":
-                    board.append([None] * 8)
-                else:
-                    board.append([])
-                    for j in ranks[i]:
-                        if j.isdigit():
-                            board[i].extend([None] * int(j))
-                        else:
-                            board[i].append(Piece.from_algebraic_notation(j, (i, len(board[i]))))
-            
-            return board     
-
-    def get_piece(self, position):
-        return self.board[position[0]][position[1]]
-
-    def move_piece(self, original_position, new_position):
-        piece = self.board[original_position[0]][original_position[1]]
-        piece.position = new_position
-        piece.generate_possible_moves()
-        self.board[original_position[0]][original_position[1]] = None
-        self.board[new_position[0]][new_position[1]] = piece
-
-    def is_possible_move(self, piece_position, new_position):
-        return new_position in self.board[piece_position[0]][piece_position[1]].possible_moves
+    def run(self):
+        """
+        Runs the game.
+        """
+        while not self.game_over:
+            print(self.board)
+            original_position = tuple(map(int, Board.get_position_from_algebraic_notation(input("Enter the original position of the piece you want to move: "))))
+            new_position = tuple(map(int, Board.get_position_from_algebraic_notation(input("Enter the new position of the piece you want to move: "))))
+            try:
+                self.make_move(original_position, new_position)
+            except ValueError as e:
+                print(e)
