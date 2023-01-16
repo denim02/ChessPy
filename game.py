@@ -19,6 +19,9 @@ class ChessGame:
             new_position (tuple): new position on the board in (x, y) format, where x is the row and y is the column.
         """
         piece = self.board.get_piece_at_square(original_position)
+        print(piece)
+        print("Original position: ", original_position)
+        print("New position: ", new_position)
         if piece is None:
             raise ValueError("No piece at the given position.")
         if piece.color != self.turn:
@@ -26,6 +29,7 @@ class ChessGame:
         if not new_position in piece.legal_moves:
             raise ValueError("Invalid move.")
         self.board.move_piece_to_square(piece, new_position)
+        print(self.board)
         self.turn = "white" if self.turn == "black" else "black"
 
     def run(self):
