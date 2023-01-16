@@ -55,12 +55,16 @@ class ChessUI:
     def on_drag_start(self, event):
         self.dragged_piece_image = event.widget.find_closest(event.x, event.y)[0]
         self.dragged_piece = self.board.get_piece_at_square((int(event.y//square_size), int(event.x//square_size)))
+        self.dragged_image_coords = self.canvas.coords(self.dragged_piece_image)
+
         self.original_coords = self.canvas.coords(self.dragged_piece_image)
         self.original_position = self.dragged_piece.position
+
         self.offset_x = event.x - self.canvas.coords(self.dragged_piece_image)[0]
         self.offset_y = event.y - self.canvas.coords(self.dragged_piece_image)[1]
-        self.dragged_image_coords = self.canvas.coords(self.dragged_piece_image)
+
         self.canvas.tag_raise(self.dragged_piece_image)
+        
         for row in range(8):
             for col in range(8):
                 square_pos = ((int) (self.dragged_image_coords[1]//square_size), (int) (self.dragged_image_coords[0]//square_size))
