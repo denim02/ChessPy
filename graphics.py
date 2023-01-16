@@ -62,13 +62,9 @@ class ChessUI:
 
         self.offset_x = event.x - self.canvas.coords(self.dragged_piece_image)[0]
         self.offset_y = event.y - self.canvas.coords(self.dragged_piece_image)[1]
-
-        self.canvas.tag_raise(self.dragged_piece_image)
-        
         for row in range(8):
             for col in range(8):
-                square_pos = ((int) (self.dragged_image_coords[1]//square_size), (int) (self.dragged_image_coords[0]//square_size))
-                if (row, col) in self.board.get_legal_moves(self.board.get_piece_at_square(square_pos)):
+                if (row, col) in self.board.get_legal_moves(self.board.get_piece_at_square(self.dragged_piece.position)):
                     x, y = col * square_size + square_size/2, row * square_size + square_size/2
                     circle = self.canvas.create_oval(x-15, y-15, x+15, y+15, fill="#C0C0C0",outline='gray', width=1, tags="highlight")
                     self.canvas.tag_raise(circle)
