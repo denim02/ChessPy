@@ -53,6 +53,24 @@ def is_checkmate(board, color):
                         return False
     return True
 
+def is_king_in_check_after_move(board, piece, new_position):
+    """
+    Check if a king of a given color is in check after a move.
+
+    Parameters:
+        board (Board): board on which the move is being made.
+        piece (Piece): piece to be moved.
+        new_position (tuple): new position on the board in (x, y) format, where x is the row and y is the column.
+
+    Returns:
+        bool: True if the king is in check, False otherwise.
+    """
+    color = piece.color
+    old_position = piece.position
+    board.move_piece_to_square(piece, new_position)
+    is_checked = is_check(board, color)
+    board.move_piece_to_square(piece, old_position)
+    return is_checked
 
 def is_stalemate(board, color):
     """

@@ -27,7 +27,7 @@ class ChessGame:
             raise ValueError("No piece at the given position.")
         if piece.color != self.turn:
             raise ValueError("It is not your turn.")
-        if new_position not in piece.legal_moves:
+        if new_position not in piece.legal_moves or chess_logic.is_king_in_check_after_move(self.board, piece, new_position):
             raise ValueError("Invalid move.")
         self.board.move_piece_to_square(piece, new_position)
         print(self.board)

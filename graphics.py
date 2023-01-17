@@ -112,11 +112,12 @@ class ChessUI:
         x, y = round(self.dragged_image_coords[0] / square_size) * square_size, round(
             self.dragged_image_coords[1] / square_size) * square_size
         new_position = (y // square_size, x // square_size)
-        if new_position and new_position in self.dragged_piece.legal_moves:
-            self.canvas.coords(self.dragged_piece_image, x, y)
+        try:
             self.game.make_move(self.original_position, new_position)
-        else:
+            self.canvas.coords(self.dragged_piece_image, x, y)
+        except ValueError as e:
             self.canvas.coords(self.dragged_piece_image, self.original_coords)
+            print(f"Move error: {e}")
         self.render_board()
 
 
