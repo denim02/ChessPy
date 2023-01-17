@@ -77,6 +77,10 @@ class Pawn(Piece):
                         (self.position[0] - 1, self.position[1] + 1)):
                     possible_moves.append(
                         (self.position[0] - 1, self.position[1] + 1))
+                if board.is_square_occupied(
+                        (self.position[0] - 1, self.position[1])):
+                    possible_moves.remove(
+                        (self.position[0] - 1, self.position[1]))
 
         else:
             possible_moves.append((self.position[0] + 1, self.position[1]))
@@ -92,6 +96,11 @@ class Pawn(Piece):
                         (self.position[0] + 1, self.position[1] + 1)):
                     possible_moves.append(
                         (self.position[0] + 1, self.position[1] + 1))
+                if board.is_square_occupied(
+                        (self.position[0] + 1, self.position[1])):
+                    possible_moves.remove(
+                        (self.position[0] + 1, self.position[1]))
+
         return possible_moves
 
 
