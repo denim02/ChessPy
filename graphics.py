@@ -1,7 +1,8 @@
 """
 graphics.py
-This module contains the ChessUI class, which is a class for creating a graphical user interface for a chess game.
-It uses tkinter library to render a chess board, and displays the pieces on it. The class also handles drag and drop events for moving pieces
+This module contains the ChessUI class, which is a class for creating a 
+graphical user interface for a chess game. It uses tkinter library to render 
+a chess board, and displays the pieces on it. The class also handles drag and drop events for moving pieces
 on the board.
 """
 import tkinter as tk
@@ -13,9 +14,9 @@ class ChessUI:
     """
     ChessUI:
     This is a class for creating a graphical user interface for a chess game.
-    It is initialized with a game object, and it creates a tkinter window that renders the chess board,
-    and displays the pieces on it. The class also handles drag and drop events for moving pieces
-    on the board.
+    It is initialized with a game object, and it creates a tkinter window that 
+    renders the chess board, and displays the pieces on it. The class also handles 
+    drag and drop events for moving pieces on the board.
     """
 
     def __init__(self, game):
@@ -151,9 +152,9 @@ class ChessUI:
         try:
             self.game.make_move(self.dragged_piece.position, new_position)
             self.canvas.coords(self.dragged_piece_image, x_coord, y_coord)
-        except ValueError as e:
+        except ValueError as error:
             self.canvas.coords(self.dragged_piece_image, self.original_coords)
-            print(f"Move error: {e}")
+            print(f"Move error: {error}")
         self.render_board()
 
 

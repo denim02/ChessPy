@@ -183,8 +183,9 @@ class Board:
         return string
 
     def print_board_from_piece_list(self):
-        # Use the piece_list to draw out the board, filling all unaccounted
-        # squares with dots
+        """
+        Print the board in a pretty readable format from the piece list.
+        """
         string = "  a b c d e f g h \n"
         for i in range(8):
             string += str(8 - i) + " "
