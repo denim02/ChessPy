@@ -95,9 +95,7 @@ class ChessUI:
 
         for row in range(8):
             for col in range(8):
-                if (row, col) in self.board.get_legal_moves(
-                    self.board.get_piece_at_square(self.dragged_piece.position)
-                ):
+                if (row, col) in self.board.get_piece_at_square(self.dragged_piece.position).legal_moves:
                     x_coord, y_coord = (
                         col * SQUARE_SIZE + SQUARE_SIZE / 2,
                         row * SQUARE_SIZE + SQUARE_SIZE / 2,
