@@ -32,18 +32,6 @@ class Board:
         """
         return self.board_table[position[0]][position[1]]
 
-    def get_legal_moves(self, piece):
-        """
-        Returns all valid moves for a given piece.
-
-        Parameters:
-            piece (Piece): piece to be moved.
-
-        Returns:
-            list: list of all valid moves for the given piece.
-        """
-        return piece.legal_moves
-
     def move_piece_to_square(self, piece, new_position):
         """
         Move a piece to a new position on the board.
