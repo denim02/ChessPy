@@ -14,7 +14,7 @@ class Piece:
         self.legal_moves = set()
 
     def generate_possible_moves(self, board):
-        pass
+        return set()
 
     def refresh_legal_moves(self, board):
         self.legal_moves = self.generate_legal_moves(board)
@@ -34,28 +34,28 @@ class Piece:
         name = algebraic_notation.lower()
         color = "black" if name == algebraic_notation else "white"
 
-        if name == "p":
-            return Pawn(color, position)
-        elif name == "r":
-            return Rook(color, position)
-        elif name == "n":
-            return Knight(color, position)
-        elif name == "b":
-            return Bishop(color, position)
-        elif name == "q":
-            return Queen(color, position)
-        elif name == "k":
-            return King(color, position)
-        else:
-            raise ValueError("Impossible algebraic notation")
+        match name:
+            case "p":
+                return Pawn(color, position)
+            case "r":
+                return Rook(color, position)
+            case "n":
+                return Knight(color, position)
+            case "b":
+                return Bishop(color, position)
+            case "q":
+                return Queen(color, position)
+            case "k":
+                return King(color, position)
+            case _:
+                raise ValueError("Impossible algebraic notation")
 
     def to_algebraic_notation(self):
         if self.name == "Knight":
             return "n" if self.color == "black" else "N"
-        else:
-            return (
-                self.name[0].lower() if self.color == "black" else self.name[0].upper()
-            )
+        return (
+            self.name[0].lower() if self.color == "black" else self.name[0].upper()
+        )
 
     def __repr__(self):
         return f"{self.color.title()} {self.name}"
@@ -118,14 +118,14 @@ class Rook(Piece):
 
     def generate_possible_moves(self, board):
         possible_moves = set()
-        x, y = self.position  # unpack the current position of the rook
+        x_current, y_current = self.position  # unpack the current position of the rook
 
         for i, j in [(1, 0), (-1, 0), (0, 1), (0, -1)]:
-            x_, y_ = x + i, y + j
-            while 0 <= x_ < 8 and 0 <= y_ < 8:
-                possible_moves.add((x_, y_))
-                x_ += i
-                y_ += j
+            x_new, y_new = x_current + i, y_current + j
+            while 0 <= x_new < 8 and 0 <= y_new < 8:
+                possible_moves.add((x_new, y_new))
+                x_new += i
+                y_new += j
         return possible_moves
 
 
@@ -152,13 +152,13 @@ class Bishop(Piece):
 
     def generate_possible_moves(self, board):
         possible_moves = set()
-        x, y = self.position  # unpack the current position of the bishop
+        x_current, y_current = self.position  # unpack the current position of the bishop
         for i, j in [(1, 1), (1, -1), (-1, 1), (-1, -1)]:
-            x_, y_ = x + i, y + j
-            while 0 <= x_ < 8 and 0 <= y_ < 8:
-                possible_moves.add((x_, y_))
-                x_ += i
-                y_ += j
+            x_new, y_new = x_current + i, y_current + j
+            while 0 <= x_new < 8 and 0 <= y_new < 8:
+                possible_moves.add((x_new, y_new))
+                x_new += i
+                y_new += j
         return possible_moves
 
 
@@ -168,22 +168,22 @@ class Queen(Piece):
 
     def generate_possible_moves(self, board):
         possible_moves = set()
-        x, y = self.position  # unpack the current position of the queen
+        x_current, y_current = self.position  # unpack the current position of the queen
         # Diagonal moves
         for i, j in [(1, 1), (1, -1), (-1, 1), (-1, -1)]:
-            x_, y_ = x + i, y + j
-            while 0 <= x_ < 8 and 0 <= y_ < 8:
-                possible_moves.add((x_, y_))
-                x_ += i
-                y_ += j
+            x_new, y_new = x_current + i, y_current + j
+            while 0 <= x_new < 8 and 0 <= y_new < 8:
+                possible_moves.add((x_new, y_new))
+                x_new += i
+                y_new += j
 
         # Horizontal and vertical moves
         for i, j in [(1, 0), (-1, 0), (0, 1), (0, -1)]:
-            x_, y_ = x + i, y + j
-            while 0 <= x_ < 8 and 0 <= y_ < 8:
-                possible_moves.add((x_, y_))
-                x_ += i
-                y_ += j
+            x_new, y_new = x_current + i, y_current + j
+            while 0 <= x_new < 8 and 0 <= y_new < 8:
+                possible_moves.add((x_new, y_new))
+                x_new += i
+                y_new += j
         return possible_moves
 
 
@@ -193,7 +193,7 @@ class King(Piece):
 
     def generate_possible_moves(self, board):
         possible_moves = set()
-        x, y = self.position  # unpack the current position of the king
+        x_current, y_current = self.position  # unpack the current position of the king
         for i, j in [
             (1, 1),
             (1, 0),
@@ -204,7 +204,7 @@ class King(Piece):
             (-1, 0),
             (-1, -1),
         ]:
-            x_, y_ = x + i, y + j
-            if (i, j) != (0, 0) and 0 <= x_ < 8 and 0 <= y_ < 8:
-                possible_moves.add((x_, y_))
+            x_new, y_new = x_current + i, y_current + j
+            if (i, j) != (0, 0) and 0 <= x_new < 8 and 0 <= y_new < 8:
+                possible_moves.add((x_new, y_new))
         return possible_moves

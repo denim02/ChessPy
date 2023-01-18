@@ -1,5 +1,4 @@
 import tkinter as tk
-from PIL import Image  # Using the Python Image Library to crop the sprites
 
 SQUARE_SIZE = 90
 
@@ -106,16 +105,16 @@ class ChessUI:
         )
 
     def on_drag_release(self, event):
-        x, y = (
+        x_coord, y_coord = (
             round(self.canvas.coords(self.dragged_piece_image)[0] / SQUARE_SIZE)
             * SQUARE_SIZE,
             round(self.canvas.coords(self.dragged_piece_image)[1] / SQUARE_SIZE)
             * SQUARE_SIZE,
         )
-        new_position = (y // SQUARE_SIZE, x // SQUARE_SIZE)
+        new_position = (y_coord // SQUARE_SIZE, x_coord // SQUARE_SIZE)
         try:
             self.game.make_move(self.dragged_piece.position, new_position)
-            self.canvas.coords(self.dragged_piece_image, x, y)
+            self.canvas.coords(self.dragged_piece_image, x_coord, y_coord)
         except ValueError as e:
             self.canvas.coords(self.dragged_piece_image, self.original_coords)
             print(f"Move error: {e}")
