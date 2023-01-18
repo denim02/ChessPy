@@ -1,8 +1,9 @@
 """
 game.py
 This module contains the ChessGame class.
-This class is used to represent a chess game. It has properties like board, turn, game_over and methods make_move, run etc.
-It is responsible for managing the state of the game and making moves on the board.
+This class is used to represent a chess game. It has properties like board, turn,
+game_over and methods make_move, run etc. It is responsible for managing the
+state of the game and making moves on the board.
 """
 from board import Board
 import chess_logic
@@ -43,8 +44,7 @@ class ChessGame:
             raise ValueError("It is not your turn.")
         if new_position not in piece.legal_moves:
             raise ValueError("Invalid move.")
-        if chess_logic.is_king_in_check_after_move(
-                self.board, piece, new_position):
+        if chess_logic.is_king_in_check_after_move(self.board, piece, new_position):
             raise ValueError("This move would put your king in check.")
 
         self.board.move_piece_to_square(piece, new_position)
@@ -67,8 +67,14 @@ class ChessGame:
                     ),
                 )
             )
-            new_position = tuple(map(int, Board.get_position_from_algebraic_notation(
-                input("Enter the new position of the piece you want to move: ")), ))
+            new_position = tuple(
+                map(
+                    int,
+                    Board.get_position_from_algebraic_notation(
+                        input("Enter the new position of the piece you want to move: ")
+                    ),
+                )
+            )
             try:
                 self.make_move(original_position, new_position)
             except ValueError as error:

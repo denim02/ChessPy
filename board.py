@@ -20,7 +20,8 @@ class Board:
         """
         self.board_table = self.populate_board()
         self.piece_list = [
-            piece for row in self.board_table for piece in row if piece is not None]
+            piece for row in self.board_table for piece in row if piece is not None
+        ]
         self.refresh_legal_moves()
 
     def refresh_legal_moves(self):
@@ -53,8 +54,7 @@ class Board:
                 where x is the row and y is the column.
         """
         if self.is_square_occupied(new_position):
-            index = self.piece_list.index(
-                self.get_piece_at_square(new_position))
+            index = self.piece_list.index(self.get_piece_at_square(new_position))
             self.piece_list.pop(index)
         self.board_table[piece.position[0]][piece.position[1]] = None
         piece.position = new_position
@@ -176,8 +176,7 @@ class Board:
                 if self.board_table[i][j] is None:
                     string += ". "
                 else:
-                    string += self.board_table[i][j].to_algebraic_notation() + \
-                        " "
+                    string += self.board_table[i][j].to_algebraic_notation() + " "
             string += str(8 - i) + "\n"
         string += "  a b c d e f g h \n"
         return string
@@ -227,8 +226,7 @@ class Board:
         Returns:
             tuple: position on the board in (x, y) format, where x is the row and y is the column.
         """
-        return (8 - int(algebraic_notation[1]),
-                ord(algebraic_notation[0]) - 97)
+        return (8 - int(algebraic_notation[1]), ord(algebraic_notation[0]) - 97)
 
     @staticmethod
     def parse_fen(file_path):
@@ -256,7 +254,8 @@ class Board:
                         if j.isdigit():
                             board[i].extend([None] * int(j))
                         else:
-                            board[i].append(Piece.from_algebraic_notation(
-                                j, (i, len(board[i]))))
+                            board[i].append(
+                                Piece.from_algebraic_notation(j, (i, len(board[i])))
+                            )
 
             return board

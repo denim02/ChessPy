@@ -1,9 +1,9 @@
 """
 pieces.py
 This module contains the Piece, Pawn, Rook, Knight, Bishop, Queen, King classes.
-These classes are used to represent pieces in a chess game. Each class has properties 
-like name, value, color, position, legal_moves and methods generate_possible_moves, 
-refresh_legal_moves and generate_legal_moves etc. They are also used to manage algebraic 
+These classes are used to represent pieces in a chess game. Each class has properties
+like name, value, color, position, legal_moves and methods generate_possible_moves,
+refresh_legal_moves and generate_legal_moves etc. They are also used to manage algebraic
 notation of the chess pieces and and generate possible moves for each piece.
 """
 import chess_logic
@@ -14,8 +14,8 @@ class Piece:
     Piece:
     This is a class for representing a chess piece.
     It is initialized with properties like name, value, color and position.
-    It also has properties like legal_moves and methods like generate_possible_moves, 
-    refresh_legal_moves and generate_legal_moves etc. It also has static methods to create 
+    It also has properties like legal_moves and methods like generate_possible_moves,
+    refresh_legal_moves and generate_legal_moves etc. It also has static methods to create
     a piece from algebraic notation and convert a piece to algebraic notation.
     """
 
@@ -27,7 +27,7 @@ class Piece:
         name (str): the name of the piece
         value (int): the value of the piece
         color (str): the color of the piece
-        position (tuple): the position of the piece in (x, y) format, 
+        position (tuple): the position of the piece in (x, y) format,
         where x is the row and y is the column.
         """
         self.name = name
@@ -75,7 +75,7 @@ class Piece:
 
         Parameters:
         algebraic_notation (str): the algebraic notation of the piece.
-        position (tuple): the position of the piece in (x, y) format, 
+        position (tuple): the position of the piece in (x, y) format,
         where x is the row and y is the column."""
         name = algebraic_notation.lower()
         color = "black" if name == algebraic_notation else "white"
@@ -101,8 +101,7 @@ class Piece:
         Converts a piece to algebraic notation."""
         if self.name == "Knight":
             return "n" if self.color == "black" else "N"
-        return self.name[0].lower(
-        ) if self.color == "black" else self.name[0].upper()
+        return self.name[0].lower() if self.color == "black" else self.name[0].upper()
 
     def __repr__(self):
         """
@@ -115,7 +114,8 @@ class Pawn(Piece):
     Pawn:
     This is a class for representing a Pawn piece.
     It inherits from the Piece class and overrides the generate_possible_moves method.
-    It also has properties like name, value, color and position, that are inherited from the Piece class.
+    It also has properties like name, value, color and position, that are inherited
+    from the Piece class.
     """
 
     def __init__(self, color, position):
@@ -142,17 +142,13 @@ class Pawn(Piece):
                 if board.is_square_occupied(
                     (self.position[0] - 1, self.position[1] - 1)
                 ):
-                    possible_moves.add(
-                        (self.position[0] - 1, self.position[1] - 1))
+                    possible_moves.add((self.position[0] - 1, self.position[1] - 1))
                 if board.is_square_occupied(
                     (self.position[0] - 1, self.position[1] + 1)
                 ):
-                    possible_moves.add(
-                        (self.position[0] - 1, self.position[1] + 1))
-                if board.is_square_occupied(
-                        (self.position[0] - 1, self.position[1])):
-                    possible_moves.remove(
-                        (self.position[0] - 1, self.position[1]))
+                    possible_moves.add((self.position[0] - 1, self.position[1] + 1))
+                if board.is_square_occupied((self.position[0] - 1, self.position[1])):
+                    possible_moves.remove((self.position[0] - 1, self.position[1]))
 
         else:
             possible_moves.add((self.position[0] + 1, self.position[1]))
@@ -167,17 +163,13 @@ class Pawn(Piece):
                 if board.is_square_occupied(
                     (self.position[0] + 1, self.position[1] - 1)
                 ):
-                    possible_moves.add(
-                        (self.position[0] + 1, self.position[1] - 1))
+                    possible_moves.add((self.position[0] + 1, self.position[1] - 1))
                 if board.is_square_occupied(
                     (self.position[0] + 1, self.position[1] + 1)
                 ):
-                    possible_moves.add(
-                        (self.position[0] + 1, self.position[1] + 1))
-                if board.is_square_occupied(
-                        (self.position[0] + 1, self.position[1])):
-                    possible_moves.remove(
-                        (self.position[0] + 1, self.position[1]))
+                    possible_moves.add((self.position[0] + 1, self.position[1] + 1))
+                if board.is_square_occupied((self.position[0] + 1, self.position[1])):
+                    possible_moves.remove((self.position[0] + 1, self.position[1]))
 
         return possible_moves
 
@@ -187,8 +179,10 @@ class Rook(Piece):
     Rook:
     This is a class for representing a Rook piece.
     It inherits from the Piece class and overrides the generate_possible_moves method.
-    It also has properties like name, value, color and position, that are inherited from the Piece class.
+    It also has properties like name, value, color and position, that are inherited
+    from the Piece class.
     """
+
     def __init__(self, color, position):
         super().__init__(name="Rook", value=5, position=position, color=color)
 
@@ -216,8 +210,10 @@ class Knight(Piece):
     Knight:
     This is a class for representing a Knight piece.
     It inherits from the Piece class and overrides the generate_possible_moves method.
-    It also has properties like name, value, color and position, that are inherited from the Piece class.
+    It also has properties like name, value, color and position, that are inherited
+    from the Piece class.
     """
+
     def __init__(self, color, position):
         super().__init__(name="Knight", value=3, position=position, color=color)
 
@@ -245,8 +241,10 @@ class Bishop(Piece):
     Bishop:
     This is a class for representing a Bishop piece.
     It inherits from the Piece class and overrides the generate_possible_moves method.
-    It also has properties like name, value, color and position, that are inherited from the Piece class.
+    It also has properties like name, value, color and position, that are inherited
+    from the Piece class.
     """
+
     def __init__(self, color, position):
         super().__init__(name="Bishop", value=3, position=position, color=color)
 
@@ -276,8 +274,10 @@ class Queen(Piece):
     Queen:
     This is a class for representing a Queen piece.
     It inherits from the Piece class and overrides the generate_possible_moves method.
-    It also has properties like name, value, color and position, that are inherited from the Piece class.
+    It also has properties like name, value, color and position, that are inherited
+    from the Piece class.
     """
+
     def __init__(self, color, position):
         super().__init__(name="Queen", value=9, position=position, color=color)
 
@@ -313,8 +313,10 @@ class King(Piece):
     King:
     This is a class for representing a King piece.
     It inherits from the Piece class and overrides the generate_possible_moves method.
-    It also has properties like name, value, color and position, that are inherited from the Piece class.
+    It also has properties like name, value, color and position, that are inherited
+    from the Piece class.
     """
+
     def __init__(self, color, position):
         super().__init__(name="King", value=100, position=position, color=color)
 
