@@ -20,7 +20,7 @@ class ChessUI:
         self.canvas = tk.Canvas(self.window, width=720, height=720, bg="white")
         self.render_board()
 
-        # Dragging variables
+        # Dragging variables.
         self.dragged_piece_image = None
         self.dragged_piece = None
         self.original_coords = None
