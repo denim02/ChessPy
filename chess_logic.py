@@ -3,6 +3,7 @@ chess_logic.py
 This module contains the logic for the chess game.
 """
 
+
 def is_possible_move(piece, new_position):
     """
     Check if a move is possible (if there isn't a blocking piece in the way).

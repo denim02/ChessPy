@@ -10,11 +10,11 @@ import chess_logic
 
 class ChessGame:
     """
-ChessGame:
-This is a class for representing a chess game.
-It has properties like board, turn and game_over, and methods make_move, run etc.
-It is responsible for managing the state of the game and making moves on the board.
-"""
+    ChessGame:
+    This is a class for representing a chess game.
+    It has properties like board, turn and game_over, and methods make_move, run etc.
+    It is responsible for managing the state of the game and making moves on the board."""
+
     def __init__(self):
         """
         Initializes the board and the turn.
@@ -43,9 +43,10 @@ It is responsible for managing the state of the game and making moves on the boa
             raise ValueError("It is not your turn.")
         if new_position not in piece.legal_moves:
             raise ValueError("Invalid move.")
-        if chess_logic.is_king_in_check_after_move(self.board, piece, new_position):
+        if chess_logic.is_king_in_check_after_move(
+                self.board, piece, new_position):
             raise ValueError("This move would put your king in check.")
-         
+
         self.board.move_piece_to_square(piece, new_position)
         print(self.board)
         self.turn = "white" if self.turn == "black" else "black"
@@ -66,14 +67,8 @@ It is responsible for managing the state of the game and making moves on the boa
                     ),
                 )
             )
-            new_position = tuple(
-                map(
-                    int,
-                    Board.get_position_from_algebraic_notation(
-                        input("Enter the new position of the piece you want to move: ")
-                    ),
-                )
-            )
+            new_position = tuple(map(int, Board.get_position_from_algebraic_notation(
+                input("Enter the new position of the piece you want to move: ")), ))
             try:
                 self.make_move(original_position, new_position)
             except ValueError as error:

@@ -17,6 +17,7 @@ class ChessUI:
     and displays the pieces on it. The class also handles drag and drop events for moving pieces
     on the board.
     """
+
     def __init__(self, game):
         """
         Initializes the board and the game.
@@ -66,13 +67,21 @@ class ChessUI:
         """
         piece = self.board.get_piece_at_square(position)
         if piece:
-            x1_coord, y1_coord = position[1] * SQUARE_SIZE, position[0] * SQUARE_SIZE
-            piece.image = tk.PhotoImage(file=f"./assets/{piece.color}-{piece.name}.png")
+            x1_coord, y1_coord = position[1] * \
+                SQUARE_SIZE, position[0] * SQUARE_SIZE
+            piece.image = tk.PhotoImage(
+                file=f"./assets/{piece.color}-{piece.name}.png")
             image_on_board = self.canvas.create_image(
                 x1_coord, y1_coord, anchor=tk.NW, image=piece.image
             )
-            self.canvas.tag_bind(image_on_board, "<ButtonPress-1>", self.on_drag_start)
-            self.canvas.tag_bind(image_on_board, "<B1-Motion>", self.on_drag_motion)
+            self.canvas.tag_bind(
+                image_on_board,
+                "<ButtonPress-1>",
+                self.on_drag_start)
+            self.canvas.tag_bind(
+                image_on_board,
+                "<B1-Motion>",
+                self.on_drag_motion)
             self.canvas.tag_bind(
                 image_on_board, "<ButtonRelease-1>", self.on_drag_release
             )
@@ -81,7 +90,8 @@ class ChessUI:
         """
         Handles the start of a drag event on a piece.
         """
-        self.dragged_piece_image = event.widget.find_closest(event.x, event.y)[0]
+        self.dragged_piece_image = event.widget.find_closest(event.x, event.y)[
+            0]
         self.dragged_piece = self.board.get_piece_at_square(
             (int(event.y // SQUARE_SIZE), int(event.x // SQUARE_SIZE))
         )
@@ -115,18 +125,22 @@ class ChessUI:
 
     def on_drag_motion(self, event):
         """
-Handles the motion of a drag event on a piece.
-"""
+        Handles the motion of a drag event on a piece."""
         self.canvas.move(
             self.dragged_piece_image,
-            event.x - self.canvas.coords(self.dragged_piece_image)[0] - self.offset[0],
-            event.y - self.canvas.coords(self.dragged_piece_image)[1] - self.offset[1],
+            event.x -
+            self.canvas.coords(
+                self.dragged_piece_image)[0] -
+            self.offset[0],
+            event.y -
+            self.canvas.coords(
+                self.dragged_piece_image)[1] -
+            self.offset[1],
         )
 
     def on_drag_release(self, event):
         """
-Handles the release of a drag event on a piece.
-"""
+        Handles the release of a drag event on a piece."""
         x_coord, y_coord = (
             round(self.canvas.coords(self.dragged_piece_image)[0] / SQUARE_SIZE)
             * SQUARE_SIZE,

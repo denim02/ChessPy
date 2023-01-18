@@ -1,9 +1,9 @@
 """
 board.py
-This module contains the implementation of the Board class, 
-which is responsible for maintaining the chess board and its state. 
-The class contains methods for moving pieces, checking if a square is occupied, 
-checking if a square is attacked, and checking if a path is blocked. Additionally, 
+This module contains the implementation of the Board class,
+which is responsible for maintaining the chess board and its state.
+The class contains methods for moving pieces, checking if a square is occupied,
+checking if a square is attacked, and checking if a path is blocked. Additionally,
 it has a method for refreshing the legal moves for all pieces on the board.
 """
 from pieces import Piece
@@ -13,14 +13,14 @@ class Board:
     """
     Initializes the board with a 2D array of pieces and a list of all pieces on the board.
     """
+
     def __init__(self):
         """
         Initializes the board with a 2D array of pieces and a list of all pieces on the board.
         """
         self.board_table = self.populate_board()
         self.piece_list = [
-            piece for row in self.board_table for piece in row if piece is not None
-        ]
+            piece for row in self.board_table for piece in row if piece is not None]
         self.refresh_legal_moves()
 
     def refresh_legal_moves(self):
@@ -53,7 +53,8 @@ class Board:
                 where x is the row and y is the column.
         """
         if self.is_square_occupied(new_position):
-            index = self.piece_list.index(self.get_piece_at_square(new_position))
+            index = self.piece_list.index(
+                self.get_piece_at_square(new_position))
             self.piece_list.pop(index)
         self.board_table[piece.position[0]][piece.position[1]] = None
         piece.position = new_position
@@ -175,7 +176,8 @@ class Board:
                 if self.board_table[i][j] is None:
                     string += ". "
                 else:
-                    string += self.board_table[i][j].to_algebraic_notation() + " "
+                    string += self.board_table[i][j].to_algebraic_notation() + \
+                        " "
             string += str(8 - i) + "\n"
         string += "  a b c d e f g h \n"
         return string
@@ -224,7 +226,8 @@ class Board:
         Returns:
             tuple: position on the board in (x, y) format, where x is the row and y is the column.
         """
-        return (8 - int(algebraic_notation[1]), ord(algebraic_notation[0]) - 97)
+        return (8 - int(algebraic_notation[1]),
+                ord(algebraic_notation[0]) - 97)
 
     @staticmethod
     def parse_fen(file_path):
@@ -252,8 +255,7 @@ class Board:
                         if j.isdigit():
                             board[i].extend([None] * int(j))
                         else:
-                            board[i].append(
-                                Piece.from_algebraic_notation(j, (i, len(board[i])))
-                            )
+                            board[i].append(Piece.from_algebraic_notation(
+                                j, (i, len(board[i]))))
 
             return board
