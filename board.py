@@ -1,14 +1,15 @@
 from pieces import Piece
 
 
-class Board():
+class Board:
     def __init__(self):
         """
         Initializes the board with a 2D array of pieces and a list of all pieces on the board.
         """
         self.board_table = self.populate_board()
         self.piece_list = [
-            piece for row in self.board_table for piece in row if piece is not None]
+            piece for row in self.board_table for piece in row if piece is not None
+        ]
         self.refresh_legal_moves()
 
     def refresh_legal_moves(self):
@@ -50,9 +51,8 @@ class Board():
             piece (Piece): piece to be moved.
             new_position (tuple): new position on the board in (x, y) format, where x is the row and y is the column.
         """
-        if (self.is_square_occupied(new_position)):
-            index = self.piece_list.index(
-                self.get_piece_at_square(new_position))
+        if self.is_square_occupied(new_position):
+            index = self.piece_list.index(self.get_piece_at_square(new_position))
             self.piece_list.pop(index)
         self.board_table[piece.position[0]][piece.position[1]] = None
         piece.position = new_position
@@ -134,36 +134,34 @@ class Board():
                     if self.is_square_occupied((i, original_position[1])):
                         return True
         # Path on diagonal
-        elif abs(original_position[0] - new_position[0]) == abs(original_position[1] - new_position[1]):
+        elif abs(original_position[0] - new_position[0]) == abs(
+            original_position[1] - new_position[1]
+        ):
             if original_position[0] < new_position[0]:
                 if original_position[1] < new_position[1]:
-                    for i in range(
-                        1, abs(
-                            original_position[0] - new_position[0])):
+                    for i in range(1, abs(original_position[0] - new_position[0])):
                         if self.is_square_occupied(
-                                (original_position[0] + i, original_position[1] + i)):
+                            (original_position[0] + i, original_position[1] + i)
+                        ):
                             return True
                 else:
-                    for i in range(
-                        1, abs(
-                            original_position[0] - new_position[0])):
+                    for i in range(1, abs(original_position[0] - new_position[0])):
                         if self.is_square_occupied(
-                                (original_position[0] + i, original_position[1] - i)):
+                            (original_position[0] + i, original_position[1] - i)
+                        ):
                             return True
             else:
                 if original_position[1] < new_position[1]:
-                    for i in range(
-                        1, abs(
-                            original_position[0] - new_position[0])):
+                    for i in range(1, abs(original_position[0] - new_position[0])):
                         if self.is_square_occupied(
-                                (original_position[0] - i, original_position[1] + i)):
+                            (original_position[0] - i, original_position[1] + i)
+                        ):
                             return True
                 else:
-                    for i in range(
-                        1, abs(
-                            original_position[0] - new_position[0])):
+                    for i in range(1, abs(original_position[0] - new_position[0])):
                         if self.is_square_occupied(
-                                (original_position[0] - i, original_position[1] - i)):
+                            (original_position[0] - i, original_position[1] - i)
+                        ):
                             return True
         return False
 
@@ -187,8 +185,7 @@ class Board():
                 if self.board_table[i][j] is None:
                     string += ". "
                 else:
-                    string += self.board_table[i][j].to_algebraic_notation() + \
-                        " "
+                    string += self.board_table[i][j].to_algebraic_notation() + " "
             string += str(8 - i) + "\n"
         string += "  a b c d e f g h \n"
         return string
@@ -236,8 +233,7 @@ class Board():
         Returns:
             tuple: position on the board in (x, y) format, where x is the row and y is the column.
         """
-        return (8 - int(algebraic_notation[1]),
-                ord(algebraic_notation[0]) - 97)
+        return (8 - int(algebraic_notation[1]), ord(algebraic_notation[0]) - 97)
 
     @staticmethod
     def parse_FEN(file_path):
@@ -265,7 +261,8 @@ class Board():
                         if j.isdigit():
                             board[i].extend([None] * int(j))
                         else:
-                            board[i].append(Piece.from_algebraic_notation(
-                                j, (i, len(board[i]))))
+                            board[i].append(
+                                Piece.from_algebraic_notation(j, (i, len(board[i])))
+                            )
 
             return board
