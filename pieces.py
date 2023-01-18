@@ -11,7 +11,7 @@ class Piece:
         self.color = color
         self.image = None
         self.position = position
-        self.legal_moves = []
+        self.legal_moves = set()
 
     def generate_possible_moves(self, board):
         pass
@@ -21,8 +21,8 @@ class Piece:
 
     def generate_legal_moves(self, board):
         possible_moves = self.generate_possible_moves(board)
-        legal_moves = [move for move in possible_moves if move !=
-                       self.position and chess_logic.is_legal_move(board, self, move)]
+        legal_moves = {move for move in possible_moves if move !=
+                       self.position and chess_logic.is_legal_move(board, self, move)}
         return legal_moves
 
     # Define a constructor to create piece from algebraic notation
@@ -62,20 +62,20 @@ class Pawn(Piece):
         super().__init__(name="Pawn", value=1, position=position, color=color)
 
     def generate_possible_moves(self, board):
-        possible_moves = []
+        possible_moves = set()
         if self.color == "white":
-            possible_moves.append((self.position[0] - 1, self.position[1]))
+            possible_moves.add((self.position[0] - 1, self.position[1]))
             if self.position[0] == 6:
-                possible_moves.append((self.position[0] - 2, self.position[1]))
+                possible_moves.add((self.position[0] - 2, self.position[1]))
             if self.position[0] + 1 < 8 and self.position[1] - \
                     1 >= 0 and self.position[0] - 1 >= 0 and self.position[1] + 1 < 8:
                 if board.is_square_occupied(
                         (self.position[0] - 1, self.position[1] - 1)):
-                    possible_moves.append(
+                    possible_moves.add(
                         (self.position[0] - 1, self.position[1] - 1))
                 if board.is_square_occupied(
                         (self.position[0] - 1, self.position[1] + 1)):
-                    possible_moves.append(
+                    possible_moves.add(
                         (self.position[0] - 1, self.position[1] + 1))
                 if board.is_square_occupied(
                         (self.position[0] - 1, self.position[1])):
@@ -83,18 +83,18 @@ class Pawn(Piece):
                         (self.position[0] - 1, self.position[1]))
 
         else:
-            possible_moves.append((self.position[0] + 1, self.position[1]))
+            possible_moves.add((self.position[0] + 1, self.position[1]))
             if self.position[0] == 1:
-                possible_moves.append((self.position[0] + 2, self.position[1]))
+                possible_moves.add((self.position[0] + 2, self.position[1]))
             if self.position[0] + 1 < 8 and self.position[1] - \
                     1 >= 0 and self.position[0] - 1 >= 0 and self.position[1] + 1 < 8:
                 if board.is_square_occupied(
                         (self.position[0] + 1, self.position[1] - 1)):
-                    possible_moves.append(
+                    possible_moves.add(
                         (self.position[0] + 1, self.position[1] - 1))
                 if board.is_square_occupied(
                         (self.position[0] + 1, self.position[1] + 1)):
-                    possible_moves.append(
+                    possible_moves.add(
                         (self.position[0] + 1, self.position[1] + 1))
                 if board.is_square_occupied(
                         (self.position[0] + 1, self.position[1])):
@@ -109,13 +109,13 @@ class Rook(Piece):
         super().__init__(name="Rook", value=5, position=position, color=color)
 
     def generate_possible_moves(self, board):
-        possible_moves = []
+        possible_moves = set()
         x, y = self.position  # unpack the current position of the rook
 
         for i, j in [(1, 0), (-1, 0), (0, 1), (0, -1)]:
             x_, y_ = x + i, y + j
             while 0 <= x_ < 8 and 0 <= y_ < 8:
-                possible_moves.append((x_, y_))
+                possible_moves.add((x_, y_))
                 x_ += i
                 y_ += j
         return possible_moves
@@ -126,12 +126,12 @@ class Knight(Piece):
         super().__init__(name="Knight", value=3, position=position, color=color)
 
     def generate_possible_moves(self, board):
-        possible_moves = []
+        possible_moves = set()
         for i in range(8):
             for j in range(8):
                 if abs(i - self.position[0]) + abs(j - self.position[1]
                                                    ) == 3 and i != self.position[0] and j != self.position[1]:
-                    possible_moves.append((i, j))
+                    possible_moves.add((i, j))
         return possible_moves
 
 
@@ -140,12 +140,12 @@ class Bishop(Piece):
         super().__init__(name="Bishop", value=3, position=position, color=color)
 
     def generate_possible_moves(self, board):
-        possible_moves = []
+        possible_moves = set()
         x, y = self.position  # unpack the current position of the bishop
         for i, j in [(1, 1), (1, -1), (-1, 1), (-1, -1)]:
             x_, y_ = x + i, y + j
             while 0 <= x_ < 8 and 0 <= y_ < 8:
-                possible_moves.append((x_, y_))
+                possible_moves.add((x_, y_))
                 x_ += i
                 y_ += j
         return possible_moves
@@ -156,13 +156,13 @@ class Queen(Piece):
         super().__init__(name="Queen", value=9, position=position, color=color)
 
     def generate_possible_moves(self, board):
-        possible_moves = []
+        possible_moves = set()
         x, y = self.position  # unpack the current position of the queen
         # Diagonal moves
         for i, j in [(1, 1), (1, -1), (-1, 1), (-1, -1)]:
             x_, y_ = x + i, y + j
             while 0 <= x_ < 8 and 0 <= y_ < 8:
-                possible_moves.append((x_, y_))
+                possible_moves.add((x_, y_))
                 x_ += i
                 y_ += j
 
@@ -170,7 +170,7 @@ class Queen(Piece):
         for i, j in [(1, 0), (-1, 0), (0, 1), (0, -1)]:
             x_, y_ = x + i, y + j
             while 0 <= x_ < 8 and 0 <= y_ < 8:
-                possible_moves.append((x_, y_))
+                possible_moves.add((x_, y_))
                 x_ += i
                 y_ += j
         return possible_moves
@@ -181,11 +181,11 @@ class King(Piece):
         super().__init__(name="King", value=100, position=position, color=color)
 
     def generate_possible_moves(self, board):
-        possible_moves = []
+        possible_moves = set()
         x, y = self.position  # unpack the current position of the king
         for i, j in [(1, 1), (1, 0), (1, -1), (0, 1),
                      (0, -1), (-1, 1), (-1, 0), (-1, -1)]:
             x_, y_ = x + i, y + j
             if (i, j) != (0, 0) and 0 <= x_ < 8 and 0 <= y_ < 8:
-                possible_moves.append((x_, y_))
+                possible_moves.add((x_, y_))
         return possible_moves
