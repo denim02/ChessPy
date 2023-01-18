@@ -1,8 +1,20 @@
+"""
+game.py
+This module contains the ChessGame class.
+This class is used to represent a chess game. It has properties like board, turn, game_over and methods make_move, run etc.
+It is responsible for managing the state of the game and making moves on the board.
+"""
 from board import Board
 import chess_logic
 
 
 class ChessGame:
+    """
+ChessGame:
+This is a class for representing a chess game.
+It has properties like board, turn and game_over, and methods make_move, run etc.
+It is responsible for managing the state of the game and making moves on the board.
+"""
     def __init__(self):
         """
         Initializes the board and the turn.

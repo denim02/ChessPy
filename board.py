@@ -1,7 +1,18 @@
+"""
+board.py
+This module contains the implementation of the Board class, 
+which is responsible for maintaining the chess board and its state. 
+The class contains methods for moving pieces, checking if a square is occupied, 
+checking if a square is attacked, and checking if a path is blocked. Additionally, 
+it has a method for refreshing the legal moves for all pieces on the board.
+"""
 from pieces import Piece
 
 
 class Board:
+    """
+    Initializes the board with a 2D array of pieces and a list of all pieces on the board.
+    """
     def __init__(self):
         """
         Initializes the board with a 2D array of pieces and a list of all pieces on the board.

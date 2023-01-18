@@ -1,11 +1,31 @@
+"""
+pieces.py
+This module contains the Piece, Pawn, Rook, Knight, Bishop, Queen, King classes.
+These classes are used to represent pieces in a chess game. Each class has properties like name, value, color, position, legal_moves and methods
+generate_possible_moves, refresh_legal_moves and generate_legal_moves etc. They are also used to manage algebraic notation of the chess pieces and
+and generate possible moves for each piece.
+"""
 import chess_logic
-
-# No negative indices permitted for positions in generate_possible_moves()
-# methods
 
 
 class Piece:
+    """
+Piece:
+This is a class for representing a chess piece.
+It is initialized with properties like name, value, color and position.
+It also has properties like legal_moves and methods like generate_possible_moves, refresh_legal_moves and generate_legal_moves etc.
+It also has static methods to create a piece from algebraic notation and convert a piece to algebraic notation.
+"""
     def __init__(self, name, value, color, position):
+        """
+Initializes the piece with properties like name, value, color, position.
+
+Parameters:
+name (str): the name of the piece
+value (int): the value of the piece
+color (str): the color of the piece
+position (tuple): the position of the piece in (x, y) format, where x is the row and y is the column.
+"""
         self.name = name
         self.value = value
         self.color = color
@@ -14,12 +34,30 @@ class Piece:
         self.legal_moves = set()
 
     def generate_possible_moves(self, board):
+        """
+Generates the possible moves for the piece.
+
+Parameters:
+board (Board): the board on which the piece is placed.
+"""
         return set()
 
     def refresh_legal_moves(self, board):
+        """
+Refreshes the legal moves for the piece.
+
+Parameters:
+board (Board): the board on which the piece is placed.
+"""
         self.legal_moves = self.generate_legal_moves(board)
 
     def generate_legal_moves(self, board):
+        """
+Generates the legal moves for the piece.
+
+Parameters:
+board (Board): the board on which the piece is placed.
+"""
         possible_moves = self.generate_possible_moves(board)
         legal_moves = {
             move
@@ -31,6 +69,13 @@ class Piece:
     # Define a constructor to create piece from algebraic notation
     @staticmethod
     def from_algebraic_notation(algebraic_notation, position):
+        """
+Creates a piece from algebraic notation.
+
+Parameters:
+algebraic_notation (str): the algebraic notation of the piece.
+position (tuple): the position of the piece in (x, y) format, where x is the row and y is the column.
+"""
         name = algebraic_notation.lower()
         color = "black" if name == algebraic_notation else "white"
 
@@ -51,6 +96,9 @@ class Piece:
                 raise ValueError("Impossible algebraic notation")
 
     def to_algebraic_notation(self):
+        """
+Converts a piece to algebraic notation.
+"""
         if self.name == "Knight":
             return "n" if self.color == "black" else "N"
         return (
@@ -58,14 +106,29 @@ class Piece:
         )
 
     def __repr__(self):
+        """
+Returns a string representation of the piece.
+"""
         return f"{self.color.title()} {self.name}"
 
 
 class Pawn(Piece):
+    """
+Pawn:
+This is a class for representing a Pawn piece.
+It inherits from the Piece class and overrides the generate_possible_moves method.
+It also has properties like name, value, color and position, that are inherited from the Piece class.
+"""
     def __init__(self, color, position):
         super().__init__(name="Pawn", value=1, position=position, color=color)
 
     def generate_possible_moves(self, board):
+        """
+        Generates the possible moves for the pawn.
+
+        Parameters:
+        board (Board): the board on which the piece is placed.
+        """
         possible_moves = set()
         if self.color == "white":
             possible_moves.add((self.position[0] - 1, self.position[1]))
@@ -117,6 +180,12 @@ class Rook(Piece):
         super().__init__(name="Rook", value=5, position=position, color=color)
 
     def generate_possible_moves(self, board):
+        """
+        Generates the possible moves for the rook.
+
+        Parameters:
+        board (Board): the board on which the piece is placed.
+        """
         possible_moves = set()
         x_current, y_current = self.position  # unpack the current position of the rook
 
@@ -134,6 +203,12 @@ class Knight(Piece):
         super().__init__(name="Knight", value=3, position=position, color=color)
 
     def generate_possible_moves(self, board):
+        """
+        Generates the possible moves for the knight.
+
+        Parameters:
+        board (Board): the board on which the piece is placed.
+        """
         possible_moves = set()
         for i in range(8):
             for j in range(8):
@@ -151,6 +226,12 @@ class Bishop(Piece):
         super().__init__(name="Bishop", value=3, position=position, color=color)
 
     def generate_possible_moves(self, board):
+        """
+        Generates the possible moves for the bishop.
+
+        Parameters:
+        board (Board): the board on which the piece is placed.
+        """
         possible_moves = set()
         x_current, y_current = self.position  # unpack the current position of the bishop
         for i, j in [(1, 1), (1, -1), (-1, 1), (-1, -1)]:
@@ -167,6 +248,12 @@ class Queen(Piece):
         super().__init__(name="Queen", value=9, position=position, color=color)
 
     def generate_possible_moves(self, board):
+        """
+        Generates the possible moves for the queen.
+
+        Parameters:
+        board (Board): the board on which the piece is placed.
+        """
         possible_moves = set()
         x_current, y_current = self.position  # unpack the current position of the queen
         # Diagonal moves
@@ -192,6 +279,12 @@ class King(Piece):
         super().__init__(name="King", value=100, position=position, color=color)
 
     def generate_possible_moves(self, board):
+        """
+        Generates the possible moves for the king.
+
+        Parameters:
+        board (Board): the board on which the piece is placed.
+        """
         possible_moves = set()
         x_current, y_current = self.position  # unpack the current position of the king
         for i, j in [
