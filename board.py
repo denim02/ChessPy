@@ -24,7 +24,8 @@ class Board:
         Returns the piece at the given position on the board.
 
         Parameters:
-            position (tuple): position on the board in (x, y) format, where x is the row and y is the column.
+            position (tuple): position on the board in (x, y) format,
+                where x is the row and y is the column.
 
         Returns:
             Piece: piece at the given position or None if the position is empty.
@@ -49,7 +50,8 @@ class Board:
 
         Parameters:
             piece (Piece): piece to be moved.
-            new_position (tuple): new position on the board in (x, y) format, where x is the row and y is the column.
+            new_position (tuple): new position on the board in (x, y) format,
+                where x is the row and y is the column.
         """
         if self.is_square_occupied(new_position):
             index = self.piece_list.index(self.get_piece_at_square(new_position))
@@ -65,8 +67,10 @@ class Board:
         Move a piece from one position on the board to another.
 
         Parameters:
-            original_position (tuple): original position on the board in (x, y) format, where x is the row and y is the column.
-            new_position (tuple): new position on the board in (x, y) format, where x is the row and y is the column.
+            original_position (tuple): original position on the board in (x, y)
+                format, where x is the row and y is the column.
+            new_position (tuple): new position on the board in (x, y)
+                format, where x is the row and y is the column.
         """
         piece = self.get_piece_at_square(original_position)
         self.board_table[original_position[0]][original_position[1]] = None
@@ -79,7 +83,8 @@ class Board:
         Check if a given position on the board is occupied by a piece.
 
         Parameters:
-            position (tuple): position on the board in (x, y) format, where x is the row and y is the column.
+            position (tuple): position on the board in (x, y)
+                format, where x is the row and y is the column.
 
         Returns:
             bool: True if the position is occupied, False otherwise.
@@ -91,8 +96,10 @@ class Board:
         Check if a given position on the board is attacked by any piece of a different color.
 
         Parameters:
-            position (tuple): position on the board in (x, y) format, where x is the row and y is the column.
-            color (str): color of the attacking pieces, either "white" or "black".
+            position (tuple): position on the board in (x, y)
+                format, where x is the row and y is the column.
+            color (str): color of the attacking pieces,
+                either "white" or "black".
 
         Returns:
             bool: True if the position is attacked, False otherwise.
@@ -107,62 +114,46 @@ class Board:
         Check if there is a piece blocking the path between two positions on the board.
 
         Parameters:
-            original_position (tuple): original position on the board in (x, y) format, where x is the row and y is the column.
-            new_position (tuple): new position on the board in (x, y) format, where x is the row and y is the column.
+            original_position (tuple): original position on the board
+                in (x, y) format, where x is the row and y is the column.
+            new_position (tuple): new position on the board
+                in (x, y) format, where x is the row and y is the column.
 
         Returns:
             bool: True if the path is blocked, False otherwise.
         """
         # Path on same row
         if original_position[0] == new_position[0]:
-            if original_position[1] < new_position[1]:
-                for i in range(original_position[1] + 1, new_position[1]):
-                    if self.is_square_occupied((original_position[0], i)):
-                        return True
-            else:
-                for i in range(new_position[1] + 1, original_position[1]):
-                    if self.is_square_occupied((original_position[0], i)):
-                        return True
+            for i in range(
+                min(original_position[1], new_position[1]) + 1,
+                max(original_position[1], new_position[1]),
+            ):
+                if self.is_square_occupied((original_position[0], i)):
+                    return True
         # Path on same column
         elif original_position[1] == new_position[1]:
-            if original_position[0] < new_position[0]:
-                for i in range(original_position[0] + 1, new_position[0]):
-                    if self.is_square_occupied((i, original_position[1])):
-                        return True
-            else:
-                for i in range(new_position[0] + 1, original_position[0]):
-                    if self.is_square_occupied((i, original_position[1])):
-                        return True
+            for i in range(
+                min(original_position[0], new_position[0]) + 1,
+                max(original_position[0], new_position[0]),
+            ):
+                if self.is_square_occupied((i, original_position[1])):
+                    return True
         # Path on diagonal
         elif abs(original_position[0] - new_position[0]) == abs(
             original_position[1] - new_position[1]
         ):
-            if original_position[0] < new_position[0]:
-                if original_position[1] < new_position[1]:
-                    for i in range(1, abs(original_position[0] - new_position[0])):
-                        if self.is_square_occupied(
-                            (original_position[0] + i, original_position[1] + i)
-                        ):
-                            return True
-                else:
-                    for i in range(1, abs(original_position[0] - new_position[0])):
-                        if self.is_square_occupied(
-                            (original_position[0] + i, original_position[1] - i)
-                        ):
-                            return True
-            else:
-                if original_position[1] < new_position[1]:
-                    for i in range(1, abs(original_position[0] - new_position[0])):
-                        if self.is_square_occupied(
-                            (original_position[0] - i, original_position[1] + i)
-                        ):
-                            return True
-                else:
-                    for i in range(1, abs(original_position[0] - new_position[0])):
-                        if self.is_square_occupied(
-                            (original_position[0] - i, original_position[1] - i)
-                        ):
-                            return True
+            for i in range(1, abs(original_position[0] - new_position[0])):
+                if self.is_square_occupied(
+                    (
+                        original_position[0] + i
+                        if original_position[0] < new_position[0]
+                        else original_position[0] - i,
+                        original_position[1] - i
+                        if original_position[1] >= new_position[1]
+                        else original_position[1] + i,
+                    )
+                ):
+                    return True
         return False
 
     def populate_board(self):
