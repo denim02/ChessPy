@@ -1,7 +1,7 @@
 # This workflow will install Python dependencies, run tests and lint with a single version of Python
 # For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-python
 
-name: Python application
+name: Unit and Coverage Tests
 
 on:
   push:
@@ -32,5 +32,5 @@ jobs:
         pytest tests.py
     - name: Coverage testing
       run: |
-         pytest -cov –cov-fail-under=80 tests.py
+         pytest -cov=tests.py –cov-fail-under=80 tests.py
       
