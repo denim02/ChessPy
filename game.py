@@ -16,8 +16,10 @@ class ChessGame:
         Make a move on the board.
 
         Parameters:
-            original_position (tuple): original position on the board in (x, y) format, where x is the row and y is the column.
-            new_position (tuple): new position on the board in (x, y) format, where x is the row and y is the column.
+            original_position (tuple): original position on the board
+                in (x, y) format, where x is the row and y is the column.
+            new_position (tuple): new position on the board
+                in (x, y) format, where x is the row and y is the column.
         """
         piece = self.board.get_piece_at_square(original_position)
         print(piece)
@@ -62,5 +64,5 @@ class ChessGame:
             )
             try:
                 self.make_move(original_position, new_position)
-            except ValueError as e:
-                print(e)
+            except ValueError as error:
+                print(error)

@@ -163,7 +163,7 @@ class Board:
         Returns:
             list: 2D array of pieces representing the board.
         """
-        return Board.parse_FEN("./game_states/init_position.fen")
+        return Board.parse_fen("./game_states/init_position.fen")
 
     def __repr__(self):
         """
@@ -206,7 +206,8 @@ class Board:
         Convert a position in the board to algebraic notation.
 
         Parameters:
-            position (tuple): position on the board in (x, y) format, where x is the row and y is the column.
+            position (tuple): position on the board in
+                (x, y) format, where x is the row and y is the column.
 
         Returns:
             str: algebraic notation of the position.
@@ -227,7 +228,7 @@ class Board:
         return (8 - int(algebraic_notation[1]), ord(algebraic_notation[0]) - 97)
 
     @staticmethod
-    def parse_FEN(file_path):
+    def parse_fen(file_path):
         """
         Parse the FEN notation from a file and return a 2D array of pieces.
 
@@ -237,9 +238,9 @@ class Board:
         Returns:
             list: 2D array of pieces representing the board.
         """
-        with open(file_path) as file:
-            string_FEN = file.read()
-            ranks = string_FEN.split("/")
+        with open(file_path, encoding="utf8") as file:
+            string_fen = file.read()
+            ranks = string_fen.split("/")
 
             board = []
 
