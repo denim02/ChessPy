@@ -32,5 +32,5 @@ jobs:
         pytest tests.py
     - name: Coverage testing
       run: |
-         pytest -cov=tests.py –cov-fail-under=80 tests.py
+         pytest --cov=. --cov-fail-under=80 tests.py
       
