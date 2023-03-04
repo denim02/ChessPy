@@ -1,5 +1,5 @@
 import unittest
-import pieces
+import chess_game.pieces as pieces
 
 class Test(unittest.TestCase):
     def test(self):

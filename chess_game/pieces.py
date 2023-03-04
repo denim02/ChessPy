@@ -6,7 +6,7 @@ like name, value, color, position, legal_moves and methods generate_possible_mov
 refresh_legal_moves and generate_legal_moves etc. They are also used to manage algebraic
 notation of the chess pieces and and generate possible moves for each piece.
 """
-import chess_logic
+import chess_game.chess_logic as chess_logic
 
 
 class Piece:

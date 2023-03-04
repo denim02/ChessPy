@@ -6,7 +6,7 @@ The class contains methods for moving pieces, checking if a square is occupied,
 checking if a square is attacked, and checking if a path is blocked. Additionally,
 it has a method for refreshing the legal moves for all pieces on the board.
 """
-from pieces import Piece
+from chess_game.pieces import Piece
 
 
 class Board:
