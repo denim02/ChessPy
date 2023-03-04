@@ -163,7 +163,7 @@ class Board:
         Returns:
             list: 2D array of pieces representing the board.
         """
-        return Board.parse_fen("./game_states/init_position.fen")
+        return Board.parse_fen("./game/game_states/init_position.fen")
 
     def __repr__(self):
         """

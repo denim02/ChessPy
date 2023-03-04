@@ -69,7 +69,7 @@ class ChessUI:
         piece = self.board.get_piece_at_square(position)
         if piece:
             x1_coord, y1_coord = position[1] * SQUARE_SIZE, position[0] * SQUARE_SIZE
-            piece.image = tk.PhotoImage(file=f"./assets/{piece.color}-{piece.name}.png")
+            piece.image = tk.PhotoImage(file=f"./game/assets/{piece.color}-{piece.name}.png")
             image_on_board = self.canvas.create_image(
                 x1_coord, y1_coord, anchor=tk.NW, image=piece.image
             )
