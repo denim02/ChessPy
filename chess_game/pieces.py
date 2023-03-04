@@ -7,6 +7,7 @@ refresh_legal_moves and generate_legal_moves etc. They are also used to manage a
 notation of the chess pieces and and generate possible moves for each piece.
 """
 import chess_game.chess_logic as chess_logic
+from chess_game.constants import *
 
 
 class Piece:
@@ -35,8 +36,17 @@ class Piece:
         self.color = color
         self.image = None
         self.position = position
+        self.coords = ()
         self.legal_moves = set()
+        self.calculate_coords()
 
+    def calculate_coords(self):
+        """
+        Determines the coordinates of the piece.
+        """
+        x, y = self.position
+        self.coords = (y * SQUARE_SIZE, x * SQUARE_SIZE)
+    
     def generate_possible_moves(self, board):
         """
         Generates the possible moves for the piece.
@@ -44,6 +54,7 @@ class Piece:
         Parameters:
         board (Board): the board on which the piece is placed."""
         return set()
+
 
     def refresh_legal_moves(self, board):
         """

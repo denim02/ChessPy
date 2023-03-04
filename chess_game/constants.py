@@ -9,7 +9,8 @@ SQUARE_SIZE = WINDOW_WIDTH // COLS
 DARK = "#769656"
 LIGHT = "#EEEEE2"
 
-# Game settings 
+# Game settings
+FPS = 60
 STARTING_FEN_FILE = "./game/game_states/init_position.fen"
 MOVE_LOG_ENABLED = True
 MOVE_LOG_FILE = "./game/logs/move_log.txt"

@@ -5,10 +5,8 @@ graphical user interface for a chess game. It uses tkinter library to render
 a chess board, and displays the pieces on it. The class also handles drag
 and drop events for moving pieces on the board.
 """
-import tkinter as tk
-
-SQUARE_SIZE = 90
-
+import pygame
+from chess_game.constants import *
 
 class ChessUI:
     """
@@ -28,11 +26,8 @@ class ChessUI:
         """
         self.game = game
         self.board = game.board
-        self.window = tk.Tk()
-        self.window.title("Chess")
-        self.window.geometry("720x720")
-        self.window.resizable(False, False)
-        self.canvas = tk.Canvas(self.window, width=720, height=720, bg="white")
+        self.window = pygame.display.set_mode((720, 720))
+        pygame.display.set_caption("Chess Game")
         self.render_board()
 
         # Variables for event handling
@@ -41,43 +36,38 @@ class ChessUI:
         self.original_coords = None
         self.offset = None
 
-        self.canvas.pack()
-        self.window.mainloop()
-
     def render_board(self):
         """
         Renders the board.
         """
+        self.window.fill(DARK)
+        for row in range(ROWS):
+            for col in range(row % 2, COLS, 2):
+                pygame.draw.rect(self.window, LIGHT, (row * SQUARE_SIZE, col * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE))
+
+        self.render_pieces()
+
+    def render_pieces(self):
+        """
+        Renders the pieces on the board.
+        """
         for row in range(8):
             for col in range(8):
-                x1_coord, y1_coord = col * SQUARE_SIZE, row * SQUARE_SIZE
-                x2_coord, y2_coord = x1_coord + SQUARE_SIZE, y1_coord + SQUARE_SIZE
-                color = "#EEEEE2" if (row + col) % 2 == 0 else "#769656"
-                self.canvas.create_rectangle(
-                    x1_coord, y1_coord, x2_coord, y2_coord, fill=color
-                )
-                self.render_piece((row, col))
+                self.render_piece((col, row))
 
     def render_piece(self, position):
         """
-        Renders the piece at the given position.
+        Renders the piece at its coordinates using the pygame library.
 
         Parameters:
             position (tuple): the position of the piece to be
                 rendered in (x, y) format, where x is the row and y is the column.
         """
         piece = self.board.get_piece_at_square(position)
-        if piece:
-            x1_coord, y1_coord = position[1] * SQUARE_SIZE, position[0] * SQUARE_SIZE
-            piece.image = tk.PhotoImage(file=f"./game/assets/{piece.color}-{piece.name}.png")
-            image_on_board = self.canvas.create_image(
-                x1_coord, y1_coord, anchor=tk.NW, image=piece.image
-            )
-            self.canvas.tag_bind(image_on_board, "<ButtonPress-1>", self.on_drag_start)
-            self.canvas.tag_bind(image_on_board, "<B1-Motion>", self.on_drag_motion)
-            self.canvas.tag_bind(
-                image_on_board, "<ButtonRelease-1>", self.on_drag_release
-            )
+        if piece is not None:
+            piece_image = pygame.image.load(f"./game/assets/{piece.color}-{piece.name.lower()}.png").convert_alpha()
+            self.window.blit(piece_image, piece.coords)
+
 
     def on_drag_start(self, event):
         """
@@ -139,14 +129,3 @@ class ChessUI:
             self.canvas.coords(self.dragged_piece_image, self.original_coords)
             print(f"Move error: {error}")
         self.render_board()
-
-
-# def crop_sprites(file_path, square_size):
-#     # Open the spritesheet image
-#     with Image.open(file_path) as spritesheet:
-#         # Cropping out each individual piece (6 pieces per row)
-#         for i in range(12):
-#             x = i % 6 * square_size
-#             y = i // 6 * square_size
-#             piece = spritesheet.crop((x, y, x + square_size, y + square_size))
-#             piece.save(f"{file_path}/{i}.png")
