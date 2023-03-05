@@ -5,8 +5,10 @@ This class is used to represent a chess game. It has properties like board, turn
 game_over and methods make_move, run etc. It is responsible for managing the
 state of the game and making moves on the board.
 """
-from chess_game.board import Board
 import chess_game.chess_logic as chess_logic
+import pygame
+from chess_game.graphics import ChessUI
+from chess_game.board import Board
 
 
 class ChessGame:
@@ -79,3 +81,23 @@ class ChessGame:
                 self.make_move(original_position, new_position)
             except ValueError as error:
                 print(error)
+
+def run_game():
+    game = ChessGame()
+    ui = ChessUI(game)
+    run = True
+    clock = pygame.time.Clock()
+
+    while run:
+        clock.tick(60)
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                run = False
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                pass
+
+        ui.render_board()
+        pygame.display.update()
+
+    pygame.quit()
