@@ -7,7 +7,6 @@ refresh_legal_moves and generate_legal_moves etc. They are also used to manage a
 notation of the chess pieces and and generate possible moves for each piece.
 """
 import chess_game.chess_logic as chess_logic
-import pygame
 from chess_game.constants import *
 
 

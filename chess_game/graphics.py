@@ -6,6 +6,7 @@ a chess board, and displays the pieces on it. The class also handles drag
 and drop events for moving pieces on the board.
 """
 import pygame
+from pygame import gfxdraw
 from chess_game.constants import *
 
 class ChessUI:
@@ -83,7 +84,7 @@ class ChessUI:
             circle_squares (list): a list of squares where circles are to be rendered.
         """
         for circle_square in self.dragged_piece.legal_moves:
-            pygame.draw.circle(self.window, "#CCCCCC", (
+            self.draw_circle(self.window, (180, 180, 180), (
                 circle_square[1] * SQUARE_SIZE + SQUARE_SIZE // 2, 
                 circle_square[0] * SQUARE_SIZE + SQUARE_SIZE // 2
                 ), 15)
@@ -97,3 +98,8 @@ class ChessUI:
                 where x is the row and y is the column.
         """
         return (coords[1] // SQUARE_SIZE, coords[0] // SQUARE_SIZE)
+    
+    @staticmethod
+    def draw_circle(surface, color, coords, radius):
+        gfxdraw.aacircle(surface, coords[0], coords[1], radius, color)
+        gfxdraw.filled_circle(surface, coords[0], coords[1], radius, color)
