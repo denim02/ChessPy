@@ -135,6 +135,7 @@ def run_game():
                         except ValueError as error:
                             print(error)
                             ui.dragged_piece.coords = ui.original_coords
+                            ui.dragged_piece = None
                     else:
                         ui.dragged_piece.coords = ui.original_coords
 
