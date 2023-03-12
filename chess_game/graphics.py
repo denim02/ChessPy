@@ -28,6 +28,11 @@ class ChessUI:
         self.board = game.board
         self.window = pygame.display.set_mode((720, 720))
         pygame.display.set_caption("Chess Game")
+
+        # Convert and store the images of the pieces
+        for piece in self.board.piece_list:
+            piece.image = pygame.image.load(f"./game/assets/{piece.color}-{piece.name.lower()}.png").convert_alpha()
+
         self.render_board()
 
         # Variables for event handling
@@ -65,8 +70,7 @@ class ChessUI:
         """
         piece = self.board.get_piece_at_square(position)
         if piece is not None:
-            piece_image = pygame.image.load(f"./game/assets/{piece.color}-{piece.name.lower()}.png").convert_alpha()
-            self.window.blit(piece_image, piece.coords)
+            self.window.blit(piece.image, piece.coords)
 
 
     def on_drag_start(self, event):
