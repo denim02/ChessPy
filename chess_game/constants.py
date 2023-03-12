@@ -1,5 +1,3 @@
-import pygame
-
 # Window constants
 WINDOW_WIDTH, WINDOW_HEIGHT = 720, 720
 ROWS, COLS = 8, 8
