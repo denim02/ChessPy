@@ -50,19 +50,21 @@ class ChessUI:
             for col in range(row % 2, COLS, 2):
                 pygame.draw.rect(self.window, LIGHT, (row * SQUARE_SIZE, col * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE))
 
+        self.render_pieces()
         if self.dragged_piece:
             self.render_moves()
-        self.render_pieces()
+            self.render_piece(self.dragged_piece)
+        
 
     def render_pieces(self):
         """
         Renders the pieces on the board.
         """
-        for row in range(8):
-            for col in range(8):
-                self.render_piece((col, row))
+        for piece in self.board.piece_list:
+                if piece != self.dragged_piece:
+                    self.render_piece(piece)
 
-    def render_piece(self, position):
+    def render_piece(self, piece):
         """
         Renders the piece at its coordinates using the pygame library.
 
@@ -70,7 +72,6 @@ class ChessUI:
             position (tuple): the position of the piece to be
                 rendered in (x, y) format, where x is the row and y is the column.
         """
-        piece = self.board.get_piece_at_square(position)
         if piece is not None:
             self.window.blit(piece.image, piece.coords)
 
