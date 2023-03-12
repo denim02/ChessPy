@@ -33,13 +33,13 @@ class ChessUI:
         for piece in self.board.piece_list:
             piece.image = pygame.image.load(f"./game/assets/{piece.color}-{piece.name.lower()}.png").convert_alpha()
 
-        self.render_board()
-
         # Variables for event handling
         self.dragged_piece = None
         self.is_dragging = False
         self.original_coords = None
         self.offset = None
+
+        self.render_board()
 
     def render_board(self):
         """
@@ -50,6 +50,8 @@ class ChessUI:
             for col in range(row % 2, COLS, 2):
                 pygame.draw.rect(self.window, LIGHT, (row * SQUARE_SIZE, col * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE))
 
+        if self.dragged_piece:
+            self.render_moves()
         self.render_pieces()
 
     def render_pieces(self):
@@ -72,67 +74,18 @@ class ChessUI:
         if piece is not None:
             self.window.blit(piece.image, piece.coords)
 
-
-    def on_drag_start(self, event):
+    def render_moves(self):
         """
-        Handles the start of a drag event on a piece.
-        """
-        self.dragged_piece_image = event.widget.find_closest(event.x, event.y)[0]
-        self.dragged_piece = self.board.get_piece_at_square(
-            (int(event.y // SQUARE_SIZE), int(event.x // SQUARE_SIZE))
-        )
-        self.original_coords = self.canvas.coords(self.dragged_piece_image)
-        self.offset = (
-            event.x - self.canvas.coords(self.dragged_piece_image)[0],
-            event.y - self.canvas.coords(self.dragged_piece_image)[1],
-        )
+        Renders circles on the given squares.
 
-        for row in range(8):
-            for col in range(8):
-                if (row, col) in self.board.get_piece_at_square(self.dragged_piece.position).legal_moves:
-                    x_coord, y_coord = (
-                        col * SQUARE_SIZE + SQUARE_SIZE / 2,
-                        row * SQUARE_SIZE + SQUARE_SIZE / 2,
-                    )
-                    circle = self.canvas.create_oval(
-                        x_coord - 15,
-                        y_coord - 15,
-                        x_coord + 15,
-                        y_coord + 15,
-                        fill="#C0C0C0",
-                        outline="gray",
-                        width=1,
-                        tags="highlight",
-                    )
-                    self.canvas.tag_raise(circle)
-        self.canvas.tag_raise(self.dragged_piece_image)
-
-    def on_drag_motion(self, event):
+        Parameters:
+            circle_squares (list): a list of squares where circles are to be rendered.
         """
-        Handles the motion of a drag event on a piece."""
-        self.canvas.move(
-            self.dragged_piece_image,
-            event.x - self.canvas.coords(self.dragged_piece_image)[0] - self.offset[0],
-            event.y - self.canvas.coords(self.dragged_piece_image)[1] - self.offset[1],
-        )
-
-    def on_drag_release(self, event):
-        """
-        Handles the release of a drag event on a piece."""
-        x_coord, y_coord = (
-            round(self.canvas.coords(self.dragged_piece_image)[0] / SQUARE_SIZE)
-            * SQUARE_SIZE,
-            round(self.canvas.coords(self.dragged_piece_image)[1] / SQUARE_SIZE)
-            * SQUARE_SIZE,
-        )
-        new_position = (y_coord // SQUARE_SIZE, x_coord // SQUARE_SIZE)
-        try:
-            self.game.make_move(self.dragged_piece.position, new_position)
-            self.canvas.coords(self.dragged_piece_image, x_coord, y_coord)
-        except ValueError as error:
-            self.canvas.coords(self.dragged_piece_image, self.original_coords)
-            print(f"Move error: {error}")
-        self.render_board()
+        for circle_square in self.dragged_piece.legal_moves:
+            pygame.draw.circle(self.window, "#CCCCCC", (
+                circle_square[1] * SQUARE_SIZE + SQUARE_SIZE // 2, 
+                circle_square[0] * SQUARE_SIZE + SQUARE_SIZE // 2
+                ), 15)
 
     def get_square_at_coords(self, coords):
         """
