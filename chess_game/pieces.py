@@ -142,8 +142,8 @@ class Pawn(Piece):
         possible_moves = set()
         if self.color == "white":
             possible_moves.add((self.position[0] - 1, self.position[1]))
-            if self.position[0] == 6:
-                possible_moves.add((self.position[0] - 2, self.position[1]))
+            if self.position[0] == 6 and board.get_piece_at_square((self.position[0] - 2, self.position[1])) is None:
+                    possible_moves.add((self.position[0] - 2, self.position[1]))
             if (
                 self.position[0] + 1 < 8
                 and self.position[1] - 1 >= 0
@@ -163,7 +163,7 @@ class Pawn(Piece):
 
         else:
             possible_moves.add((self.position[0] + 1, self.position[1]))
-            if self.position[0] == 1:
+            if self.position[0] == 1 and board.get_piece_at_square((self.position[0] + 2, self.position[1])) is None:
                 possible_moves.add((self.position[0] + 2, self.position[1]))
             if (
                 self.position[0] + 1 < 8
