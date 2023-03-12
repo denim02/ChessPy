@@ -53,9 +53,9 @@ class ChessGame:
         print(self.board)
         self.turn = "white" if self.turn == "black" else "black"
 
-    def run(self):
+    def run_console(self):
         """
-        Runs the game.
+        Runs the game in the console.
         """
         while not self.game_over:
             print(self.board)
