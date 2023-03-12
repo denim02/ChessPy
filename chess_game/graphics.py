@@ -36,8 +36,8 @@ class ChessUI:
         self.render_board()
 
         # Variables for event handling
-        self.dragged_piece_image = None
         self.dragged_piece = None
+        self.is_dragging = False
         self.original_coords = None
         self.offset = None
 
@@ -133,3 +133,13 @@ class ChessUI:
             self.canvas.coords(self.dragged_piece_image, self.original_coords)
             print(f"Move error: {error}")
         self.render_board()
+
+    def get_square_at_coords(self, coords):
+        """
+        Returns the position of a square at the given coordinates.
+
+        Parameters:
+            coords (tuple): the coordinates of the square in (x, y) format,
+                where x is the row and y is the column.
+        """
+        return (coords[1] // SQUARE_SIZE, coords[0] // SQUARE_SIZE)

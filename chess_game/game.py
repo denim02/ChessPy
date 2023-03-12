@@ -9,7 +9,7 @@ import chess_game.chess_logic as chess_logic
 import pygame
 from chess_game.graphics import ChessUI
 from chess_game.board import Board
-
+from chess_game.constants import *
 
 class ChessGame:
     """
@@ -85,17 +85,58 @@ class ChessGame:
 def run_game():
     game = ChessGame()
     ui = ChessUI(game)
-    run = True
+    is_running = True
     clock = pygame.time.Clock()
 
-    while run:
+    while is_running:
         clock.tick(60)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                run = False
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                pass
+                is_running = False
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                # If the user left clicks on the board, check whether they clicked on a piece.
+                # If they did, then set the ui.dragged_piece to that piece.
+                if event.button == 1:
+                    clicked_square = ui.get_square_at_coords(event.pos)
+                    ui.dragged_piece = game.board.get_piece_at_square(clicked_square)
+                    if ui.dragged_piece:
+                        ui.is_dragging = True
+                        ui.original_coords = ui.dragged_piece.coords
+                        ui.offset = (
+                            event.pos[0] -  ui.dragged_piece.coords[0],
+                            event.pos[1] - ui.dragged_piece.coords[1],
+                        )
+                else:
+                    continue
+            elif event.type == pygame.MOUSEMOTION:
+                # If the user is dragging a piece, then update the position of the piece.
+                if ui.is_dragging:
+                    ui.dragged_piece.coords = (
+                        event.pos[0] - ui.offset[0],
+                        event.pos[1] - ui.offset[1],
+                    )
+            elif event.type == pygame.MOUSEBUTTONUP:
+                # If the user was dragging a piece, then check whether they dropped it on a valid square.
+                # If they did, then make the move.
+                if ui.is_dragging:
+                    ui.is_dragging = False
+                    new_square = ui.get_square_at_coords(event.pos)
+                    if new_square:
+                        try:
+                            game.make_move(ui.dragged_piece.position, new_square)
+                            # If the move was successful, then set the dragged_piece to None and move the piece to the
+                            # center of the new square.
+                            ui.dragged_piece.coords = (
+                                round(event.pos[0] // SQUARE_SIZE * SQUARE_SIZE),
+                                round(event.pos[1] // SQUARE_SIZE * SQUARE_SIZE),
+                            )
+                            ui.dragged_piece = None
+                        except ValueError as error:
+                            print(error)
+                            ui.dragged_piece.coords = ui.original_coords
+                    else:
+                        ui.dragged_piece.coords = ui.original_coords
 
         ui.render_board()
         pygame.display.update()
