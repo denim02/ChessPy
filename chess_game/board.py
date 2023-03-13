@@ -22,6 +22,7 @@ class Board:
         self.piece_list = [
             piece for row in self.board_table for piece in row if piece is not None
         ]
+        self.last_piece_captured = None
         self.refresh_legal_moves()
 
     def refresh_legal_moves(self):
@@ -56,6 +57,7 @@ class Board:
         occupying_piece = self.get_piece_at_square(new_position)
 
         if occupying_piece is not None:
+            self.last_piece_captured = occupying_piece
             self.piece_list.remove(occupying_piece)
 
         print("Taken piece 2", occupying_piece)
@@ -66,6 +68,27 @@ class Board:
         print("Taken piece 3", occupying_piece)
 
         return occupying_piece
+
+    def revert_move(self, piece, old_position):
+        """
+        Revert a move and replace any captured piece.
+
+        Parameters:
+            piece (Piece): piece to be moved.
+            old_position (tuple): old position on the board in (x, y) format,
+                where x is the row and y is the column.
+        """
+        if self.last_piece_captured is not None:
+            self.piece_list.append(self.last_piece_captured)
+            print("Taken piece 4", self.last_piece_captured)
+            self.board_table[piece.position[0]][
+                piece.position[1]
+            ] = self.last_piece_captured
+            self.last_piece_captured = None
+        
+        piece.position = old_position
+        self.board_table[old_position[0]][old_position[1]] = piece
+        self.refresh_legal_moves()
 
     def move_from_square_to_square(self, original_position, new_position):
         """

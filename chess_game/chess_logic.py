@@ -72,7 +72,7 @@ def is_king_in_check_after_move(board, piece, new_position):
     old_position = piece.position
     board.move_piece_to_square(piece, new_position)
     is_checked = is_check(board, color)
-    board.move_piece_to_square(piece, old_position)
+    board.revert_move(piece, old_position)
     return is_checked
 
 
