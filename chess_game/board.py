@@ -60,12 +60,10 @@ class Board:
             self.last_piece_captured = occupying_piece
             self.piece_list.remove(occupying_piece)
 
-        print("Taken piece 2", occupying_piece)
         self.board_table[piece.position[0]][piece.position[1]] = None
         piece.position = new_position
         self.board_table[new_position[0]][new_position[1]] = piece
         self.refresh_legal_moves()
-        print("Taken piece 3", occupying_piece)
 
         return occupying_piece
 
@@ -80,7 +78,6 @@ class Board:
         """
         if self.last_piece_captured is not None:
             self.piece_list.append(self.last_piece_captured)
-            print("Taken piece 4", self.last_piece_captured)
             self.board_table[piece.position[0]][
                 piece.position[1]
             ] = self.last_piece_captured
@@ -88,22 +85,6 @@ class Board:
         
         piece.position = old_position
         self.board_table[old_position[0]][old_position[1]] = piece
-        self.refresh_legal_moves()
-
-    def move_from_square_to_square(self, original_position, new_position):
-        """
-        Move a piece from one position on the board to another.
-
-        Parameters:
-            original_position (tuple): original position on the board in (x, y)
-                format, where x is the row and y is the column.
-            new_position (tuple): new position on the board in (x, y)
-                format, where x is the row and y is the column.
-        """
-        piece = self.get_piece_at_square(original_position)
-        self.board_table[original_position[0]][original_position[1]] = None
-        piece.position = new_position
-        self.board_table[new_position[0]][new_position[1]] = piece
         self.refresh_legal_moves()
 
     def is_square_occupied(self, position):
