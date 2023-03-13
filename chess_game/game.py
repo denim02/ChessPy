@@ -23,6 +23,10 @@ class ChessGame:
         Initializes the board and the turn.
         """
         self.board = Board()
+        self.pieces_taken = {
+            "white": [],
+            "black": []
+        }
         self.turn = "white"
         self.game_over = False
 
@@ -49,8 +53,13 @@ class ChessGame:
         if chess_logic.is_king_in_check_after_move(self.board, piece, new_position):
             raise ValueError("This move would put your king in check.")
 
-        self.board.move_piece_to_square(piece, new_position)
+        taken_piece = self.board.move_piece_to_square(piece, new_position)
         print(self.board)
+        print(taken_piece)
+        if taken_piece is not None:
+            self.pieces_taken[self.turn].append(taken_piece)
+            print(self.pieces_taken)
+
         self.turn = "white" if self.turn == "black" else "black"
 
     def run_console(self):

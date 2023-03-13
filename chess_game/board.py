@@ -53,14 +53,19 @@ class Board:
             new_position (tuple): new position on the board in (x, y) format,
                 where x is the row and y is the column.
         """
-        if self.is_square_occupied(new_position):
-            index = self.piece_list.index(self.get_piece_at_square(new_position))
-            self.piece_list.pop(index)
+        occupying_piece = self.get_piece_at_square(new_position)
+
+        if occupying_piece is not None:
+            self.piece_list.remove(occupying_piece)
+
+        print("Taken piece 2", occupying_piece)
         self.board_table[piece.position[0]][piece.position[1]] = None
         piece.position = new_position
         self.board_table[new_position[0]][new_position[1]] = piece
-        self.piece_list.append(piece)
         self.refresh_legal_moves()
+        print("Taken piece 3", occupying_piece)
+
+        return occupying_piece
 
     def move_from_square_to_square(self, original_position, new_position):
         """
