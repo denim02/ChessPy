@@ -56,6 +56,9 @@ class Board:
         """
         occupying_piece = self.get_piece_at_square(new_position)
 
+        if self.last_piece_captured is not None:
+            self.last_piece_captured = None
+            
         if occupying_piece is not None:
             self.last_piece_captured = occupying_piece
             self.piece_list.remove(occupying_piece)
@@ -64,7 +67,6 @@ class Board:
         piece.position = new_position
         self.board_table[new_position[0]][new_position[1]] = piece
         self.refresh_legal_moves()
-
         return occupying_piece
 
     def revert_move(self, piece, old_position):
@@ -82,9 +84,12 @@ class Board:
                 piece.position[1]
             ] = self.last_piece_captured
             self.last_piece_captured = None
-        
+        else:
+            self.board_table[piece.position[0]][piece.position[1]] = None
+
         piece.position = old_position
         self.board_table[old_position[0]][old_position[1]] = piece
+        
         self.refresh_legal_moves()
 
     def is_square_occupied(self, position):

@@ -55,7 +55,6 @@ class ChessGame:
 
         taken_piece = self.board.move_piece_to_square(piece, new_position)
         print(self.board)
-        print(taken_piece)
         if taken_piece is not None:
             self.pieces_taken[self.turn].append(taken_piece)
             print(self.pieces_taken)
