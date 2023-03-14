@@ -18,9 +18,9 @@ class Board:
         """
         Initializes the board with a 2D array of pieces and a list of all pieces on the board.
         """
-        self.board_table = self.populate_board()
+        self.__board_table = self.populate_board()
         self.piece_list = [
-            piece for row in self.board_table for piece in row if piece is not None
+            piece for row in self.__board_table for piece in row if piece is not None
         ]
         self.last_piece_captured = None
         self.refresh_legal_moves()
@@ -43,7 +43,7 @@ class Board:
         Returns:
             Piece: piece at the given position or None if the position is empty.
         """
-        return self.board_table[position[0]][position[1]]
+        return self.__board_table[position[0]][position[1]]
 
     def move_piece_to_square(self, piece, new_position):
         """
@@ -63,9 +63,9 @@ class Board:
             self.last_piece_captured = occupying_piece
             self.piece_list.remove(occupying_piece)
 
-        self.board_table[piece.position[0]][piece.position[1]] = None
+        self.__board_table[piece.position[0]][piece.position[1]] = None
         piece.position = new_position
-        self.board_table[new_position[0]][new_position[1]] = piece
+        self.__board_table[new_position[0]][new_position[1]] = piece
         self.refresh_legal_moves()
         return occupying_piece
 
@@ -80,15 +80,15 @@ class Board:
         """
         if self.last_piece_captured is not None:
             self.piece_list.append(self.last_piece_captured)
-            self.board_table[piece.position[0]][
+            self.__board_table[piece.position[0]][
                 piece.position[1]
             ] = self.last_piece_captured
             self.last_piece_captured = None
         else:
-            self.board_table[piece.position[0]][piece.position[1]] = None
+            self.__board_table[piece.position[0]][piece.position[1]] = None
 
         piece.position = old_position
-        self.board_table[old_position[0]][old_position[1]] = piece
+        self.__board_table[old_position[0]][old_position[1]] = piece
         
         self.refresh_legal_moves()
 
@@ -103,7 +103,7 @@ class Board:
         Returns:
             bool: True if the position is occupied, False otherwise.
         """
-        return self.board_table[position[0]][position[1]] is not None
+        return self.__board_table[position[0]][position[1]] is not None
 
     def is_square_attacked(self, position, color):
         """
@@ -187,10 +187,10 @@ class Board:
         for i in range(8):
             string += str(8 - i) + " "
             for j in range(8):
-                if self.board_table[i][j] is None:
+                if self.__board_table[i][j] is None:
                     string += ". "
                 else:
-                    string += self.board_table[i][j].to_algebraic_notation() + " "
+                    string += self.__board_table[i][j].to_algebraic_notation() + " "
             string += str(8 - i) + "\n"
         string += "  a b c d e f g h \n"
         return string
