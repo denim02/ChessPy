@@ -196,6 +196,7 @@ class Rook(Piece):
 
     def __init__(self, color, position):
         super().__init__(name="Rook", value=5, position=position, color=color)
+        self.has_moved = False
 
     def generate_possible_moves(self, board):
         """
@@ -330,6 +331,7 @@ class King(Piece):
 
     def __init__(self, color, position):
         super().__init__(name="King", value=100, position=position, color=color)
+        self.has_moved = False
 
     def generate_possible_moves(self, board):
         """
@@ -353,4 +355,32 @@ class King(Piece):
             x_new, y_new = x_current + i, y_current + j
             if (i, j) != (0, 0) and 0 <= x_new < 8 and 0 <= y_new < 8:
                 possible_moves.add((x_new, y_new))
+
+        # Castling - check whether the path is blocked or not (use is_path_blocked), whether any squares in the path are under attack,
+        # whether the king has moved or not, whether the rook has moved or not
+        # and whether the king is under attack or not
+        if not self.has_moved:
+            if self.color == "black":
+                if not board.is_path_blocked((0, 4), (0, 0)):
+                    if not board.is_square_attacked((0, 4), "black"):
+                        if not board.is_square_attacked((0, 3), "black"):
+                            if not board.is_square_attacked((0, 2), "black"):
+                                possible_moves.add((0, 2))
+                if not board.is_path_blocked((0, 4), (0, 7)):
+                    if not board.is_square_attacked((0, 4), "black"):
+                        if not board.is_square_attacked((0, 5), "black"):
+                            if not board.is_square_attacked((0, 6), "black"):
+                                possible_moves.add((0, 6))
+            else:
+                if not board.is_path_blocked((7, 4), (7, 0)):
+                    if not board.is_square_attacked((7, 4), "white"):
+                        if not board.is_square_attacked((7, 3), "white"):
+                            if not board.is_square_attacked((7, 2), "white"):
+                                possible_moves.add((7, 2))
+                if not board.is_path_blocked((7, 4), (7, 7)):
+                    if not board.is_square_attacked((7, 4), "white"):
+                        if not board.is_square_attacked((7, 5), "white"):
+                            if not board.is_square_attacked((7, 6), "white"):
+                                possible_moves.add((7, 6))
+
         return possible_moves

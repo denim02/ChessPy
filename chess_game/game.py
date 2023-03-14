@@ -8,6 +8,7 @@ state of the game and making moves on the board.
 import chess_game.chess_logic as chess_logic
 import pygame
 from chess_game.graphics import ChessUI
+from chess_game.pieces import King
 from chess_game.board import Board
 from chess_game.constants import *
 
@@ -44,6 +45,7 @@ class ChessGame:
         print(piece)
         print("Original position: ", original_position)
         print("New position: ", new_position)
+        
         if piece is None:
             raise ValueError("No piece at the given position.")
         if piece.color != self.turn:
@@ -52,6 +54,22 @@ class ChessGame:
             raise ValueError("Invalid move.")
         if chess_logic.is_king_in_check_after_move(self.board, piece, new_position):
             raise ValueError("This move would put your king in check.")
+        
+        taken_piece = None
+
+        # Check if the desired move is a castle.
+        if isinstance(piece, King) and abs(new_position[1] - original_position[1]) > 1:
+            # Check if the king is castling to the left.
+            if new_position[1] < original_position[1]:
+                rook = self.board.get_piece_at_square((original_position[0], 0))
+                self.board.move_piece_to_square(rook, (original_position[0], 3))
+                rook.coords = ChessUI.get_coords_of_square(rook.position)
+
+            # Check if the king is castling to the right.
+            else:
+                rook = self.board.get_piece_at_square((original_position[0], 7))
+                self.board.move_piece_to_square(rook, (original_position[0], 5))
+                rook.coords = ChessUI.get_coords_of_square(rook.position)
 
         taken_piece = self.board.move_piece_to_square(piece, new_position)
         print(self.board)

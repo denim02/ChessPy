@@ -89,7 +89,8 @@ class ChessUI:
                 circle_square[0] * SQUARE_SIZE + SQUARE_SIZE // 2
                 ), 15)
 
-    def get_square_at_coords(self, coords):
+    @staticmethod
+    def get_square_at_coords(coords):
         """
         Returns the position of a square at the given coordinates.
 
@@ -99,6 +100,17 @@ class ChessUI:
         """
         return (coords[1] // SQUARE_SIZE, coords[0] // SQUARE_SIZE)
     
+    @staticmethod
+    def get_coords_of_square(position):
+        """
+        Returns the coordinates of the given square.
+
+        Parameters:
+            position (tuple): the position of the square in (x, y) format,
+                where x is the row and y is the column.
+        """
+        return (position[1] * SQUARE_SIZE, position[0] * SQUARE_SIZE)
+
     @staticmethod
     def draw_circle(surface, color, coords, radius):
         gfxdraw.aacircle(surface, coords[0], coords[1], radius, color)

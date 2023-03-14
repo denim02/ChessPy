@@ -58,7 +58,7 @@ class Board:
 
         if self.last_piece_captured is not None:
             self.last_piece_captured = None
-            
+
         if occupying_piece is not None:
             self.last_piece_captured = occupying_piece
             self.piece_list.remove(occupying_piece)
