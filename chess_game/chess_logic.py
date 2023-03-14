@@ -41,7 +41,7 @@ def is_check(board, color):
     return False
 
 
-def is_checkmate():
+def is_checkmate(board, color):
     """
     Check if a king of a given color is in checkmate.
 
@@ -52,7 +52,19 @@ def is_checkmate():
     Returns:
         bool: True if the king is in checkmate, False otherwise.
     """
-    pass
+    king = [
+        piece
+        for piece in board.piece_list
+        if piece.color == color and piece.name == "King"
+    ][0]
+    if is_check(board, color):
+        for piece in board.piece_list:
+            if piece.color == color:
+                for move in piece.legal_moves:
+                    if not is_king_in_check_after_move(board, piece, move):
+                        return False
+        return True
+    return False 
 
 
 def is_king_in_check_after_move(board, piece, new_position):

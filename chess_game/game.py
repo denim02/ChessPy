@@ -87,7 +87,7 @@ def run_game():
         clock.tick(60)
 
         for event in pygame.event.get():
-            if event.type == pygame.QUIT:
+            if event.type == pygame.QUIT or chess_logic.is_checkmate(game.board, game.turn):
                 is_running = False
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 # If the user left clicks on the board, check whether they clicked on a piece.
