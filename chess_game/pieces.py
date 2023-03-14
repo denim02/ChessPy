@@ -33,20 +33,47 @@ class Piece:
         """
         self.name = name
         self.value = value
-        self.color = color
+        self.__color = color
         self.image = None
-        self.position = position
-        self.coords = ()
-        self.legal_moves = set()
-        self.calculate_coords()
+        self.__position = position
+        self.__coords = ()
+        self.__legal_moves = set()
+        self.refresh_coords()
 
-    def calculate_coords(self):
+    @property
+    def color(self):
+        return self.__color
+
+    @property
+    def coords(self):
+        return self.__coords
+    
+    @coords.setter
+    def coords(self, coords):
+        self.__coords = coords
+
+    def refresh_coords(self):
         """
         Determines the coordinates of the piece.
         """
-        x, y = self.position
-        self.coords = (y * SQUARE_SIZE, x * SQUARE_SIZE)
-    
+        self.__coords = self.position[1] * SQUARE_SIZE, self.position[0] * SQUARE_SIZE
+
+    @property
+    def position(self):
+        return self.__position
+
+    @position.setter
+    def position(self, position):
+        if not (0 <= position[0] <= 7 and 0 <= position[1] <= 7):
+            raise ValueError("Invalid position.")
+        else:
+            self.__position = position
+            self.refresh_coords()
+
+    @property
+    def legal_moves(self):
+        return self.__legal_moves
+
     def generate_possible_moves(self, board):
         """
         Generates the possible moves for the piece.
@@ -62,7 +89,7 @@ class Piece:
 
         Parameters:
         board (Board): the board on which the piece is placed."""
-        self.legal_moves = self.generate_legal_moves(board)
+        self.__legal_moves = self.generate_legal_moves(board)
 
     def generate_legal_moves(self, board):
         """
