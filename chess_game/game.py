@@ -63,13 +63,11 @@ class ChessGame:
             if new_position[1] < original_position[1]:
                 rook = self.board.get_piece_at_square((original_position[0], 0))
                 self.board.move_piece_to_square(rook, (original_position[0], 3))
-                rook.coords = ChessUI.get_coords_of_square(rook.position)
-
+                
             # Check if the king is castling to the right.
             else:
                 rook = self.board.get_piece_at_square((original_position[0], 7))
                 self.board.move_piece_to_square(rook, (original_position[0], 5))
-                rook.coords = ChessUI.get_coords_of_square(rook.position)
 
         taken_piece = self.board.move_piece_to_square(piece, new_position)
         print(self.board)
