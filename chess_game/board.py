@@ -19,11 +19,18 @@ class Board:
         Initializes the board with a 2D array of pieces and a list of all pieces on the board.
         """
         self.__board_table = self.populate_board()
-        self.piece_list = [
+        self.__piece_list = [
             piece for row in self.__board_table for piece in row if piece is not None
         ]
         self.last_piece_captured = None
         self.refresh_legal_moves()
+
+    @property
+    def piece_list(self):
+        """
+        Returns a list of all pieces on the board.
+        """
+        return self.__piece_list
 
     def refresh_legal_moves(self):
         """
