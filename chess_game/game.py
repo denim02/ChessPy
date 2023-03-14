@@ -63,7 +63,7 @@ class ChessGame:
             if new_position[1] < original_position[1]:
                 rook = self.board.get_piece_at_square((original_position[0], 0))
                 self.board.move_piece_to_square(rook, (original_position[0], 3))
-                
+
             # Check if the king is castling to the right.
             else:
                 rook = self.board.get_piece_at_square((original_position[0], 7))
@@ -120,12 +120,6 @@ def run_game():
                     if new_square:
                         try:
                             game.make_move(ui.dragged_piece.position, new_square)
-                            # If the move was successful, then set the dragged_piece to None and move the piece to the
-                            # center of the new square.
-                            ui.dragged_piece.coords = (
-                                round(event.pos[0] // SQUARE_SIZE * SQUARE_SIZE),
-                                round(event.pos[1] // SQUARE_SIZE * SQUARE_SIZE),
-                            )
                             ui.dragged_piece = None
                         except ValueError as error:
                             print(error)
