@@ -79,35 +79,6 @@ class ChessGame:
 
         self.turn = "white" if self.turn == "black" else "black"
 
-    def run_console(self):
-        """
-        Runs the game in the console.
-        """
-        while not self.game_over:
-            print(self.board)
-            original_position = tuple(
-                map(
-                    int,
-                    Board.get_position_from_algebraic_notation(
-                        input(
-                            "Enter the original position of the piece you want to move: "
-                        )
-                    ),
-                )
-            )
-            new_position = tuple(
-                map(
-                    int,
-                    Board.get_position_from_algebraic_notation(
-                        input("Enter the new position of the piece you want to move: ")
-                    ),
-                )
-            )
-            try:
-                self.make_move(original_position, new_position)
-            except ValueError as error:
-                print(error)
-
 def run_game():
     game = ChessGame()
     ui = ChessUI(game)
