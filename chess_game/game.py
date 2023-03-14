@@ -95,7 +95,7 @@ def run_game():
                 if event.button == 1:
                     clicked_square = ui.get_square_at_coords(event.pos)
                     ui.dragged_piece = game.board.get_piece_at_square(clicked_square)
-                    if ui.dragged_piece:
+                    if ui.dragged_piece and ui.dragged_piece.color == game.turn:
                         ui.is_dragging = True
                         ui.original_coords = ui.dragged_piece.coords
                         ui.offset = (

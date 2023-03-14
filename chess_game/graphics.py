@@ -83,11 +83,12 @@ class ChessUI:
         Parameters:
             circle_squares (list): a list of squares where circles are to be rendered.
         """
-        for circle_square in self.dragged_piece.legal_moves:
-            self.draw_circle(self.window, (180, 180, 180), (
-                circle_square[1] * SQUARE_SIZE + SQUARE_SIZE // 2, 
-                circle_square[0] * SQUARE_SIZE + SQUARE_SIZE // 2
-                ), 15)
+        if self.dragged_piece.color == self.game.turn:
+            for circle_square in self.dragged_piece.legal_moves:
+                self.draw_circle(self.window, (180, 180, 180), (
+                    circle_square[1] * SQUARE_SIZE + SQUARE_SIZE // 2, 
+                    circle_square[0] * SQUARE_SIZE + SQUARE_SIZE // 2
+                    ), 15)
 
     @staticmethod
     def get_square_at_coords(coords):
