@@ -9,6 +9,7 @@ import pygame
 from pygame import gfxdraw
 from chess_game.constants import *
 
+
 class ChessUI:
     """
     ChessUI:
@@ -32,7 +33,9 @@ class ChessUI:
 
         # Convert and store the images of the pieces
         for piece in self.board.piece_list:
-            piece.image = pygame.image.load(f"./game/assets/{piece.color}-{piece.name.lower()}.png").convert_alpha()
+            piece.image = pygame.image.load(
+                f"./game/assets/{piece.color}-{piece.name.lower()}.png"
+            ).convert_alpha()
 
         # Variables for event handling
         self.dragged_piece = None
@@ -49,21 +52,24 @@ class ChessUI:
         self.window.fill(DARK)
         for row in range(ROWS):
             for col in range(row % 2, COLS, 2):
-                pygame.draw.rect(self.window, LIGHT, (row * SQUARE_SIZE, col * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE))
+                pygame.draw.rect(
+                    self.window,
+                    LIGHT,
+                    (row * SQUARE_SIZE, col * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE),
+                )
 
         self.render_pieces()
         if self.dragged_piece:
             self.render_moves()
             self.render_piece(self.dragged_piece)
-        
 
     def render_pieces(self):
         """
         Renders the pieces on the board.
         """
         for piece in self.board.piece_list:
-                if piece != self.dragged_piece:
-                    self.render_piece(piece)
+            if piece != self.dragged_piece:
+                self.render_piece(piece)
 
     def render_piece(self, piece):
         """
@@ -85,10 +91,15 @@ class ChessUI:
         """
         if self.dragged_piece.color == self.game.turn:
             for circle_square in self.dragged_piece.legal_moves:
-                self.draw_circle(self.window, (180, 180, 180), (
-                    circle_square[1] * SQUARE_SIZE + SQUARE_SIZE // 2, 
-                    circle_square[0] * SQUARE_SIZE + SQUARE_SIZE // 2
-                    ), 15)
+                self.draw_circle(
+                    self.window,
+                    (180, 180, 180),
+                    (
+                        circle_square[1] * SQUARE_SIZE + SQUARE_SIZE // 2,
+                        circle_square[0] * SQUARE_SIZE + SQUARE_SIZE // 2,
+                    ),
+                    15,
+                )
 
     @staticmethod
     def get_square_at_coords(coords):
@@ -100,7 +111,7 @@ class ChessUI:
                 where x is the row and y is the column.
         """
         return (coords[1] // SQUARE_SIZE, coords[0] // SQUARE_SIZE)
-    
+
     @staticmethod
     def get_coords_of_square(position):
         """

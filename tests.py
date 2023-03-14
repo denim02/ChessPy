@@ -1,9 +1,11 @@
 import unittest
 import chess_game.pieces as pieces
 
+
 class Test(unittest.TestCase):
     def test(self):
         self.assertEqual(1, 1)
+
 
 class TestPieces(unittest.TestCase):
     def test_piece_attributes(self):

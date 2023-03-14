@@ -64,7 +64,7 @@ def is_checkmate(board, color):
                     if not is_king_in_check_after_move(board, piece, move):
                         return False
         return True
-    return False 
+    return False
 
 
 def is_king_in_check_after_move(board, piece, new_position):

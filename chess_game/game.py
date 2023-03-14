@@ -12,6 +12,7 @@ from chess_game.pieces import King
 from chess_game.board import Board
 from chess_game.constants import *
 
+
 class ChessGame:
     """
     ChessGame:
@@ -24,10 +25,7 @@ class ChessGame:
         Initializes the board and the turn.
         """
         self.board = Board()
-        self.pieces_taken = {
-            "white": [],
-            "black": []
-        }
+        self.pieces_taken = {"white": [], "black": []}
         self.turn = "white"
         self.game_over = False
 
@@ -45,7 +43,7 @@ class ChessGame:
         print(piece)
         print("Original position: ", original_position)
         print("New position: ", new_position)
-        
+
         if piece is None:
             raise ValueError("No piece at the given position.")
         if piece.color != self.turn:
@@ -54,7 +52,7 @@ class ChessGame:
             raise ValueError("Invalid move.")
         if chess_logic.is_king_in_check_after_move(self.board, piece, new_position):
             raise ValueError("This move would put your king in check.")
-        
+
         taken_piece = None
 
         # Check if the desired move is a castle.
@@ -77,6 +75,7 @@ class ChessGame:
 
         self.turn = "white" if self.turn == "black" else "black"
 
+
 def run_game():
     game = ChessGame()
     ui = ChessUI(game)
@@ -87,7 +86,9 @@ def run_game():
         clock.tick(60)
 
         for event in pygame.event.get():
-            if event.type == pygame.QUIT or chess_logic.is_checkmate(game.board, game.turn):
+            if event.type == pygame.QUIT or chess_logic.is_checkmate(
+                game.board, game.turn
+            ):
                 is_running = False
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 # If the user left clicks on the board, check whether they clicked on a piece.
@@ -99,7 +100,7 @@ def run_game():
                         ui.is_dragging = True
                         ui.original_coords = ui.dragged_piece.coords
                         ui.offset = (
-                            event.pos[0] -  ui.dragged_piece.coords[0],
+                            event.pos[0] - ui.dragged_piece.coords[0],
                             event.pos[1] - ui.dragged_piece.coords[1],
                         )
                 else:

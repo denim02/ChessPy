@@ -96,7 +96,7 @@ class Board:
 
         piece.position = old_position
         self.__board_table[old_position[0]][old_position[1]] = piece
-        
+
         self.refresh_legal_moves()
 
     def is_square_occupied(self, position):

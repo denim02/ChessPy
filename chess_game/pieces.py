@@ -47,7 +47,7 @@ class Piece:
     @property
     def coords(self):
         return self.__coords
-    
+
     @coords.setter
     def coords(self, coords):
         self.__coords = coords
@@ -81,7 +81,6 @@ class Piece:
         Parameters:
         board (Board): the board on which the piece is placed."""
         return set()
-
 
     def refresh_legal_moves(self, board):
         """
@@ -169,8 +168,12 @@ class Pawn(Piece):
         possible_moves = set()
         if self.color == "white":
             possible_moves.add((self.position[0] - 1, self.position[1]))
-            if self.position[0] == 6 and board.get_piece_at_square((self.position[0] - 2, self.position[1])) is None:
-                    possible_moves.add((self.position[0] - 2, self.position[1]))
+            if (
+                self.position[0] == 6
+                and board.get_piece_at_square((self.position[0] - 2, self.position[1]))
+                is None
+            ):
+                possible_moves.add((self.position[0] - 2, self.position[1]))
             if (
                 self.position[0] + 1 < 8
                 and self.position[1] - 1 >= 0
@@ -190,7 +193,11 @@ class Pawn(Piece):
 
         else:
             possible_moves.add((self.position[0] + 1, self.position[1]))
-            if self.position[0] == 1 and board.get_piece_at_square((self.position[0] + 2, self.position[1])) is None:
+            if (
+                self.position[0] == 1
+                and board.get_piece_at_square((self.position[0] + 2, self.position[1]))
+                is None
+            ):
                 possible_moves.add((self.position[0] + 2, self.position[1]))
             if (
                 self.position[0] + 1 < 8
