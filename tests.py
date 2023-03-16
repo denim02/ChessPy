@@ -218,3 +218,67 @@ class TestRook(unittest.TestCase):
         self.board.place_piece(pieces.Piece(name="Test Piece", value=10, color="white", position=(4, 0)))
         expected_moves = {(0, 1), (0, 2), (0, 3), (1, 0), (2, 0), (3, 0)}
         self.assertEqual(expected_moves, self.rook.generate_legal_moves(self.board))
+
+class TestKnight(unittest.TestCase):
+    def setUp(self):
+        self.board = board.Board()
+        self.knight = pieces.Knight("white", (0, 1))
+        self.board.place_piece(self.knight)
+
+    def test_generate_possible_moves(self):
+        expected_moves = {(2, 0), (2, 2), (1, 3)}
+        self.assertEqual(self.knight.generate_possible_moves(self.board), expected_moves)
+
+    def test_generate_legal_moves(self):
+        # No other pieces on the board
+        expected_moves = {(2, 0), (2, 2), (1, 3)}
+        self.assertEqual(self.knight.generate_legal_moves(self.board), expected_moves)
+
+        # Enemy piece where knight can move
+        self.board.place_piece(pieces.Piece(name="Test Piece", value=10, color="black", position=(2, 0)))
+        expected_moves = {(2, 2), (1, 3), (2, 0)}
+        self.assertEqual(self.knight.generate_legal_moves(self.board), expected_moves)
+
+        # Friendly piece where knight can move
+        self.board.place_piece(pieces.Piece(name="Test Piece", value=10, color="white", position=(2, 2)))
+        expected_moves = {(1, 3), (2, 0)}
+        self.assertEqual(self.knight.generate_legal_moves(self.board), expected_moves)
+
+    def test_refresh_legal_moves(self):
+        expected_moves = {(2, 0), (2, 2), (1, 3)}
+        self.knight.refresh_legal_moves(self.board)
+        self.assertEqual(self.knight.legal_moves, expected_moves)
+
+class TestBishop(unittest.TestCase):
+    def setUp(self):
+        self.board = board.Board()
+        self.bishop = pieces.Bishop("white", (4, 4))
+        self.board.place_piece(self.bishop)
+
+    def test_generate_possible_moves(self):
+        expected_moves = {(5, 5), (6, 6), (7, 7), (3, 3), (2, 2), (1, 1), (0, 0),
+                          (5, 3), (6, 2), (7, 1), (3, 5), (2, 6), (1, 7)}
+        self.assertEqual(self.bishop.generate_possible_moves(self.board), expected_moves)
+
+    def test_generate_legal_moves(self):
+        # No other pieces on the board
+        expected_moves = {(5, 5), (6, 6), (7, 7), (3, 3), (2, 2), (1, 1), (0, 0),
+                            (5, 3), (6, 2), (7, 1), (3, 5), (2, 6), (1, 7)}
+        self.assertEqual(self.bishop.generate_legal_moves(self.board), expected_moves)
+
+        # Enemy piece where bishop can move
+        self.board.place_piece(pieces.Piece(name="Test Piece", value=10, color="black", position=(5, 5)))
+        expected_moves = {(3, 3), (2, 2), (1, 1), (0, 0),
+                            (5, 3), (6, 2), (7, 1), (3, 5), (2, 6), (1, 7), (5, 5)}
+        self.assertEqual(self.bishop.generate_legal_moves(self.board), expected_moves)
+
+        # Friendly piece where bishop can move
+        self.board.place_piece(pieces.Piece(name="Test Piece", value=10, color="white", position=(3, 3)))
+        expected_moves = {(5, 3), (6, 2), (7, 1), (3, 5), (2, 6), (1, 7), (5, 5)}
+        self.assertEqual(self.bishop.generate_legal_moves(self.board), expected_moves)
+
+    def test_refresh_legal_moves(self):
+        expected_moves = {(5, 5), (6, 6), (7, 7), (3, 3), (2, 2), (1, 1), (0, 0),
+                            (5, 3), (6, 2), (7, 1), (3, 5), (2, 6), (1, 7)}
+        self.bishop.refresh_legal_moves(self.board)
+        self.assertEqual(self.bishop.legal_moves, expected_moves)
