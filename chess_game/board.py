@@ -18,12 +18,9 @@ class Board:
         """
         Initializes the board with a 2D array of pieces and a list of all pieces on the board.
         """
-        self.__board_table = self.populate_board()
-        self.__piece_list = [
-            piece for row in self.__board_table for piece in row if piece is not None
-        ]
+        self.__board_table = [[None for _ in range(8)] for _ in range(8)]
+        self.__piece_list = []
         self.last_piece_captured = None
-        self.refresh_legal_moves()
 
     @property
     def piece_list(self):
@@ -51,6 +48,16 @@ class Board:
             Piece: piece at the given position or None if the position is empty.
         """
         return self.__board_table[position[0]][position[1]]
+    
+    def place_piece(self, piece):
+        """
+        Places a piece on the board.
+
+        Parameters:
+            piece (Piece): piece to be placed on the board.
+        """
+        self.__board_table[piece.position[0]][piece.position[1]] = piece
+        self.piece_list.append(piece)
 
     def move_piece_to_square(self, piece, new_position):
         """
@@ -184,7 +191,11 @@ class Board:
         Returns:
             list: 2D array of pieces representing the board.
         """
-        return Board.parse_fen("./game/game_states/init_position.fen")
+        self.__board_table = Board.parse_fen("./game/game_states/init_position.fen")
+        self.piece_list = [
+            piece for row in self.__board_table for piece in row if piece is not None
+        ]
+        self.refresh_legal_moves()
 
     def __repr__(self):
         """

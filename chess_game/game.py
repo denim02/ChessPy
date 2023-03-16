@@ -25,6 +25,7 @@ class ChessGame:
         Initializes the board and the turn.
         """
         self.board = Board()
+        self.board.populate_board()
         self.pieces_taken = {"white": [], "black": []}
         self.turn = "white"
         self.game_over = False
