@@ -59,6 +59,18 @@ class Board:
         self.__board_table[piece.position[0]][piece.position[1]] = piece
         self.piece_list.append(piece)
 
+    def remove_piece_at_square(self, position):
+        """
+        Removes a piece from the board.
+
+        Parameters:
+            position (tuple): position on the board in (x, y) format,
+                where x is the row and y is the column.
+        """
+        piece = self.get_piece_at_square(position)
+        self.__board_table[position[0]][position[1]] = None
+        self.piece_list.remove(piece)
+
     def move_piece_to_square(self, piece, new_position):
         """
         Move a piece to a new position on the board.
