@@ -60,19 +60,46 @@ class TestPiece(unittest.TestCase):
 
     def test_from_algebraic_notation(self):
         position = (0, 0)
-        piece = pieces.Piece.from_algebraic_notation("P", position)
-        self.assertIsInstance(piece, pieces.Pawn)
-        self.assertEqual(piece.name, "Pawn")
-        self.assertEqual(piece.value, 1)
-        self.assertEqual(piece.color, "white")
-        self.assertEqual(piece.position, position)
 
+        # Test pawns
+        pawn_piece = pieces.Piece.from_algebraic_notation("P", position)
+        self.assertIsInstance(pawn_piece, pieces.Pawn)
+        self.assertEqual(pawn_piece.name, "Pawn")
+        self.assertEqual(pawn_piece.value, 1)
+        self.assertEqual(pawn_piece.color, "white")
+        self.assertEqual(pawn_piece.position, position)
+
+        # Test rooks
+        rook_piece = pieces.Piece.from_algebraic_notation("r", position)
+        self.assertIsInstance(rook_piece, pieces.Rook)
+        self.assertEqual(rook_piece.color, "black")
+
+        # Test knights
+        knight_piece = pieces.Piece.from_algebraic_notation("N", position)
+        self.assertIsInstance(knight_piece, pieces.Knight)
+
+        # Test bishops
+        bishop_piece = pieces.Piece.from_algebraic_notation("B", position)
+        self.assertIsInstance(bishop_piece, pieces.Bishop)
+
+        # Test queens
+        queen_piece = pieces.Piece.from_algebraic_notation("Q", position)
+        self.assertIsInstance(queen_piece, pieces.Queen)
+
+        # Test kings
+        king_piece = pieces.Piece.from_algebraic_notation("K", position)
+        self.assertIsInstance(king_piece, pieces.King)
+        
         with self.assertRaises(ValueError):
             pieces.Piece.from_algebraic_notation("X", position)
 
     def test_to_algebraic_notation(self):
         piece = pieces.Piece(name="Pawn", value=1, color="white", position=(0, 0))
         self.assertEqual(piece.to_algebraic_notation(), "P")
+
+        # Test knights
+        piece = pieces.Knight(color="white", position=(0, 0))
+        self.assertEqual(piece.to_algebraic_notation(), "N")
 
     def test_repr(self):
         self.assertEqual(repr(self.piece), "Black Test Piece")
@@ -97,12 +124,12 @@ class TestPawn(unittest.TestCase):
         self.assertEqual(possible_moves, {(5, 0), (4, 0)})
 
         # Test white pawn that moved
-        self.pawn.position = (3, 0)
+        self.board.move_piece_to_square(self.pawn, (3, 0))
         possible_moves = self.pawn.generate_possible_moves(self.board)
         self.assertEqual(possible_moves, {(2, 0)})
 
         # Test white pawn with potential capture
-        self.pawn.position = (4, 4)
+        self.board.move_piece_to_square(self.pawn, (4, 4))
         self.board._place_piece(pieces.Piece(name="Test Piece", value=10, color="black", position=(3, 3)))
         self.board._place_piece(pieces.Piece(name="Test Piece", value=10, color="black", position=(3, 5)))
         possible_moves = self.pawn.generate_possible_moves(self.board)
@@ -110,19 +137,28 @@ class TestPawn(unittest.TestCase):
         self.board._remove_piece_at_square((3, 3))
         self.board._remove_piece_at_square((3, 5))
 
+        # Test white pawn with piece in front of it
+        self.board._place_piece(pieces.Piece(name="Test Piece", value=10, color="black", position=(3, 4)))
+        possible_moves = self.pawn.generate_possible_moves(self.board)
+        print(self.board)
+        self.assertEqual(possible_moves, set())
+
         # Test black pawn with no pieces in front of it at start
-        self.pawn.color = "black"
-        self.pawn.position = (1, 0)
+        self.board._remove_piece_at_square((3, 4))
+        self.board._remove_piece_at_square((4, 4))
+        self.pawn = pieces.Pawn(color="black", position=(1, 0))
+        self.board._place_piece(self.pawn)
         possible_moves = self.pawn.generate_possible_moves(self.board)
         self.assertEqual(possible_moves, {(2, 0), (3, 0)})
 
         # Test black pawn that moved
-        self.pawn.position = (3, 0)
+        self.board.move_piece_to_square(self.pawn, (3, 0))
+        self.board._place_piece(self.pawn)
         possible_moves = self.pawn.generate_possible_moves(self.board)
         self.assertEqual(possible_moves, {(4, 0)})
         
         # Test black pawn with potential capture
-        self.pawn.position = (4, 4)
+        self.board.move_piece_to_square(self.pawn, (4, 4))
         self.board._place_piece(pieces.Piece(name="Test Piece", value=10, color="white", position=(5, 5)))
         self.board._place_piece(pieces.Piece(name="Test Piece", value=10, color="white", position=(5, 3)))
         possible_moves = self.pawn.generate_possible_moves(self.board)
@@ -130,6 +166,12 @@ class TestPawn(unittest.TestCase):
         self.board._remove_piece_at_square((5, 5))
         self.board._remove_piece_at_square((5, 3))
 
+        # Test black pawn with piece in front of it
+        self.board.move_piece_to_square(self.pawn, (4, 4))
+        self.board._place_piece(pieces.Piece(name="Test Piece", value=10, color="white", position=(5, 4)))
+        possible_moves = self.pawn.generate_possible_moves(self.board)
+        self.assertEqual(possible_moves, set())
+        
     def test_generate_legal_moves(self):
         # Test white pawn with no pieces in front of it at start
         legal_moves = self.pawn.generate_legal_moves(self.board)
