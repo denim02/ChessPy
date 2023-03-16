@@ -192,7 +192,7 @@ class Board:
             list: 2D array of pieces representing the board.
         """
         self.__board_table = Board.parse_fen("./game/game_states/init_position.fen")
-        self.piece_list = [
+        self.__piece_list = [
             piece for row in self.__board_table for piece in row if piece is not None
         ]
         self.refresh_legal_moves()
