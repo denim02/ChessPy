@@ -49,7 +49,7 @@ class Board:
         """
         return self.__board_table[position[0]][position[1]]
     
-    def place_piece(self, piece):
+    def _place_piece(self, piece):
         """
         Places a piece on the board.
 
@@ -59,7 +59,7 @@ class Board:
         self.__board_table[piece.position[0]][piece.position[1]] = piece
         self.piece_list.append(piece)
 
-    def remove_piece_at_square(self, position):
+    def _remove_piece_at_square(self, position):
         """
         Removes a piece from the board.
 
