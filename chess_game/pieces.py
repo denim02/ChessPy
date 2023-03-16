@@ -402,26 +402,37 @@ class King(Piece):
         # and whether the king is under attack or not
         if not self.has_moved:
             if self.color == "black":
-                if not board.is_path_blocked((0, 4), (0, 0)):
-                    if not board.is_square_attacked((0, 4), "black"):
-                        if not board.is_square_attacked((0, 3), "black"):
-                            if not board.is_square_attacked((0, 2), "black"):
-                                possible_moves.add((0, 2))
-                if not board.is_path_blocked((0, 4), (0, 7)):
-                    if not board.is_square_attacked((0, 4), "black"):
-                        if not board.is_square_attacked((0, 5), "black"):
-                            if not board.is_square_attacked((0, 6), "black"):
-                                possible_moves.add((0, 6))
+                # Check first whether there is a rook there and whether that rook has moved or not
+                queen_side_rook = board.get_piece_at_square((0, 0))
+                if queen_side_rook is not None and isinstance(queen_side_rook, Rook) and not queen_side_rook.has_moved:
+                    if not board.is_path_blocked((0, 4), (0, 0)):
+                        if not board.is_square_attacked((0, 4), "black"):
+                            if not board.is_square_attacked((0, 3), "black"):
+                                if not board.is_square_attacked((0, 2), "black"):
+                                    possible_moves.add((0, 2))
+
+                king_side_rook = board.get_piece_at_square((0, 7))
+                if king_side_rook is not None and isinstance(king_side_rook, Rook) and not king_side_rook.has_moved:
+                    if not board.is_path_blocked((0, 4), (0, 7)):
+                        if not board.is_square_attacked((0, 4), "black"):
+                            if not board.is_square_attacked((0, 5), "black"):
+                                if not board.is_square_attacked((0, 6), "black"):
+                                    possible_moves.add((0, 6))
             else:
-                if not board.is_path_blocked((7, 4), (7, 0)):
-                    if not board.is_square_attacked((7, 4), "white"):
-                        if not board.is_square_attacked((7, 3), "white"):
-                            if not board.is_square_attacked((7, 2), "white"):
-                                possible_moves.add((7, 2))
-                if not board.is_path_blocked((7, 4), (7, 7)):
-                    if not board.is_square_attacked((7, 4), "white"):
-                        if not board.is_square_attacked((7, 5), "white"):
-                            if not board.is_square_attacked((7, 6), "white"):
-                                possible_moves.add((7, 6))
+                queen_side_rook = board.get_piece_at_square((7, 0))
+                if queen_side_rook is not None and isinstance(queen_side_rook, Rook) and not queen_side_rook.has_moved:
+                    if not board.is_path_blocked((7, 4), (7, 0)):
+                        if not board.is_square_attacked((7, 4), "white"):
+                            if not board.is_square_attacked((7, 3), "white"):
+                                if not board.is_square_attacked((7, 2), "white"):
+                                    possible_moves.add((7, 2))
+
+                king_side_rook = board.get_piece_at_square((7, 7))
+                if king_side_rook is not None and isinstance(king_side_rook, Rook) and not king_side_rook.has_moved:
+                    if not board.is_path_blocked((7, 4), (7, 7)):
+                        if not board.is_square_attacked((7, 4), "white"):
+                            if not board.is_square_attacked((7, 5), "white"):
+                                if not board.is_square_attacked((7, 6), "white"):
+                                    possible_moves.add((7, 6))
 
         return possible_moves
