@@ -18,6 +18,10 @@ class TestPiece(unittest.TestCase):
 
     def test_color(self):
         self.assertEqual(self.piece.color, "black")
+        self.piece.color = "white"
+        self.assertEqual(self.piece.color, "white")
+        with self.assertRaises(ValueError):
+            self.piece.color = "blue"
 
     def test_coords(self):
         self.assertEqual(self.piece.coords, (0, 0))
@@ -72,3 +76,145 @@ class TestPiece(unittest.TestCase):
 
     def test_repr(self):
         self.assertEqual(repr(self.piece), "Black Test Piece")
+
+class TestPawn(unittest.TestCase):
+    def setUp(self):
+        self.pawn = pieces.Pawn(color="white", position=(6, 0))
+        self.board = board.Board()
+        self.board.place_piece(self.pawn)
+
+    def test_init(self):
+        self.assertEqual(self.pawn.name, "Pawn")
+        self.assertEqual(self.pawn.value, 1)
+        self.assertEqual(self.pawn.color, "white")
+        self.assertEqual(self.pawn.position, (6, 0))
+        self.assertIsNone(self.pawn.image)
+        self.assertEqual(self.pawn.coords, (0, 6 * constants.SQUARE_SIZE))
+        self.assertEqual(self.pawn.legal_moves, set())
+
+    def test_generate_possible_moves(self):
+        # Test white pawn with no pieces in front of it at start
+        possible_moves = self.pawn.generate_possible_moves(self.board)
+        self.assertEqual(possible_moves, {(5, 0), (4, 0)})
+
+        # Test white pawn that moved
+        self.pawn.position = (3, 0)
+        possible_moves = self.pawn.generate_possible_moves(self.board)
+        self.assertEqual(possible_moves, {(2, 0)})
+
+        # Test white pawn with potential capture
+        self.pawn.position = (4, 4)
+        self.board.place_piece(pieces.Piece(name="Test Piece", value=10, color="black", position=(3, 3)))
+        self.board.place_piece(pieces.Piece(name="Test Piece", value=10, color="black", position=(3, 5)))
+        possible_moves = self.pawn.generate_possible_moves(self.board)
+        self.assertEqual(possible_moves, {(3, 4), (3, 3), (3, 5)})
+        self.board.remove_piece_at_square((3, 3))
+        self.board.remove_piece_at_square((3, 5))
+
+        # Test black pawn with no pieces in front of it at start
+        self.pawn.color = "black"
+        self.pawn.position = (1, 0)
+        possible_moves = self.pawn.generate_possible_moves(self.board)
+        self.assertEqual(possible_moves, {(2, 0), (3, 0)})
+
+        # Test black pawn that moved
+        self.pawn.position = (3, 0)
+        possible_moves = self.pawn.generate_possible_moves(self.board)
+        self.assertEqual(possible_moves, {(4, 0)})
+        
+        # Test black pawn with potential capture
+        self.pawn.position = (4, 4)
+        self.board.place_piece(pieces.Piece(name="Test Piece", value=10, color="white", position=(5, 5)))
+        self.board.place_piece(pieces.Piece(name="Test Piece", value=10, color="white", position=(5, 3)))
+        possible_moves = self.pawn.generate_possible_moves(self.board)
+        self.assertEqual(possible_moves, {(5, 4), (5, 5), (5, 3)})
+        self.board.remove_piece_at_square((5, 5))
+        self.board.remove_piece_at_square((5, 3))
+
+    def test_generate_legal_moves(self):
+        # Test white pawn with no pieces in front of it at start
+        legal_moves = self.pawn.generate_legal_moves(self.board)
+        self.assertEqual(legal_moves, {(5, 0), (4, 0)})
+
+        # Test white pawn that moved
+        self.pawn.position = (3, 0)
+        legal_moves = self.pawn.generate_legal_moves(self.board)
+        self.assertEqual(legal_moves, {(2, 0)})
+
+        # Test white pawn with potential capture
+        self.pawn.position = (4, 4)
+        self.board.place_piece(pieces.Piece(name="Test Piece", value=10, color="black", position=(3, 3)))
+        self.board.place_piece(pieces.Piece(name="Test Piece", value=10, color="black", position=(3, 5)))
+        legal_moves = self.pawn.generate_legal_moves(self.board)
+        self.assertEqual(legal_moves, {(3, 4), (3, 3), (3, 5)})
+        self.board.remove_piece_at_square((3, 3))
+        self.board.remove_piece_at_square((3, 5))
+
+        # Test black pawn with no pieces in front of it at start
+        self.pawn.color = "black"
+        self.pawn.position = (1, 0)
+        legal_moves = self.pawn.generate_legal_moves(self.board)
+        self.assertEqual(legal_moves, {(2, 0), (3, 0)})
+
+        # Test black pawn that moved
+        self.pawn.position = (3, 0)
+        legal_moves = self.pawn.generate_legal_moves(self.board)
+        self.assertEqual(legal_moves, {(4, 0)})
+
+        # Test black pawn with potential capture
+        self.pawn.position = (4, 4)
+        self.board.place_piece(pieces.Piece(name="Test Piece", value=10, color="white", position=(5, 5)))
+        self.board.place_piece(pieces.Piece(name="Test Piece", value=10, color="white", position=(5, 3)))
+        legal_moves = self.pawn.generate_legal_moves(self.board)
+        self.assertEqual(legal_moves, {(5, 4), (5, 5), (5, 3)})
+        self.board.remove_piece_at_square((5, 5))
+        self.board.remove_piece_at_square((5, 3))
+        
+    def test_repr(self):
+        self.assertEqual(repr(self.pawn), "White Pawn")
+
+class TestRook(unittest.TestCase):
+    def setUp(self):
+        self.board = board.Board()
+        self.rook = pieces.Rook("white", (0, 0))
+        self.board.place_piece(self.rook)
+
+    def test_init(self):
+        self.assertEqual(self.rook.name, "Rook")
+        self.assertEqual(self.rook.value, 5)
+        self.assertEqual(self.rook.color, "white")
+        self.assertEqual(self.rook.position, (0, 0))
+        self.assertEqual(self.rook.has_moved, False)
+
+    def test_generate_possible_moves(self):
+        # Test rook with no pieces in front of it
+        expected_moves = {(0, 1), (0, 2), (0, 3), (0, 4), (0, 5), (0, 6), (0, 7), 
+                          (1, 0), (2, 0), (3, 0), (4, 0), (5, 0), (6, 0), (7, 0)}
+        self.assertEqual(expected_moves, self.rook.generate_possible_moves(self.board))
+
+        # Test rook with pieces in front of it (both vertically and horizontally)
+        self.board.place_piece(pieces.Piece(name="Test Piece", value=10, color="black", position=(0, 3)))
+        self.board.place_piece(pieces.Piece(name="Test Piece", value=10, color="black", position=(3, 0)))
+        expected_moves = {(0, 1), (0, 2), (0, 3), (0, 4), (0, 5), (0, 6), (0, 7), 
+                          (1, 0), (2, 0), (3, 0), (4, 0), (5, 0), (6, 0), (7, 0)}
+        self.assertEqual(expected_moves, self.rook.generate_possible_moves(self.board))
+
+    def test_generate_legal_moves(self):
+        # Test rook with no pieces in front of it
+        expected_moves = {(0, 1), (0, 2), (0, 3), (0, 4), (0, 5), (0, 6), (0, 7), 
+                          (1, 0), (2, 0), (3, 0), (4, 0), (5, 0), (6, 0), (7, 0)}
+        self.assertEqual(expected_moves, self.rook.generate_legal_moves(self.board))
+
+        # Test rook with enemy pieces in front of it (both vertically and horizontally)
+        self.board.place_piece(pieces.Piece(name="Test Piece", value=10, color="black", position=(0, 3)))
+        self.board.place_piece(pieces.Piece(name="Test Piece", value=10, color="black", position=(3, 0)))
+        expected_moves = {(0, 1), (0, 2), (0, 3), (1, 0), (2, 0), (3, 0)}
+        self.assertEqual(expected_moves, self.rook.generate_legal_moves(self.board))
+        self.board.remove_piece_at_square((0, 3))
+        self.board.remove_piece_at_square((3, 0))
+
+        # Test rook with friendly pieces in front of it (both vertically and horizontally)
+        self.board.place_piece(pieces.Piece(name="Test Piece", value=10, color="white", position=(0, 4)))
+        self.board.place_piece(pieces.Piece(name="Test Piece", value=10, color="white", position=(4, 0)))
+        expected_moves = {(0, 1), (0, 2), (0, 3), (1, 0), (2, 0), (3, 0)}
+        self.assertEqual(expected_moves, self.rook.generate_legal_moves(self.board))
