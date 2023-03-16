@@ -44,6 +44,13 @@ class Piece:
     def color(self):
         return self.__color
 
+    @color.setter
+    def color(self, color):
+        if color not in ("white", "black"):
+            raise ValueError("Invalid color.")
+        else:
+            self.__color = color
+
     @property
     def coords(self):
         return self.__coords
