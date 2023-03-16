@@ -3,22 +3,6 @@ chess_logic.py
 This module contains the logic for the chess game.
 """
 
-
-def is_possible_move(piece, new_position):
-    """
-    Check if a move is possible (if there isn't a blocking piece in the way).
-
-    Parameters:
-        piece (Piece): piece to be moved.
-        new_position (tuple): new position on the board
-            in (x, y) format, where x is the row and y is the column.
-
-    Returns:
-        bool: True if the move is legal, False otherwise.
-    """
-    return new_position in piece.possible_moves
-
-
 def is_check(board, color):
     """
     Check if a king of a given color is in check.
@@ -35,10 +19,7 @@ def is_check(board, color):
         for piece in board.piece_list
         if piece.color == color and piece.name == "King"
     ][0]
-    for piece in board.piece_list:
-        if piece.color != color and king.position in piece.legal_moves:
-            return True
-    return False
+    return board.is_square_attacked(king.position, color)
 
 
 def is_checkmate(board, color):
@@ -52,11 +33,6 @@ def is_checkmate(board, color):
     Returns:
         bool: True if the king is in checkmate, False otherwise.
     """
-    king = [
-        piece
-        for piece in board.piece_list
-        if piece.color == color and piece.name == "King"
-    ][0]
     if is_check(board, color):
         for piece in board.piece_list:
             if piece.color == color:
