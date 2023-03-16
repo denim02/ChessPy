@@ -401,38 +401,24 @@ class King(Piece):
         # whether the king has moved or not, whether the rook has moved or not
         # and whether the king is under attack or not
         if not self.has_moved:
-            if self.color == "black":
-                # Check first whether there is a rook there and whether that rook has moved or not
-                queen_side_rook = board.get_piece_at_square((0, 0))
-                if queen_side_rook is not None and isinstance(queen_side_rook, Rook) and not queen_side_rook.has_moved:
-                    if not board.is_path_blocked((0, 4), (0, 0)):
-                        if not board.is_square_attacked((0, 4), "black"):
-                            if not board.is_square_attacked((0, 3), "black"):
-                                if not board.is_square_attacked((0, 2), "black"):
-                                    possible_moves.add((0, 2))
+            queen_side_rook = board.get_piece_at_square((self.position[0], 0))
+            # Check whether the king can castle queen side
+            if isinstance(queen_side_rook, Rook) \
+                and (not queen_side_rook.has_moved) \
+                and (not board.is_path_blocked((self.position[0], 4), (self.position[0], 0))) \
+                and (not board.is_horizontal_path_attacked((self.position[0], 0), (self.position[0], 4), self.color)) \
+                and (not chess_logic.is_check(board, self.color)):
 
-                king_side_rook = board.get_piece_at_square((0, 7))
-                if king_side_rook is not None and isinstance(king_side_rook, Rook) and not king_side_rook.has_moved:
-                    if not board.is_path_blocked((0, 4), (0, 7)):
-                        if not board.is_square_attacked((0, 4), "black"):
-                            if not board.is_square_attacked((0, 5), "black"):
-                                if not board.is_square_attacked((0, 6), "black"):
-                                    possible_moves.add((0, 6))
-            else:
-                queen_side_rook = board.get_piece_at_square((7, 0))
-                if queen_side_rook is not None and isinstance(queen_side_rook, Rook) and not queen_side_rook.has_moved:
-                    if not board.is_path_blocked((7, 4), (7, 0)):
-                        if not board.is_square_attacked((7, 4), "white"):
-                            if not board.is_square_attacked((7, 3), "white"):
-                                if not board.is_square_attacked((7, 2), "white"):
-                                    possible_moves.add((7, 2))
+                possible_moves.add((self.position[0], 2))
 
-                king_side_rook = board.get_piece_at_square((7, 7))
-                if king_side_rook is not None and isinstance(king_side_rook, Rook) and not king_side_rook.has_moved:
-                    if not board.is_path_blocked((7, 4), (7, 7)):
-                        if not board.is_square_attacked((7, 4), "white"):
-                            if not board.is_square_attacked((7, 5), "white"):
-                                if not board.is_square_attacked((7, 6), "white"):
-                                    possible_moves.add((7, 6))
+            king_side_rook = board.get_piece_at_square((self.position[0], 7))
+            # Check whether the king can castle king side
+            if isinstance(king_side_rook, Rook) \
+                and (not king_side_rook.has_moved) \
+                and (not board.is_path_blocked((self.position[0], 4), (self.position[0], 7))) \
+                and (not board.is_horizontal_path_attacked((self.position[0], 4), (self.position[0], 7), self.color)) \
+                and (not chess_logic.is_check(board, self.color)):
+
+                possible_moves.add((self.position[0], 6))
 
         return possible_moves
