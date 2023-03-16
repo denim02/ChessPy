@@ -58,6 +58,7 @@ class Board:
         """
         self.__board_table[piece.position[0]][piece.position[1]] = piece
         self.piece_list.append(piece)
+        self.refresh_legal_moves()
 
     def _remove_piece_at_square(self, position):
         """
@@ -70,6 +71,7 @@ class Board:
         piece = self.get_piece_at_square(position)
         self.__board_table[position[0]][position[1]] = None
         self.piece_list.remove(piece)
+        self.refresh_legal_moves()
 
     def move_piece_to_square(self, piece, new_position):
         """
@@ -144,10 +146,10 @@ class Board:
         Returns:
             bool: True if the position is attacked, False otherwise.
         """
-        for piece in self.piece_list:
-            if piece.color != color and position in piece.legal_moves:
-                return True
-        return False
+        return any(position in piece.legal_moves for piece in self.piece_list if piece.color != color)
+
+    def is_horizontal_path_attacked(self, start_position, end_position, color):
+        return any(self.is_square_attacked((start_position[0], i), color) for i in range(start_position[1], end_position[1] + 1))
 
     def is_path_blocked(self, original_position, new_position):
         """
