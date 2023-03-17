@@ -147,6 +147,9 @@ class Board:
         Returns:
             bool: True if the position is occupied, False otherwise.
         """
+        if position[0] < 0 or position[0] > 7 or position[1] < 0 or position[1] > 7:
+            raise ValueError("Invalid position!")
+
         return self.__board_table[position[0]][position[1]] is not None
 
     def is_square_attacked(self, position, color):
@@ -162,6 +165,9 @@ class Board:
         Returns:
             bool: True if the position is attacked, False otherwise.
         """
+        if position[0] < 0 or position[0] > 7 or position[1] < 0 or position[1] > 7:
+            raise ValueError("Invalid position!")
+
         return any(position in piece.legal_moves for piece in self.piece_list if piece.color != color)
 
     def is_horizontal_path_attacked(self, start_position, end_position, color):
