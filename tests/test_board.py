@@ -130,5 +130,49 @@ class TestBoard(unittest.TestCase):
         self.assertTrue(self.board.is_square_occupied((7,0)))
         self.assertFalse(self.board.is_square_occupied((5,0)))
 
+    def test_is_square_occupied_out_of_bounds(self):
+        with self.assertRaises(ValueError):
+            self.board.is_square_occupied((8,0))
+
+    def test_is_square_attacked(self):
+        self.board._remove_piece_at_square((6, 0))
+        self.assertTrue(self.board.is_square_attacked((1,0), 'black'))
+        self.assertFalse(self.board.is_square_attacked((7,0), 'white'))
+
+    def test_is_square_attacked_out_of_bounds(self):
+        with self.assertRaises(ValueError):
+            self.board.is_square_attacked((8,0), 'white')
+
+    def test_is_horizontal_path_attacked(self):
+        self.board._remove_piece_at_square((1, 0))
+        self.assertTrue(self.board.is_horizontal_path_attacked((6,0), (6,5), "white"))
+        self.assertFalse(self.board.is_horizontal_path_attacked((1,0), (1,5), "black"))
+    
+    def test_is_horizontal_path_blocked(self):
+        self.assertTrue(self.board.is_path_blocked((6,0), (6,5)))
+        self.assertFalse(self.board.is_path_blocked((2,0), (2,5)))
+
+    def test_is_vertical_path_blocked(self):
+        self.assertTrue(self.board.is_path_blocked((0,0), (5,0)))
+        self.assertFalse(self.board.is_path_blocked((3,0), (5,0)))
+
+    def test_is_diagonal_path_blocked(self):
+        self.assertTrue(self.board.is_path_blocked((0,0), (7,7)))
+        self.assertFalse(self.board.is_path_blocked((3,0), (5,2)))
+
+    def test_repr(self):
+        expected_board ="  a b c d e f g h \n" \
+                        "8 r n b q k b n r 8\n" \
+                        "7 p p p p p p p p 7\n" \
+                        "6 . . . . . . . . 6\n" \
+                        "5 . . . . . . . . 5\n" \
+                        "4 . . . . . . . . 4\n" \
+                        "3 . . . . . . . . 3\n" \
+                        "2 P P P P P P P P 2\n" \
+                        "1 R N B Q K B N R 1\n" \
+                        "  a b c d e f g h \n"
+
+        self.assertEqual(repr(self.board), expected_board)
+
 if __name__ == '__main__':
     unittest.main()
