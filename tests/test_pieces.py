@@ -140,7 +140,6 @@ class TestPawn(unittest.TestCase):
         # Test white pawn with piece in front of it
         self.board._place_piece(pieces.Piece(name="Test Piece", value=10, color="black", position=(3, 4)))
         possible_moves = self.pawn.generate_possible_moves(self.board)
-        print(self.board)
         self.assertEqual(possible_moves, set())
 
         # Test black pawn with no pieces in front of it at start
@@ -153,7 +152,6 @@ class TestPawn(unittest.TestCase):
 
         # Test black pawn that moved
         self.board.move_piece_to_square(self.pawn, (3, 0))
-        self.board._place_piece(self.pawn)
         possible_moves = self.pawn.generate_possible_moves(self.board)
         self.assertEqual(possible_moves, {(4, 0)})
         
@@ -434,6 +432,7 @@ class TestKing(unittest.TestCase):
         self.board._remove_piece_at_square((7, 6))
         
         # Castleing, but path is under attack by distant enemy piece (enemy queen)
+        self.board._remove_piece_at_square((5, 5))
         self.board._place_piece(pieces.Queen("black", (5, 5)))
         expected_moves = {(6, 4), (6, 3), (6, 5), (7, 5), (7, 3)}
         self.assertEqual(self.king.generate_legal_moves(self.board), expected_moves)
