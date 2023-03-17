@@ -281,10 +281,13 @@ class Board:
         Returns:
             str: algebraic notation of the position.
         """
+        if position[0] < 0 or position[0] > 7 or position[1] < 0 or position[1] > 7:
+            raise ValueError("Invalid position!")
+
         return chr(position[1] + 97) + str(8 - position[0])
 
     @staticmethod
-    def get_position_from_algebraic_notation(algebraic_notation):
+    def get_square_from_algebraic_notation(algebraic_notation):
         """
         Convert a position in algebraic notation to a position on the board.
 
