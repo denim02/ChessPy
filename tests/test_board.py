@@ -1,4 +1,6 @@
 import unittest
+import unittest.mock
+import io
 from chess_game import pieces, board, chess_logic, constants
 
 class TestBoard(unittest.TestCase):
@@ -173,6 +175,44 @@ class TestBoard(unittest.TestCase):
                         "  a b c d e f g h \n"
 
         self.assertEqual(repr(self.board), expected_board)
+
+    @unittest.mock.patch('sys.stdout', new_callable=io.StringIO)
+    def test_print(self, mock_stdout):
+        self.board.print_board_from_piece_list()
+        expected_board ="  a b c d e f g h \n" \
+                        "8 r n b q k b n r 8\n" \
+                        "7 p p p p p p p p 7\n" \
+                        "6 . . . . . . . . 6\n" \
+                        "5 . . . . . . . . 5\n" \
+                        "4 . . . . . . . . 4\n" \
+                        "3 . . . . . . . . 3\n" \
+                        "2 P P P P P P P P 2\n" \
+                        "1 R N B Q K B N R 1\n" \
+                        "  a b c d e f g h \n\n"
+
+        self.assertEqual(mock_stdout.getvalue(), expected_board)
+
+    def test_get_algebraic_notation(self):
+        self.assertEqual(self.board.get_algebraic_notation((0,0)), "a8")
+        self.assertEqual(self.board.get_algebraic_notation((7,7)), "h1")
+
+    def test_get_algebraic_notation_out_of_bounds(self):
+        with self.assertRaises(ValueError):
+            self.board.get_algebraic_notation((8,0))
+
+    def test_get_square_from_algebraic_notation(self):
+        self.assertEqual(self.board.get_square_from_algebraic_notation("a8"), (0,0))
+        self.assertEqual(self.board.get_square_from_algebraic_notation("h1"), (7,7))
+
+    def test_parse_fen(self):
+        test_fen_path = "./game/game_states/test_parse.fen"
+        new_board = self.board.parse_fen(test_fen_path)
+        expected_board = board.Board()
+
+        for i in range(4):
+            expected_board._place_piece(pieces.Pawn("black", (1, i)))
+
+        self.assertEqual(repr(new_board), repr(expected_board._Board__board_table))
 
 if __name__ == '__main__':
     unittest.main()
