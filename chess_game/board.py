@@ -47,6 +47,8 @@ class Board:
         Returns:
             Piece: piece at the given position or None if the position is empty.
         """
+        if position[0] < 0 or position[0] > 7 or position[1] < 0 or position[1] > 7:
+            return None
         return self.__board_table[position[0]][position[1]]
     
     def _place_piece(self, piece):
@@ -56,6 +58,10 @@ class Board:
         Parameters:
             piece (Piece): piece to be placed on the board.
         """
+        if self.get_piece_at_square(piece.position) is not None:
+            raise ValueError("Square is already occupied!")
+        elif piece.position[0] < 0 or piece.position[0] > 7 or piece.position[1] < 0 or piece.position[1] > 7:
+            raise ValueError("Invalid position!")
         self.__board_table[piece.position[0]][piece.position[1]] = piece
         self.piece_list.append(piece)
         self.refresh_legal_moves()
@@ -68,10 +74,15 @@ class Board:
             position (tuple): position on the board in (x, y) format,
                 where x is the row and y is the column.
         """
+        if position[0] < 0 or position[0] > 7 or position[1] < 0 or position[1] > 7:
+            raise ValueError("Invalid position!")
+        
         piece = self.get_piece_at_square(position)
         self.__board_table[position[0]][position[1]] = None
-        self.piece_list.remove(piece)
-        self.refresh_legal_moves()
+
+        if piece is not None:
+            self.piece_list.remove(piece)
+            self.refresh_legal_moves()
 
     def move_piece_to_square(self, piece, new_position):
         """
@@ -82,6 +93,11 @@ class Board:
             new_position (tuple): new position on the board in (x, y) format,
                 where x is the row and y is the column.
         """
+        if new_position[0] < 0 or new_position[0] > 7 or new_position[1] < 0 or new_position[1] > 7:
+            raise ValueError("Invalid position!")
+        if piece is None:
+            raise ValueError("Piece is None!")
+
         occupying_piece = self.get_piece_at_square(new_position)
 
         if self.last_piece_captured is not None:
