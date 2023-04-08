@@ -18,6 +18,7 @@ class ChessUI:
     renders the chess board, and displays the pieces on it. The class also handles
     drag and drop events for moving pieces on the board.
     """
+    piece_images = {}
 
     def __init__(self, game):
         """
@@ -31,11 +32,11 @@ class ChessUI:
         self.window = pygame.display.set_mode((720, 720))
         pygame.display.set_caption("Chess Game")
 
-        # Convert and store the images of the pieces
+        # Load piece images
+        self.initialize_images()
+
         for piece in self.board.piece_list:
-            piece.image = pygame.image.load(
-                f"./game/assets/{piece.color}-{piece.name.lower()}.png"
-            ).convert_alpha()
+            piece.image = self.piece_images[f"{piece.color}-{piece.name.lower()}"]
 
         # Variables for event handling
         self.dragged_piece = None
@@ -43,7 +44,21 @@ class ChessUI:
         self.original_coords = None
         self.offset = None
 
+        # Variables for promotion box
+        self.promotion_box = None
+
+        self.render_all()
+
+    def render_all(self):
+        """
+        Renders the board and the pieces on it.
+        """
         self.render_board()
+        self.render_pieces()
+
+        if self.dragged_piece:
+            self.render_moves()
+            self.render_piece(self.dragged_piece)
 
     def render_board(self):
         """
@@ -57,11 +72,6 @@ class ChessUI:
                     LIGHT,
                     (row * SQUARE_SIZE, col * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE),
                 )
-
-        self.render_pieces()
-        if self.dragged_piece:
-            self.render_moves()
-            self.render_piece(self.dragged_piece)
 
     def render_pieces(self):
         """
@@ -80,6 +90,8 @@ class ChessUI:
                 rendered in (x, y) format, where x is the row and y is the column.
         """
         if piece is not None:
+            if not piece.image:
+                piece.image = self.piece_images[f"{piece.color}-{piece.name.lower()}"]
             self.window.blit(piece.image, piece.coords)
 
     def render_moves(self):
@@ -100,6 +112,26 @@ class ChessUI:
                     ),
                     15,
                 )
+
+    @classmethod
+    def initialize_images(cls):
+        """
+        Initializes the images of the pieces.
+        """
+        cls.piece_images = {
+            "white-pawn": pygame.image.load("./game/assets/white-pawn.png").convert_alpha(),
+            "white-rook": pygame.image.load("./game/assets/white-rook.png").convert_alpha(),
+            "white-knight": pygame.image.load("./game/assets/white-knight.png").convert_alpha(),
+            "white-bishop": pygame.image.load("./game/assets/white-bishop.png").convert_alpha(),
+            "white-queen": pygame.image.load("./game/assets/white-queen.png").convert_alpha(),
+            "white-king": pygame.image.load("./game/assets/white-king.png").convert_alpha(),
+            "black-pawn": pygame.image.load("./game/assets/black-pawn.png").convert_alpha(),
+            "black-rook": pygame.image.load("./game/assets/black-rook.png").convert_alpha(),
+            "black-knight": pygame.image.load("./game/assets/black-knight.png").convert_alpha(),
+            "black-bishop": pygame.image.load("./game/assets/black-bishop.png").convert_alpha(),
+            "black-queen": pygame.image.load("./game/assets/black-queen.png").convert_alpha(),
+            "black-king": pygame.image.load("./game/assets/black-king.png").convert_alpha(),
+        }
 
     @staticmethod
     def get_square_at_coords(coords):
@@ -127,3 +159,77 @@ class ChessUI:
     def draw_circle(surface, color, coords, radius):
         gfxdraw.aacircle(surface, coords[0], coords[1], radius, color)
         gfxdraw.filled_circle(surface, coords[0], coords[1], radius, color)
+
+class Button:
+    def __init__(self, x, y, image, scale, return_value, window):
+        self.image = pygame.image.load(image).convert_alpha()
+        self.image = pygame.transform.scale(self.image, (int(self.image.get_width() * scale), int(self.image.get_height() * scale)))
+        self.rect = self.image.get_rect()
+        self.rect.topleft = (x, y)
+        self.return_value = return_value
+        self.window = window
+        self.is_clicked = False
+
+    def draw(self):
+        # draw button
+        self.window.blit(self.image, self.rect.topleft)
+
+    def check_click(self, event):
+        # check if button is clicked
+        if self.rect.collidepoint(event.pos):
+            self.is_clicked = True
+
+class PromotionBox:
+    def __init__(self, window, piece_color):
+        # Define width and height of popup window
+        self.width = 300
+        self.height = 500
+        self.window = window
+        self.x = (self.window.get_width() - self.width) // 2
+        self.y = (self.window.get_height() - self.height) // 2
+
+        # Create a surface for the popup box
+        self.surface = pygame.Surface((self.width, self.height))
+        self.surface.fill((0, 0, 0))
+        self.surface.set_alpha(128)
+
+        # Add text
+        font = pygame.font.SysFont("arial", 40)
+        self.text = font.render("Promote to:", True, (255, 255, 255))
+
+        # Create buttons
+        self.buttons = []
+        button_x = self.x + (self.width - SQUARE_SIZE) // 2
+        self.buttons.append(Button(button_x, 200, f"./game/assets/{piece_color}-queen.png", 1, "Queen", self.window))
+        self.buttons.append(Button(button_x, 300, f"./game/assets/{piece_color}-rook.png", 1, "Rook", self.window))
+        self.buttons.append(Button(button_x, 400, f"./game/assets/{piece_color}-bishop.png", 1, "Bishop", self.window))
+        self.buttons.append(Button(button_x, 500, f"./game/assets/{piece_color}-knight.png", 1, "Knight", self.window))
+
+        # Define final choice
+        self.final_choice = None
+        self.show()
+
+    def show(self):
+        # Show popup window
+        self.window.blit(self.surface, (self.x, self.y))
+        self.draw()
+        self.window.blit(self.text, (self.x + (self.width - self.text.get_width()) // 2, 140))
+        self.get_promotion_choice()
+
+    def draw(self):
+        # Draw 
+        for button in self.buttons:
+            button.draw()
+
+    def get_promotion_choice(self):
+        # Block the game until a choice is made
+        while self.final_choice is None:
+            for event in pygame.event.get():
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    for button in self.buttons:
+                        button.check_click(event)
+                        if button.is_clicked:
+                            self.final_choice = button.return_value
+                            button.is_clicked = False
+
+            pygame.display.update()

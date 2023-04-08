@@ -6,7 +6,7 @@ The class contains methods for moving pieces, checking if a square is occupied,
 checking if a square is attacked, and checking if a path is blocked. Additionally,
 it has a method for refreshing the legal moves for all pieces on the board.
 """
-from chess_game.pieces import Piece
+from chess_game.pieces import *
 
 
 class Board:
@@ -21,6 +21,7 @@ class Board:
         self.__board_table = [[None for _ in range(8)] for _ in range(8)]
         self.__piece_list = []
         self.last_piece_captured = None
+        self.has_moved_changed = False
 
     @property
     def piece_list(self):
@@ -28,6 +29,13 @@ class Board:
         Returns a list of all pieces on the board.
         """
         return self.__piece_list
+    
+    @property
+    def board_table(self):
+        """
+        Returns a 2D array of pieces representing the board.
+        """
+        return self.__board_table
 
     def refresh_legal_moves(self):
         """
@@ -109,6 +117,13 @@ class Board:
 
         self.__board_table[piece.position[0]][piece.position[1]] = None
         piece.position = new_position
+
+        if piece.has_moved is False:
+            piece.has_moved = True
+            self.has_moved_changed = True
+        else:
+            self.has_moved_changed = False
+
         self.__board_table[new_position[0]][new_position[1]] = piece
         self.refresh_legal_moves()
         return occupying_piece
@@ -131,10 +146,45 @@ class Board:
         else:
             self.__board_table[piece.position[0]][piece.position[1]] = None
 
+        if self.has_moved_changed is True:
+            piece.has_moved = False
+            self.has_moved_changed = False
+
         piece.position = old_position
         self.__board_table[old_position[0]][old_position[1]] = piece
 
         self.refresh_legal_moves()
+
+    def promote_pawn(self, piece, choice):
+        """
+        Promote a pawn to a new piece.
+
+        Parameters:
+            piece (Piece): pawn to be promoted.
+            choice (str): type of piece to promote to.
+        """
+        if piece.name != "Pawn":
+            raise ValueError("Piece is not a pawn!")
+
+        print(choice)
+
+        if choice == "Queen":
+            new_piece = Queen(piece.color, piece.position)
+        elif choice == "Rook":
+            new_piece = Rook(piece.color, piece.position)
+        elif choice == "Bishop":
+            new_piece = Bishop(piece.color, piece.position)
+        elif choice == "Knight":
+            new_piece = Knight(piece.color, piece.position)
+        else:
+            raise ValueError("Invalid choice!")
+
+        self.__piece_list.remove(piece)
+        self.__piece_list.append(new_piece)
+        self.__board_table[piece.position[0]][piece.position[1]] = new_piece
+
+        print(new_piece)
+        print(self.__str__())
 
     def is_square_occupied(self, position):
         """

@@ -7,7 +7,7 @@ state of the game and making moves on the board.
 """
 import chess_game.chess_logic as chess_logic
 import pygame
-from chess_game.graphics import ChessUI
+from chess_game.graphics import ChessUI, PromotionBox
 from chess_game.pieces import King
 from chess_game.board import Board
 from chess_game.constants import *
@@ -29,6 +29,8 @@ class ChessGame:
         self.pieces_taken = {"white": [], "black": []}
         self.turn = "white"
         self.game_over = False
+        self.promoting_piece = None
+        self.promotion_choice = None
 
     def make_move(self, original_position, new_position):
         """
@@ -76,8 +78,18 @@ class ChessGame:
 
         self.turn = "white" if self.turn == "black" else "black"
 
+    def promote_pawn(self, new_square):
+        """
+        Promote a pawn to a queen, rook, bishop or knight.
+        """
+        self.board.move_piece_to_square(self.promoting_piece, new_square)
+        self.board.promote_pawn(self.promoting_piece, self.promotion_choice)
+        self.promoting_piece = None
+        self.promotion_choice = None
+
 
 def run_game():
+    pygame.init()
     game = ChessGame()
     ui = ChessUI(game)
     is_running = True
@@ -85,8 +97,9 @@ def run_game():
 
     while is_running:
         clock.tick(60)
+        event_list = pygame.event.get()
 
-        for event in pygame.event.get():
+        for event in event_list:
             if event.type == pygame.QUIT or chess_logic.is_checkmate(
                 game.board, game.turn
             ):
@@ -104,8 +117,7 @@ def run_game():
                             event.pos[0] - ui.dragged_piece.coords[0],
                             event.pos[1] - ui.dragged_piece.coords[1],
                         )
-                else:
-                    continue
+                        
             elif event.type == pygame.MOUSEMOTION:
                 # If the user is dragging a piece, then update the position of the piece.
                 if ui.is_dragging:
@@ -120,17 +132,33 @@ def run_game():
                     ui.is_dragging = False
                     new_square = ui.get_square_at_coords(event.pos)
                     if new_square:
-                        try:
-                            game.make_move(ui.dragged_piece.position, new_square)
+                        # Check if the move is a promotion.
+                        if (
+                            ui.dragged_piece.name == "Pawn"
+                            and new_square[0] in (0, 7)
+                        ):
+                            game.promoting_piece = ui.dragged_piece
+                            ui.promotion_box = PromotionBox(
+                                ui.window, ui.dragged_piece.color
+                            )
+                            game.promotion_choice = ui.promotion_box.final_choice
+                            game.promote_pawn(new_square)
                             ui.dragged_piece = None
-                        except ValueError as error:
-                            print(error)
-                            ui.dragged_piece.coords = ui.original_coords
-                            ui.dragged_piece = None
+                            ui.promotion_box = None
+                            game.turn = "white" if game.turn == "black" else "black"
+
+                        else:
+                            try:
+                                game.make_move(ui.dragged_piece.position, new_square)
+                                ui.dragged_piece = None
+                            except ValueError as error:
+                                print(error)
+                                ui.dragged_piece.coords = ui.original_coords
+                                ui.dragged_piece = None
                     else:
                         ui.dragged_piece.coords = ui.original_coords
 
-        ui.render_board()
+        ui.render_all()
         pygame.display.update()
 
     pygame.quit()
