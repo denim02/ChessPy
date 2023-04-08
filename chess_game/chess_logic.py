@@ -19,8 +19,7 @@ def is_check(board, color):
         for piece in board.piece_list
         if piece.color == color and piece.name == "King"
     ][0]
-    return board.is_square_attacked(king.position, color)
-
+    return any(king.position in piece.legal_moves for piece in board.piece_list)
 
 def is_checkmate(board, color):
     """
