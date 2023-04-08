@@ -37,6 +37,7 @@ class Piece:
         self.image = None
         self.__position = position
         self.__coords = ()
+        self.has_moved = False
         self.__legal_moves = set()
         self.refresh_coords()
 
@@ -173,55 +174,29 @@ class Pawn(Piece):
         board (Board): the board on which the piece is placed.
         """
         possible_moves = set()
-        if self.color == "white":
-            possible_moves.add((self.position[0] - 1, self.position[1]))
-            if (
-                self.position[0] == 6
-                and board.get_piece_at_square((self.position[0] - 2, self.position[1]))
-                is None
-            ):
-                possible_moves.add((self.position[0] - 2, self.position[1]))
-            if (
-                self.position[0] + 1 < 8
-                and self.position[1] - 1 >= 0
-                and self.position[0] - 1 >= 0
-                and self.position[1] + 1 < 8
-            ):
-                if board.is_square_occupied(
-                    (self.position[0] - 1, self.position[1] - 1)
-                ):
-                    possible_moves.add((self.position[0] - 1, self.position[1] - 1))
-                if board.is_square_occupied(
-                    (self.position[0] - 1, self.position[1] + 1)
-                ):
-                    possible_moves.add((self.position[0] - 1, self.position[1] + 1))
-                if board.is_square_occupied((self.position[0] - 1, self.position[1])):
-                    possible_moves.remove((self.position[0] - 1, self.position[1]))
+        # set the direction of the pawn based on its color
+        direction = -1 if self.color == "white" else 1
 
-        else:
-            possible_moves.add((self.position[0] + 1, self.position[1]))
-            if (
-                self.position[0] == 1
-                and board.get_piece_at_square((self.position[0] + 2, self.position[1]))
-                is None
-            ):
-                possible_moves.add((self.position[0] + 2, self.position[1]))
-            if (
-                self.position[0] + 1 < 8
-                and self.position[1] - 1 >= 0
-                and self.position[0] - 1 >= 0
-                and self.position[1] + 1 < 8
-            ):
-                if board.is_square_occupied(
-                    (self.position[0] + 1, self.position[1] - 1)
-                ):
-                    possible_moves.add((self.position[0] + 1, self.position[1] - 1))
-                if board.is_square_occupied(
-                    (self.position[0] + 1, self.position[1] + 1)
-                ):
-                    possible_moves.add((self.position[0] + 1, self.position[1] + 1))
-                if board.is_square_occupied((self.position[0] + 1, self.position[1])):
-                    possible_moves.remove((self.position[0] + 1, self.position[1]))
+        # check for a single step forward
+        x_new = self.position[0] + direction
+        if 0 <= x_new < 8 and board.board_table[x_new][self.position[1]] is None:
+            possible_moves.add((x_new, self.position[1]))
+
+            # check for a double step forward if the pawn has not moved yet
+            if not self.has_moved:
+                x_new = self.position[0] + 2 * direction
+                if 0 <= x_new < 8 and board.board_table[x_new][self.position[1]] is None:
+                    possible_moves.add((x_new, self.position[1]))
+
+        # check for captures
+        for j in [-1, 1]:
+            y_new = self.position[1] + j
+            if 0 <= y_new < 8:
+                x_new = self.position[0] + direction
+                if 0 <= x_new <= 7 \
+                    and board.board_table[x_new][y_new] is not None \
+                    and board.board_table[x_new][y_new].color != self.color:
+                    possible_moves.add((x_new, y_new))
 
         return possible_moves
 
@@ -237,7 +212,6 @@ class Rook(Piece):
 
     def __init__(self, color, position):
         super().__init__(name="Rook", value=5, position=position, color=color)
-        self.has_moved = False
 
     def generate_possible_moves(self, board):
         """
@@ -278,15 +252,14 @@ class Knight(Piece):
         board (Board): the board on which the piece is placed.
         """
         possible_moves = set()
-        for i in range(8):
-            for j in range(8):
-                if (
-                    abs(i - self.position[0]) + abs(j - self.position[1]) == 3
-                    and i != self.position[0]
-                    and j != self.position[1]
-                ):
-                    possible_moves.add((i, j))
+        for i, j in [(2, 1), (1, 2), (-1, 2), (-2, 1), (-2, -1), (-1, -2), (1, -2), (2, -1)]:
+            x_new, y_new = self.position[0] + i, self.position[1] + j
+            if 0 <= x_new < 8 and 0 <= y_new < 8:
+                if board.board_table[x_new][y_new] is None or board.board_table[x_new][y_new].color != self.color:
+                    possible_moves.add((x_new, y_new))
+
         return possible_moves
+    
 
 
 class Bishop(Piece):
@@ -372,7 +345,6 @@ class King(Piece):
 
     def __init__(self, color, position):
         super().__init__(name="King", value=100, position=position, color=color)
-        self.has_moved = False
 
     def generate_possible_moves(self, board):
         """

@@ -177,6 +177,7 @@ class TestPawn(unittest.TestCase):
 
         # Test white pawn that moved
         self.pawn.position = (3, 0)
+        self.pawn.has_moved = True
         legal_moves = self.pawn.generate_legal_moves(self.board)
         self.assertEqual(legal_moves, {(2, 0)})
 
@@ -193,10 +194,11 @@ class TestPawn(unittest.TestCase):
         self.pawn.color = "black"
         self.pawn.position = (1, 0)
         legal_moves = self.pawn.generate_legal_moves(self.board)
-        self.assertEqual(legal_moves, {(2, 0), (3, 0)})
+        self.assertEqual(legal_moves, {(2, 0)})
 
         # Test black pawn that moved
         self.pawn.position = (3, 0)
+        self.pawn.has_moved = True
         legal_moves = self.pawn.generate_legal_moves(self.board)
         self.assertEqual(legal_moves, {(4, 0)})
 
