@@ -128,6 +128,51 @@ class TestBoard(unittest.TestCase):
         self.assertIsNone(self.board.last_piece_captured)
         self.assertNotIn(self.board.last_piece_captured, self.board.piece_list)
         
+
+    def test_promote_pawn(self):
+        test_board = board.Board()
+        test_board._place_piece(pieces.Pawn('white', (0,0)))
+        test_board._place_piece(pieces.Pawn('black', (7,0)))
+        test_board._place_piece(pieces.Pawn('white', (0,2)))
+        test_board._place_piece(pieces.Pawn('black', (7,2)))
+
+        # Test promotion on invalid piece
+        test_board._place_piece(pieces.Rook('white', (0,1)))
+        with self.assertRaises(ValueError):
+            test_board.promote_pawn(test_board.get_piece_at_square((0,1)), "Queen")
+
+        # Test promotion with invalid choice
+        with self.assertRaises(ValueError):
+            test_board.promote_pawn(test_board.get_piece_at_square((0,0)), "Invalid")
+
+        # Test promotion on invalid square
+        test_board._place_piece(pieces.Pawn('white', (1,1)))
+        test_board._place_piece(pieces.Pawn('black', (6,1)))
+        with self.assertRaises(ValueError):
+            test_board.promote_pawn(test_board.get_piece_at_square((1,1)), "Queen")
+        with self.assertRaises(ValueError):
+            test_board.promote_pawn(test_board.get_piece_at_square((6,1)), "Queen")
+
+        # Test promotion to queen
+        test_board.promote_pawn(test_board.get_piece_at_square((7,0)), "Queen")
+        self.assertEqual(test_board.get_piece_at_square((7,0)).name, "Queen")
+        self.assertEqual(test_board.get_piece_at_square((7,0)).color, "black")
+
+        # Test promotion to rook
+        test_board.promote_pawn(test_board.get_piece_at_square((0,0)), "Rook")
+        self.assertEqual(test_board.get_piece_at_square((0,0)).name, "Rook")
+        self.assertEqual(test_board.get_piece_at_square((0,0)).color, "white")
+
+        # Test promotion to bishop
+        test_board.promote_pawn(test_board.get_piece_at_square((7,2)), "Bishop")
+        self.assertEqual(test_board.get_piece_at_square((7,2)).name, "Bishop")
+        self.assertEqual(test_board.get_piece_at_square((7,2)).color, "black")
+
+        # Test promotion to knight
+        test_board.promote_pawn(test_board.get_piece_at_square((0,2)), "Knight")
+        self.assertEqual(test_board.get_piece_at_square((0,2)).name, "Knight")
+        self.assertEqual(test_board.get_piece_at_square((0,2)).color, "white")
+    
     def test_is_square_occupied(self):
         self.assertTrue(self.board.is_square_occupied((7,0)))
         self.assertFalse(self.board.is_square_occupied((5,0)))
@@ -161,6 +206,16 @@ class TestBoard(unittest.TestCase):
     def test_is_diagonal_path_blocked(self):
         self.assertTrue(self.board.is_path_blocked((0,0), (7,7)))
         self.assertFalse(self.board.is_path_blocked((3,0), (5,2)))
+
+    def test_instantiate_from_fen(self):
+        test_fen_board = board.Board.instantiate_from_fen("./game/game_states/test_stalemate.fen")
+        test_board = board.Board()
+        test_board._place_piece(pieces.King("black", (0, 5)))
+        test_board._place_piece(pieces.Pawn("white", (1, 5)))
+        test_board._place_piece(pieces.King("white", (2, 5)))
+
+        self.assertEqual(test_fen_board.board_table, test_board.board_table)
+        self.assertEqual(test_fen_board.piece_list, test_board.piece_list)
 
     def test_repr(self):
         expected_board ="  a b c d e f g h \n" \
