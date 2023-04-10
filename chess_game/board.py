@@ -165,8 +165,10 @@ class Board:
         """
         if piece.name != "Pawn":
             raise ValueError("Piece is not a pawn!")
-
-        print(choice)
+        
+        if (piece.color == "white" and piece.position[0] != 0) \
+            or (piece.color == "black" and piece.position[0] != 7):
+            raise ValueError("Pawn is not at the end of the board!")
 
         if choice == "Queen":
             new_piece = Queen(piece.color, piece.position)
@@ -182,9 +184,6 @@ class Board:
         self.__piece_list.remove(piece)
         self.__piece_list.append(new_piece)
         self.__board_table[piece.position[0]][piece.position[1]] = new_piece
-
-        print(new_piece)
-        print(self.__str__())
 
     def is_square_occupied(self, position):
         """
@@ -282,6 +281,25 @@ class Board:
             piece for row in self.__board_table for piece in row if piece is not None
         ]
         self.refresh_legal_moves()
+
+    @classmethod
+    def instantiate_from_fen(cls, fen_path):
+        """
+        Instantiate a board from a file in FEN notation.
+
+        Parameters:
+            fen_path (str): path to the FEN file.
+
+        Returns:
+            Board: board object.
+        """
+        board = cls()
+        board.__board_table = Board.parse_fen(fen_path)
+        board.__piece_list = [
+            piece for row in board.__board_table for piece in row if piece is not None
+        ]
+        board.refresh_legal_moves()
+        return board
 
     def __repr__(self):
         """
