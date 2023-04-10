@@ -1,0 +1,38 @@
+# This workflow will install Python dependencies, run tests and lint with a single version of Python
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-python
+
+name: Coverage
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+      with:
+        persist-credentials: false
+        fetch-depth: 0
+
+    - uses: actions/setup-python@v4
+      with:
+        python-version: "3.10"
+
+    - name: Install dependencies
+      run: |
+        pip install --upgrade pip setuptools
+        pip install coverage pygame
+    - name: Run coverage
+      run: |
+        coverage run --source=./chess_game -m unittest discover -s tests/
+        coverage report -m
+        coverage report | grep -E '[0-9]{1,3}%$' | sed 's/^\s*//' | cut -d' ' -f1 | awk '{print substr($0, 1, length()-1)}' | awk '{if ($1 < 50) {exit 1}}'
+
