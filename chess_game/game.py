@@ -100,9 +100,11 @@ def run_game():
         event_list = pygame.event.get()
 
         for event in event_list:
-            if event.type == pygame.QUIT or chess_logic.is_checkmate(
+            if event.type == pygame.QUIT \
+                or chess_logic.is_checkmate(
                 game.board, game.turn
-            ):
+                ) \
+                or chess_logic.is_stalemate(game.board, game.turn):
                 is_running = False
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 # If the user left clicks on the board, check whether they clicked on a piece.

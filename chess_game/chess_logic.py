@@ -76,7 +76,15 @@ def is_stalemate(board, color):
     Returns:
         bool: True if the king is in stalemate, False otherwise.
     """
-    pass
+    if not is_check(board, color):
+        for piece in board.piece_list:
+            if piece.color == color:
+                for move in piece.legal_moves:
+                    if not is_king_in_check_after_move(board, piece, move):
+                        return False
+        print("Stalemate!")
+        return True
+    return False
 
 
 def is_legal_move(board, piece, new_position):
@@ -97,6 +105,6 @@ def is_legal_move(board, piece, new_position):
         and board.get_piece_at_square(new_position).color == piece.color
     ):
         return False
-    if piece.name == "Knight" and not board.is_square_occupied(new_position):
+    if piece.name == "Knight":  # Knights can jump over other pieces
         return True
     return not board.is_path_blocked(piece.position, new_position)
