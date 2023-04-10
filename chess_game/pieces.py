@@ -152,14 +152,18 @@ class Piece:
         """
         Returns a string representation of the piece."""
         return f"{self.color.title()} {self.name}"
-    
+
     def __eq__(self, other):
         """
         Returns True if the piece is equal to other piece."""
         if not isinstance(other, Piece):
             return False
-        
-        return self.name == other.name and self.color == other.color and self.position == other.position
+
+        return (
+            self.name == other.name
+            and self.color == other.color
+            and self.position == other.position
+        )
 
 
 class Pawn(Piece):
@@ -193,7 +197,10 @@ class Pawn(Piece):
             # check for a double step forward if the pawn has not moved yet
             if not self.has_moved:
                 x_new = self.position[0] + 2 * direction
-                if 0 <= x_new < 8 and board.board_table[x_new][self.position[1]] is None:
+                if (
+                    0 <= x_new < 8
+                    and board.board_table[x_new][self.position[1]] is None
+                ):
                     possible_moves.add((x_new, self.position[1]))
 
         # check for captures
@@ -201,9 +208,11 @@ class Pawn(Piece):
             y_new = self.position[1] + j
             if 0 <= y_new < 8:
                 x_new = self.position[0] + direction
-                if 0 <= x_new <= 7 \
-                    and board.board_table[x_new][y_new] is not None \
-                    and board.board_table[x_new][y_new].color != self.color:
+                if (
+                    0 <= x_new <= 7
+                    and board.board_table[x_new][y_new] is not None
+                    and board.board_table[x_new][y_new].color != self.color
+                ):
                     possible_moves.add((x_new, y_new))
 
         return possible_moves
@@ -260,14 +269,25 @@ class Knight(Piece):
         board (Board): the board on which the piece is placed.
         """
         possible_moves = set()
-        for i, j in [(2, 1), (1, 2), (-1, 2), (-2, 1), (-2, -1), (-1, -2), (1, -2), (2, -1)]:
+        for i, j in [
+            (2, 1),
+            (1, 2),
+            (-1, 2),
+            (-2, 1),
+            (-2, -1),
+            (-1, -2),
+            (1, -2),
+            (2, -1),
+        ]:
             x_new, y_new = self.position[0] + i, self.position[1] + j
             if 0 <= x_new < 8 and 0 <= y_new < 8:
-                if board.board_table[x_new][y_new] is None or board.board_table[x_new][y_new].color != self.color:
+                if (
+                    board.board_table[x_new][y_new] is None
+                    or board.board_table[x_new][y_new].color != self.color
+                ):
                     possible_moves.add((x_new, y_new))
 
         return possible_moves
-    
 
 
 class Bishop(Piece):
@@ -383,21 +403,41 @@ class King(Piece):
         if not self.has_moved:
             queen_side_rook = board.get_piece_at_square((self.position[0], 0))
             # Check whether the king can castle queen side
-            if isinstance(queen_side_rook, Rook) \
-                and (not queen_side_rook.has_moved) \
-                and (not board.is_path_blocked((self.position[0], 4), (self.position[0], 0))) \
-                and (not board.is_horizontal_path_attacked((self.position[0], 0), (self.position[0], 4), self.color)) \
-                and (not chess_logic.is_check(board, self.color)):
+            if (
+                isinstance(queen_side_rook, Rook)
+                and (not queen_side_rook.has_moved)
+                and (
+                    not board.is_path_blocked(
+                        (self.position[0], 4), (self.position[0], 0)
+                    )
+                )
+                and (
+                    not board.is_horizontal_path_attacked(
+                        (self.position[0], 0), (self.position[0], 4), self.color
+                    )
+                )
+                and (not chess_logic.is_check(board, self.color))
+            ):
 
                 possible_moves.add((self.position[0], 2))
 
             king_side_rook = board.get_piece_at_square((self.position[0], 7))
             # Check whether the king can castle king side
-            if isinstance(king_side_rook, Rook) \
-                and (not king_side_rook.has_moved) \
-                and (not board.is_path_blocked((self.position[0], 4), (self.position[0], 7))) \
-                and (not board.is_horizontal_path_attacked((self.position[0], 4), (self.position[0], 7), self.color)) \
-                and (not chess_logic.is_check(board, self.color)):
+            if (
+                isinstance(king_side_rook, Rook)
+                and (not king_side_rook.has_moved)
+                and (
+                    not board.is_path_blocked(
+                        (self.position[0], 4), (self.position[0], 7)
+                    )
+                )
+                and (
+                    not board.is_horizontal_path_attacked(
+                        (self.position[0], 4), (self.position[0], 7), self.color
+                    )
+                )
+                and (not chess_logic.is_check(board, self.color))
+            ):
 
                 possible_moves.add((self.position[0], 6))
 

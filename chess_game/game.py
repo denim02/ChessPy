@@ -100,11 +100,11 @@ def run_game():
         event_list = pygame.event.get()
 
         for event in event_list:
-            if event.type == pygame.QUIT \
-                or chess_logic.is_checkmate(
-                game.board, game.turn
-                ) \
-                or chess_logic.is_stalemate(game.board, game.turn):
+            if (
+                event.type == pygame.QUIT
+                or chess_logic.is_checkmate(game.board, game.turn)
+                or chess_logic.is_stalemate(game.board, game.turn)
+            ):
                 print("Game over!")
                 is_running = False
             elif event.type == pygame.MOUSEBUTTONDOWN:
@@ -120,7 +120,7 @@ def run_game():
                             event.pos[0] - ui.dragged_piece.coords[0],
                             event.pos[1] - ui.dragged_piece.coords[1],
                         )
-                        
+
             elif event.type == pygame.MOUSEMOTION:
                 # If the user is dragging a piece, then update the position of the piece.
                 if ui.is_dragging:
@@ -136,10 +136,7 @@ def run_game():
                     new_square = ui.get_square_at_coords(event.pos)
                     if new_square:
                         # Check if the move is a promotion.
-                        if (
-                            ui.dragged_piece.name == "Pawn"
-                            and new_square[0] in (0, 7)
-                        ):
+                        if ui.dragged_piece.name == "Pawn" and new_square[0] in (0, 7):
                             game.promoting_piece = ui.dragged_piece
                             ui.promotion_box = PromotionBox(
                                 ui.window, ui.dragged_piece.color

@@ -29,7 +29,7 @@ class Board:
         Returns a list of all pieces on the board.
         """
         return self.__piece_list
-    
+
     @property
     def board_table(self):
         """
@@ -58,7 +58,7 @@ class Board:
         if position[0] < 0 or position[0] > 7 or position[1] < 0 or position[1] > 7:
             return None
         return self.__board_table[position[0]][position[1]]
-    
+
     def _place_piece(self, piece):
         """
         Places a piece on the board.
@@ -68,7 +68,12 @@ class Board:
         """
         if self.get_piece_at_square(piece.position) is not None:
             raise ValueError("Square is already occupied!")
-        elif piece.position[0] < 0 or piece.position[0] > 7 or piece.position[1] < 0 or piece.position[1] > 7:
+        elif (
+            piece.position[0] < 0
+            or piece.position[0] > 7
+            or piece.position[1] < 0
+            or piece.position[1] > 7
+        ):
             raise ValueError("Invalid position!")
         self.__board_table[piece.position[0]][piece.position[1]] = piece
         self.piece_list.append(piece)
@@ -84,7 +89,7 @@ class Board:
         """
         if position[0] < 0 or position[0] > 7 or position[1] < 0 or position[1] > 7:
             raise ValueError("Invalid position!")
-        
+
         piece = self.get_piece_at_square(position)
         self.__board_table[position[0]][position[1]] = None
 
@@ -101,7 +106,12 @@ class Board:
             new_position (tuple): new position on the board in (x, y) format,
                 where x is the row and y is the column.
         """
-        if new_position[0] < 0 or new_position[0] > 7 or new_position[1] < 0 or new_position[1] > 7:
+        if (
+            new_position[0] < 0
+            or new_position[0] > 7
+            or new_position[1] < 0
+            or new_position[1] > 7
+        ):
             raise ValueError("Invalid position!")
         if piece is None:
             raise ValueError("Piece is None!")
@@ -165,9 +175,10 @@ class Board:
         """
         if piece.name != "Pawn":
             raise ValueError("Piece is not a pawn!")
-        
-        if (piece.color == "white" and piece.position[0] != 0) \
-            or (piece.color == "black" and piece.position[0] != 7):
+
+        if (piece.color == "white" and piece.position[0] != 0) or (
+            piece.color == "black" and piece.position[0] != 7
+        ):
             raise ValueError("Pawn is not at the end of the board!")
 
         if choice == "Queen":
@@ -217,10 +228,17 @@ class Board:
         if position[0] < 0 or position[0] > 7 or position[1] < 0 or position[1] > 7:
             raise ValueError("Invalid position!")
 
-        return any(position in piece.legal_moves for piece in self.piece_list if piece.color != color)
+        return any(
+            position in piece.legal_moves
+            for piece in self.piece_list
+            if piece.color != color
+        )
 
     def is_horizontal_path_attacked(self, start_position, end_position, color):
-        return any(self.is_square_attacked((start_position[0], i), color) for i in range(start_position[1], end_position[1] + 1))
+        return any(
+            self.is_square_attacked((start_position[0], i), color)
+            for i in range(start_position[1], end_position[1] + 1)
+        )
 
     def is_path_blocked(self, original_position, new_position):
         """
