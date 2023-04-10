@@ -105,6 +105,7 @@ def run_game():
                 game.board, game.turn
                 ) \
                 or chess_logic.is_stalemate(game.board, game.turn):
+                print("Game over!")
                 is_running = False
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 # If the user left clicks on the board, check whether they clicked on a piece.

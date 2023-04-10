@@ -39,7 +39,6 @@ def is_checkmate(board, color):
                     if not is_king_in_check_after_move(board, piece, move):
                         return False
                     
-        print("Checkmate!")
         return True
     return False
 
@@ -82,7 +81,6 @@ def is_stalemate(board, color):
                 for move in piece.legal_moves:
                     if not is_king_in_check_after_move(board, piece, move):
                         return False
-        print("Stalemate!")
         return True
     return False
 
