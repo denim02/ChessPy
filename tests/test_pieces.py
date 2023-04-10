@@ -104,6 +104,19 @@ class TestPiece(unittest.TestCase):
     def test_repr(self):
         self.assertEqual(repr(self.piece), "Black Test Piece")
 
+    def test_eq(self):
+        piece1 = pieces.Piece(name="Test Piece", value=10, color="black", position=(0, 0))
+        piece2 = pieces.Piece(name="Test Piece", value=10, color="black", position=(0, 0))
+        piece3 = pieces.Piece(name="Test Piece 3", value=10, color="black", position=(0, 0))
+        piece4 = pieces.Piece(name="Test Piece", value=10, color="white", position=(0, 0))
+        piece5 = pieces.Piece(name="Test Piece", value=10, color="black", position=(1, 0))
+        not_piece = 2
+        self.assertNotEqual(piece1, not_piece)
+        self.assertEqual(piece1, piece2)
+        self.assertNotEqual(piece1, piece3)
+        self.assertNotEqual(piece1, piece4)
+        self.assertNotEqual(piece1, piece5)
+
 class TestPawn(unittest.TestCase):
     def setUp(self):
         self.pawn = pieces.Pawn(color="white", position=(6, 0))

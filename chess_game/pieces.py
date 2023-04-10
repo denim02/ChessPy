@@ -152,6 +152,14 @@ class Piece:
         """
         Returns a string representation of the piece."""
         return f"{self.color.title()} {self.name}"
+    
+    def __eq__(self, other):
+        """
+        Returns True if the piece is equal to other piece."""
+        if not isinstance(other, Piece):
+            return False
+        
+        return self.name == other.name and self.color == other.color and self.position == other.position
 
 
 class Pawn(Piece):
