@@ -60,7 +60,7 @@ def is_king_in_check_after_move(board, piece, new_position):
     """
     color = piece.color
     old_position = piece.position
-    board.move_piece_to_square(piece, new_position)
+    board.move_piece_to_square(piece, new_position, change_en_passant=False)
     is_checked = is_check(board, color)
     board.revert_move(piece, old_position)
     return is_checked
@@ -106,5 +106,13 @@ def is_legal_move(board, piece, new_position):
     ):
         return False
     if piece.name == "Knight":  # Knights can jump over other pieces
+        return True
+    # En passant
+    if (
+        piece.name == "Pawn"
+        and board.en_passant_piece is not None
+        and new_position[1] == board.en_passant_piece.position[1]
+        and abs(new_position[0] - board.en_passant_piece.position[0]) == 1
+    ):
         return True
     return not board.is_path_blocked(piece.position, new_position)
