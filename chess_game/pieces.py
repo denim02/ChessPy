@@ -215,7 +215,17 @@ class Pawn(Piece):
                 ):
                     possible_moves.add((x_new, y_new))
 
+        # check for en passant
+        if board.en_passant_piece is not None and board.en_passant_piece.color != self.color:
+            if (
+                0 <= x_new < 8
+                and board.en_passant_piece.position[0] == self.position[0]
+                and abs(board.en_passant_piece.position[1] - self.position[1]) == 1
+            ):
+                possible_moves.add((x_new, board.en_passant_piece.position[1]))
+
         return possible_moves
+    
 
 
 class Rook(Piece):

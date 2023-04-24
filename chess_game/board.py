@@ -20,6 +20,7 @@ class Board:
         """
         self.__board_table = [[None for _ in range(8)] for _ in range(8)]
         self.__piece_list = []
+        self.en_passant_piece = None
         self.last_piece_captured = None
         self.has_moved_changed = False
 
@@ -76,7 +77,7 @@ class Board:
         ):
             raise ValueError("Invalid position!")
         self.__board_table[piece.position[0]][piece.position[1]] = piece
-        self.piece_list.append(piece)
+        self.__piece_list.append(piece)
         self.refresh_legal_moves()
 
     def _remove_piece_at_square(self, position):
@@ -94,10 +95,10 @@ class Board:
         self.__board_table[position[0]][position[1]] = None
 
         if piece is not None:
-            self.piece_list.remove(piece)
+            self.__piece_list.remove(piece)
             self.refresh_legal_moves()
 
-    def move_piece_to_square(self, piece, new_position):
+    def move_piece_to_square(self, piece, new_position, change_en_passant=True):
         """
         Move a piece to a new position on the board.
 
@@ -121,9 +122,21 @@ class Board:
         if self.last_piece_captured is not None:
             self.last_piece_captured = None
 
+        # Check if the move was actually an en passant move
+        if (
+            self.en_passant_piece is not None
+            and piece.name == "Pawn"
+            and self.en_passant_piece.position == (new_position[0] + (1 if piece.color == "white" else -1), new_position[1])
+            and self.en_passant_piece.color != piece.color
+        ):
+            occupying_piece = self.en_passant_piece
+            self.__board_table[self.en_passant_piece.position[0]][self.en_passant_piece.position[1]] = None
+
         if occupying_piece is not None:
             self.last_piece_captured = occupying_piece
-            self.piece_list.remove(occupying_piece)
+            self.__piece_list.remove(occupying_piece)
+
+        original_position = piece.position
 
         self.__board_table[piece.position[0]][piece.position[1]] = None
         piece.position = new_position
@@ -133,10 +146,21 @@ class Board:
             self.has_moved_changed = True
         else:
             self.has_moved_changed = False
+        
+        # For en passant
+        if (change_en_passant):
+            if (
+                piece.name == "Pawn"
+                and abs(new_position[0] - original_position[0]) == 2
+            ):
+                self.en_passant_piece = piece
+            else:
+                self.en_passant_piece = None
 
         self.__board_table[new_position[0]][new_position[1]] = piece
         self.refresh_legal_moves()
         return occupying_piece
+    
 
     def revert_move(self, piece, old_position):
         """
@@ -148,7 +172,8 @@ class Board:
                 where x is the row and y is the column.
         """
         if self.last_piece_captured is not None:
-            self.piece_list.append(self.last_piece_captured)
+            self.last_piece_captured.value = 100
+            self.__piece_list.append(self.last_piece_captured)
             self.__board_table[piece.position[0]][
                 piece.position[1]
             ] = self.last_piece_captured

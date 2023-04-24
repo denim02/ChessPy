@@ -204,12 +204,37 @@ class TestPawn(unittest.TestCase):
         self.board._remove_piece_at_square((5, 3))
 
         # Test black pawn with piece in front of it
-        self.board.move_piece_to_square(self.pawn, (4, 4))
         self.board._place_piece(
             pieces.Piece(name="Test Piece", value=10, color="white", position=(5, 4))
         )
         possible_moves = self.pawn.generate_possible_moves(self.board)
         self.assertEqual(possible_moves, set())
+
+        # Test black pawn with en passant
+        self.board._remove_piece_at_square((5, 4))
+        self.board._remove_piece_at_square((4, 4))
+        self.board._place_piece(
+            pieces.Pawn(color="white", position=(6, 3))
+        )
+        self.pawn = pieces.Pawn(color="black", position=(4, 4))
+        self.pawn.has_moved = True
+        self.board._place_piece(self.pawn)
+        self.board.move_piece_to_square(self.board.get_piece_at_square((6, 3)), (4, 3))
+        possible_moves = self.pawn.generate_possible_moves(self.board)
+        self.assertEqual(possible_moves, {(5, 3), (5, 4)})
+
+        # Test white pawn with en passant
+        self.board._remove_piece_at_square((4, 3))
+        self.board._remove_piece_at_square((4, 4))
+        self.pawn = pieces.Pawn(color="white", position=(3, 4))
+        self.pawn.has_moved = True
+        self.board._place_piece(self.pawn)
+        self.board._place_piece(
+            pieces.Pawn(color="black", position=(1, 3))
+        )
+        self.board.move_piece_to_square(self.board.get_piece_at_square((1, 3)), (3, 3))
+        possible_moves = self.pawn.generate_possible_moves(self.board)
+        self.assertEqual(possible_moves, {(2, 4), (2, 3)})
 
     def test_generate_legal_moves(self):
         # Test white pawn with no pieces in front of it at start
@@ -259,6 +284,32 @@ class TestPawn(unittest.TestCase):
         self.assertEqual(legal_moves, {(5, 4), (5, 5), (5, 3)})
         self.board._remove_piece_at_square((5, 5))
         self.board._remove_piece_at_square((5, 3))
+
+        # Test black pawn with en passant
+        self.board._remove_piece_at_square((5, 4))
+        self.board._remove_piece_at_square((4, 4))
+        self.board._place_piece(
+            pieces.Pawn(color="white", position=(6, 3))
+        )
+        self.pawn = pieces.Pawn(color="black", position=(4, 4))
+        self.pawn.has_moved = True
+        self.board._place_piece(self.pawn)
+        self.board.move_piece_to_square(self.board.get_piece_at_square((6, 3)), (4, 3))
+        legal_moves = self.pawn.generate_legal_moves(self.board)
+        self.assertEqual(legal_moves, {(5, 3), (5, 4)})
+
+        # Test white pawn with en passant
+        self.board._remove_piece_at_square((5, 3))
+        self.board._remove_piece_at_square((5, 4))
+        self.pawn = pieces.Pawn(color="white", position=(3, 4))
+        self.pawn.has_moved = True
+        self.board._place_piece(self.pawn)
+        self.board._place_piece(
+            pieces.Pawn(color="black", position=(1, 3))
+        )
+        self.board.move_piece_to_square(self.board.get_piece_at_square((1, 3)), (3, 3))
+        legal_moves = self.pawn.generate_legal_moves(self.board)
+        self.assertEqual(legal_moves, {(2, 4), (2, 3)})
 
     def test_repr(self):
         self.assertEqual(repr(self.pawn), "White Pawn")
