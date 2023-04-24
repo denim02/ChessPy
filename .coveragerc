@@ -1,0 +1,3 @@
+[run]
+source = ./chess_game
+command_line = -m unittest discover -s tests/
