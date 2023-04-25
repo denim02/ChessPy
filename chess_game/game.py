@@ -8,7 +8,7 @@ state of the game and making moves on the board.
 import chess_game.chess_logic as chess_logic
 import pygame
 from chess_game.graphics import ChessUI, PromotionBox
-from chess_game.pieces import King
+from chess_game.pieces import King, Pawn
 from chess_game.board import Board
 from chess_game.constants import *
 
@@ -21,16 +21,19 @@ class ChessGame:
     It is responsible for managing the state of the game and making moves on the board."""
 
     def __init__(self):
-        """
-        Initializes the board and the turn.
-        """
+        # Variables for handling the game mechanics
         self.board = Board()
         self.board.populate_board()
-        self.pieces_taken = {"white": [], "black": []}
+        self.captured_pieces = {"white": [], "black": []}
         self.turn = "white"
-        self.game_over = False
-        self.promoting_piece = None
+
+        # Variable specifically for pawn promotion
         self.promotion_choice = None
+
+        # Variables for game over conditions
+        self.is_checkmate = False
+        self.is_stalemate = False
+        self.fifty_move_counter = 0
 
     def make_move(self, original_position, new_position):
         """
@@ -43,20 +46,18 @@ class ChessGame:
                 in (x, y) format, where x is the row and y is the column.
         """
         piece = self.board.get_piece_at_square(original_position)
-        print(piece)
-        print("Original position: ", original_position)
-        print("New position: ", new_position)
 
+        # Check for invalid moves
         if piece is None:
-            raise ValueError("No piece at the given position.")
+            raise TypeError("No piece at the given position.")
         if piece.color != self.turn:
-            raise ValueError("It is not your turn.")
+            raise Exception("It is not your turn.")
         if new_position not in piece.legal_moves:
-            raise ValueError("Invalid move.")
+            raise ValueError("Illegal move.")
         if chess_logic.is_king_in_check_after_move(self.board, piece, new_position):
-            raise ValueError("This move would put your king in check.")
+            raise Exception("This move would put your king in check.")
 
-        taken_piece = None
+        captured_piece = None
 
         # Check if the desired move is a castle.
         if isinstance(piece, King) and abs(new_position[1] - original_position[1]) > 1:
@@ -70,91 +71,98 @@ class ChessGame:
                 rook = self.board.get_piece_at_square((original_position[0], 7))
                 self.board.move_piece_to_square(rook, (original_position[0], 5))
 
-        taken_piece = self.board.move_piece_to_square(piece, new_position)
-        print(self.board)
-        if taken_piece is not None:
-            self.pieces_taken[self.turn].append(taken_piece)
-            print(self.pieces_taken)
+        # Move the piece to the new position.
+        captured_piece = self.board.move_piece_to_square(piece, new_position)
+        
+        # Check if the desired move is a pawn promotion
+        if self.promotion_choice is not None:
+            self.board.promote_pawn(piece, self.promotion_choice)
+            self.promotion_choice = None
+        
+        # Counter for fifty-move-draw rule.
+        if captured_piece is None and not isinstance(piece, Pawn):
+            self.fifty_move_counter += 1
+        else:
+            self.fifty_move_counter = 0
 
-        self.turn = "white" if self.turn == "black" else "black"
+        # Keep track of captured pieces
+        if captured_piece is not None:
+            self.captured_pieces[self.turn].append(captured_piece)
+            print(self.captured_pieces)
 
-    def promote_pawn(self, new_square):
-        """
-        Promote a pawn to a queen, rook, bishop or knight.
-        """
-        self.board.move_piece_to_square(self.promoting_piece, new_square)
-        self.board.promote_pawn(self.promoting_piece, self.promotion_choice)
-        self.promoting_piece = None
-        self.promotion_choice = None
-
+        self.turn = "white" if self.turn == "black" else "black"        
 
 def run_game():
+    # Initialize pygame.
     pygame.init()
-    game = ChessGame()
-    ui = ChessUI(game)
-    is_running = True
     clock = pygame.time.Clock()
+
+    # Create the game and ui objects.
+    game = ChessGame()
+    ui = ChessUI(game.board)
+
+    # Create flag for the game loop.
+    is_running = True
+    is_game_over = False
 
     while is_running:
         clock.tick(60)
-        event_list = pygame.event.get()
 
-        for event in event_list:
+        for event in pygame.event.get():
+            # Check if the user presses the close button.
             if (
                 event.type == pygame.QUIT
-                or chess_logic.is_checkmate(game.board, game.turn)
-                or chess_logic.is_stalemate(game.board, game.turn)
+                or is_game_over
             ):
                 print("Game over!")
                 is_running = False
-            elif event.type == pygame.MOUSEBUTTONDOWN:
-                # If the user left clicks on the board, check whether they clicked on a piece.
-                # If they did, then set the ui.dragged_piece to that piece.
-                if event.button == 1:
-                    clicked_square = ui.get_square_at_coords(event.pos)
-                    ui.dragged_piece = game.board.get_piece_at_square(clicked_square)
-                    if ui.dragged_piece and ui.dragged_piece.color == game.turn:
-                        ui.is_dragging = True
-                        ui.original_coords = ui.dragged_piece.coords
-                        ui.offset = (
-                            event.pos[0] - ui.dragged_piece.coords[0],
-                            event.pos[1] - ui.dragged_piece.coords[1],
-                        )
 
+            # If the user left clicks on the board, check whether they clicked on a piece.
+            # If they did, then set the ui.dragged_piece to that piece.
+            elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                clicked_piece = game.board.get_piece_at_square(ui.get_square_at_coords(event.pos))
+                if clicked_piece and clicked_piece.color == game.turn:
+                    ui.dragged_piece = clicked_piece
+                    ui.is_dragging = True
+                    ui.original_coords = ui.dragged_piece.coords
+                    ui.offset = (
+                        event.pos[0] - ui.dragged_piece.coords[0],
+                        event.pos[1] - ui.dragged_piece.coords[1],
+                    )
+
+            # If the user is dragging a piece, then update the position of the piece.
             elif event.type == pygame.MOUSEMOTION:
-                # If the user is dragging a piece, then update the position of the piece.
                 if ui.is_dragging:
                     ui.dragged_piece.coords = (
                         event.pos[0] - ui.offset[0],
                         event.pos[1] - ui.offset[1],
                     )
+
+            # If the user was dragging a piece, then check whether they dropped it on a valid square.
+            # If they did, then make the move.
             elif event.type == pygame.MOUSEBUTTONUP:
-                # If the user was dragging a piece, then check whether they dropped it on a valid square.
-                # If they did, then make the move.
                 if ui.is_dragging:
                     ui.is_dragging = False
                     new_square = ui.get_square_at_coords(event.pos)
+
                     if new_square:
-                        # Check if the move is a promotion.
+                        # Check if the move is a pawn promotion.
                         if ui.dragged_piece.name == "Pawn" and new_square[0] in (0, 7):
-                            game.promoting_piece = ui.dragged_piece
                             ui.promotion_box = PromotionBox(
                                 ui.window, ui.dragged_piece.color
                             )
                             game.promotion_choice = ui.promotion_box.final_choice
-                            game.promote_pawn(new_square)
-                            ui.dragged_piece = None
                             ui.promotion_box = None
-                            game.turn = "white" if game.turn == "black" else "black"
 
-                        else:
-                            try:
-                                game.make_move(ui.dragged_piece.position, new_square)
-                                ui.dragged_piece = None
-                            except ValueError as error:
-                                print(error)
-                                ui.dragged_piece.coords = ui.original_coords
-                                ui.dragged_piece = None
+                        # Make the move.
+                        try:
+                            game.make_move(ui.dragged_piece.position, new_square)
+                        except Exception as ex:
+                            print(ex)
+                            ui.dragged_piece.coords = ui.original_coords
+
+                        ui.dragged_piece = None
+                        is_game_over = chess_logic.is_stalemate(game.board, game.turn) or chess_logic.is_checkmate(game.board, game.turn)
                     else:
                         ui.dragged_piece.coords = ui.original_coords
 

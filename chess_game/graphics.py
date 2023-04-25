@@ -6,6 +6,7 @@ a chess board, and displays the pieces on it. The class also handles drag
 and drop events for moving pieces on the board.
 """
 import pygame
+from sys import exit
 from pygame import gfxdraw
 from chess_game.constants import *
 
@@ -21,15 +22,8 @@ class ChessUI:
 
     piece_images = {}
 
-    def __init__(self, game):
-        """
-        Initializes the board and the game.
-
-        Parameters:
-            game (ChessGame): the game to be played.
-        """
-        self.game = game
-        self.board = game.board
+    def __init__(self, board):
+        self.board = board
         self.window = pygame.display.set_mode((720, 720))
         pygame.display.set_caption("Chess Game")
 
@@ -102,17 +96,16 @@ class ChessUI:
         Parameters:
             circle_squares (list): a list of squares where circles are to be rendered.
         """
-        if self.dragged_piece.color == self.game.turn:
-            for circle_square in self.dragged_piece.legal_moves:
-                self.draw_circle(
-                    self.window,
-                    (180, 180, 180),
-                    (
-                        circle_square[1] * SQUARE_SIZE + SQUARE_SIZE // 2,
-                        circle_square[0] * SQUARE_SIZE + SQUARE_SIZE // 2,
-                    ),
-                    15,
-                )
+        for circle_square in self.dragged_piece.legal_moves:
+            self.draw_circle(
+                self.window,
+                (180, 180, 180),
+                (
+                    circle_square[1] * SQUARE_SIZE + SQUARE_SIZE // 2,
+                    circle_square[0] * SQUARE_SIZE + SQUARE_SIZE // 2,
+                ),
+                15,
+            )
 
     @classmethod
     def initialize_images(cls):
@@ -293,6 +286,8 @@ class PromotionBox:
         # Block the game until a choice is made
         while self.final_choice is None:
             for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    exit()
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     for button in self.buttons:
                         button.check_click(event)
