@@ -5,8 +5,8 @@ This class is used to represent a chess game. It has properties like board, turn
 game_over and methods make_move, run etc. It is responsible for managing the
 state of the game and making moves on the board.
 """
-import chess_game.chess_logic as chess_logic
 import pygame
+import chess_game.chess_logic as chess_logic
 from chess_game.graphics import ChessUI, PromotionBox
 from chess_game.pieces import King, Pawn
 from chess_game.board import Board
@@ -26,14 +26,23 @@ class ChessGame:
         self.board.populate_board()
         self.captured_pieces = {"white": [], "black": []}
         self.turn = "white"
-
+        
         # Variable specifically for pawn promotion
         self.promotion_choice = None
 
         # Variables for game over conditions
         self.is_checkmate = False
         self.is_stalemate = False
+        self.is_threefold_repetition = False
         self.fifty_move_counter = 0
+
+        # Variable for logging
+        self.game_position_log = []
+        self.fullmove_counter = 0
+        self.halfmove_counter = 0
+
+        # Add initial position to the log
+        self.game_position_log.append(self.get_current_game_position())
 
     def make_move(self, original_position, new_position):
         """
@@ -89,8 +98,56 @@ class ChessGame:
         if captured_piece is not None:
             self.captured_pieces[self.turn].append(captured_piece)
             print(self.captured_pieces)
+        
+        self.turn = "white" if self.turn == "black" else "black" 
 
-        self.turn = "white" if self.turn == "black" else "black"        
+        # Increment the halfmove clock
+        self.halfmove_counter += 1
+
+        # Incremented by one every time black moves; if the turn is white then black just moved.
+        if self.turn == "white":
+            self.fullmove_counter += 1
+
+        # Log the current position
+        self.game_position_log.append(self.get_current_game_position())
+
+        # Check for game over conditions
+        self.is_checkmate = chess_logic.is_checkmate(self.board, self.turn)
+        self.is_stalemate = chess_logic.is_stalemate(self.board, self.turn)
+        self.is_threefold_repetition = self.check_threefold_repetition()
+        
+    def get_current_game_position(self):
+        game_state = self.get_fen_game_state()
+
+        return {
+            "piece_placement": game_state["piece_placement"],
+            "turn": game_state["turn"],
+            "castling_availability": game_state["castling_availability"],
+            "en_passant_target_square": game_state["en_passant_target_square"],
+        }
+
+    def check_threefold_repetition(self):
+        """
+        Check if the current position has occurred three times.
+        """
+        if self.game_position_log.count(self.get_current_game_position()) >= 3:
+            return True
+        return False
+
+    def get_fen_game_state(self):
+        """
+        Get the FEN string for the current game state.
+        """
+        board_state = self.board.get_fen_board_state()
+        return {
+            "piece_placement": board_state["piece_placement"],
+            "turn": self.turn[0].lower(), 
+            "castling_availability": board_state['castling_availability'],
+            "en_passant_target_square": board_state['en_passant_target_square'],
+            "halfmove_clock": self.halfmove_counter,
+            "fullmove_counter": self.fullmove_counter
+        }
+
 
 def run_game():
     # Initialize pygame.
@@ -112,9 +169,7 @@ def run_game():
             # Check if the user presses the close button.
             if (
                 event.type == pygame.QUIT
-                or is_game_over
             ):
-                print("Game over!")
                 is_running = False
 
             # If the user left clicks on the board, check whether they clicked on a piece.
@@ -147,7 +202,11 @@ def run_game():
 
                     if new_square:
                         # Check if the move is a pawn promotion.
-                        if ui.dragged_piece.name == "Pawn" and new_square[0] in (0, 7):
+                        if (
+                            ui.dragged_piece.name == "Pawn" 
+                            and new_square[0] in (0, 7) 
+                            and new_square in ui.dragged_piece.legal_moves
+                        ):
                             ui.promotion_box = PromotionBox(
                                 ui.window, ui.dragged_piece.color
                             )
@@ -162,7 +221,23 @@ def run_game():
                             ui.dragged_piece.coords = ui.original_coords
 
                         ui.dragged_piece = None
-                        is_game_over = chess_logic.is_stalemate(game.board, game.turn) or chess_logic.is_checkmate(game.board, game.turn)
+
+                        if (
+                            game.is_checkmate
+                            or game.is_stalemate
+                            or game.is_threefold_repetition
+                            or game.fifty_move_counter >= 50
+                        ):
+                            if(game.is_checkmate):
+                                print("Checkmate!")
+                            elif(game.is_stalemate):
+                                print("Stalemate!")
+                            elif(game.is_threefold_repetition):
+                                print("Threefold repetition!")
+                            elif(game.fifty_move_counter >= 50):
+                                print("Fifty-move rule!")
+                            
+                            is_running = False
                     else:
                         ui.dragged_piece.coords = ui.original_coords
 
