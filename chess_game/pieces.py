@@ -1,36 +1,11 @@
-"""
-pieces.py
-This module contains the Piece, Pawn, Rook, Knight, Bishop, Queen, King classes.
-These classes are used to represent pieces in a chess game. Each class has properties
-like name, value, color, position, legal_moves and methods generate_possible_moves,
-refresh_legal_moves and generate_legal_moves etc. They are also used to manage algebraic
-notation of the chess pieces and and generate possible moves for each piece.
-"""
 import chess_game.chess_logic as chess_logic
 from chess_game.constants import *
+from abc import ABC, abstractmethod
 
 
-class Piece:
-    """
-    Piece:
-    This is a class for representing a chess piece.
-    It is initialized with properties like name, value, color and position.
-    It also has properties like legal_moves and methods like generate_possible_moves,
-    refresh_legal_moves and generate_legal_moves etc. It also has static methods to create
-    a piece from algebraic notation and convert a piece to algebraic notation.
-    """
-
+class Piece(ABC):
     def __init__(self, name, value, color, position):
-        """
-        Initializes the piece with properties like name, value, color, position.
 
-        Parameters:
-        name (str): the name of the piece
-        value (int): the value of the piece
-        color (str): the color of the piece
-        position (tuple): the position of the piece in (x, y) format,
-        where x is the row and y is the column.
-        """
         self.name = name
         self.value = value
         self.__color = color
@@ -39,7 +14,7 @@ class Piece:
         self.__coords = ()
         self.has_moved = False
         self.__legal_moves = set()
-        self.refresh_coords()
+        self.__refresh_coords()
 
     @property
     def color(self):
@@ -60,7 +35,7 @@ class Piece:
     def coords(self, coords):
         self.__coords = coords
 
-    def refresh_coords(self):
+    def __refresh_coords(self):
         """
         Determines the coordinates of the piece.
         """
@@ -76,35 +51,31 @@ class Piece:
             raise ValueError("Invalid position.")
         else:
             self.__position = position
-            self.refresh_coords()
+            self.__refresh_coords()
 
     @property
     def legal_moves(self):
-        return self.__legal_moves
+        return tuple(self.__legal_moves)
 
-    def generate_possible_moves(self, board):
-        """
-        Generates the possible moves for the piece.
+    @abstractmethod
+    def _generate_possible_moves(self, board):
+        pass
 
-        Parameters:
-        board (Board): the board on which the piece is placed."""
-        return set()
-
-    def refresh_legal_moves(self, board):
+    def _refresh_legal_moves(self, board):
         """
         Refreshes the legal moves for the piece.
 
         Parameters:
         board (Board): the board on which the piece is placed."""
-        self.__legal_moves = self.generate_legal_moves(board)
+        self.__legal_moves = self._generate_legal_moves(board)
 
-    def generate_legal_moves(self, board):
+    def _generate_legal_moves(self, board):
         """
         Generates the legal moves for the piece.
 
         Parameters:
         board (Board): the board on which the piece is placed."""
-        possible_moves = self.generate_possible_moves(board)
+        possible_moves = self._generate_possible_moves(board)
         legal_moves = {
             move
             for move in possible_moves
@@ -178,7 +149,7 @@ class Pawn(Piece):
     def __init__(self, color, position):
         super().__init__(name="Pawn", value=1, position=position, color=color)
 
-    def generate_possible_moves(self, board):
+    def _generate_possible_moves(self, board):
         """
         Generates the possible moves for the pawn.
 
@@ -191,7 +162,7 @@ class Pawn(Piece):
 
         # check for a single step forward
         x_new = self.position[0] + direction
-        if 0 <= x_new < 8 and board.board_table[x_new][self.position[1]] is None:
+        if 0 <= x_new < 8 and not board.is_square_occupied((x_new, self.position[1])):
             possible_moves.add((x_new, self.position[1]))
 
             # check for a double step forward if the pawn has not moved yet
@@ -199,7 +170,7 @@ class Pawn(Piece):
                 x_new = self.position[0] + 2 * direction
                 if (
                     0 <= x_new < 8
-                    and board.board_table[x_new][self.position[1]] is None
+                    and not board.is_square_occupied((x_new, self.position[1]))
                 ):
                     possible_moves.add((x_new, self.position[1]))
 
@@ -210,8 +181,8 @@ class Pawn(Piece):
                 x_new = self.position[0] + direction
                 if (
                     0 <= x_new <= 7
-                    and board.board_table[x_new][y_new] is not None
-                    and board.board_table[x_new][y_new].color != self.color
+                    and board.is_square_occupied((x_new, y_new))
+                    and board.get_piece_at_square((x_new, y_new)).color != self.color
                 ):
                     possible_moves.add((x_new, y_new))
 
@@ -240,7 +211,7 @@ class Rook(Piece):
     def __init__(self, color, position):
         super().__init__(name="Rook", value=5, position=position, color=color)
 
-    def generate_possible_moves(self, board):
+    def _generate_possible_moves(self, board):
         """
         Generates the possible moves for the rook.
 
@@ -271,7 +242,7 @@ class Knight(Piece):
     def __init__(self, color, position):
         super().__init__(name="Knight", value=3, position=position, color=color)
 
-    def generate_possible_moves(self, board):
+    def _generate_possible_moves(self, board):
         """
         Generates the possible moves for the knight.
 
@@ -292,8 +263,8 @@ class Knight(Piece):
             x_new, y_new = self.position[0] + i, self.position[1] + j
             if 0 <= x_new < 8 and 0 <= y_new < 8:
                 if (
-                    board.board_table[x_new][y_new] is None
-                    or board.board_table[x_new][y_new].color != self.color
+                    not board.is_square_occupied((x_new, y_new))
+                    or board.get_piece_at_square((x_new, y_new)).color != self.color
                 ):
                     possible_moves.add((x_new, y_new))
 
@@ -312,7 +283,7 @@ class Bishop(Piece):
     def __init__(self, color, position):
         super().__init__(name="Bishop", value=3, position=position, color=color)
 
-    def generate_possible_moves(self, board):
+    def _generate_possible_moves(self, board):
         """
         Generates the possible moves for the bishop.
 
@@ -345,7 +316,7 @@ class Queen(Piece):
     def __init__(self, color, position):
         super().__init__(name="Queen", value=9, position=position, color=color)
 
-    def generate_possible_moves(self, board):
+    def _generate_possible_moves(self, board):
         """
         Generates the possible moves for the queen.
 
@@ -384,7 +355,7 @@ class King(Piece):
     def __init__(self, color, position):
         super().__init__(name="King", value=100, position=position, color=color)
 
-    def generate_possible_moves(self, board):
+    def _generate_possible_moves(self, board):
         """
         Generates the possible moves for the king.
 

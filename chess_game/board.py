@@ -20,6 +20,8 @@ class Board:
         """
         self.__board_table = [[None for _ in range(8)] for _ in range(8)]
         self.__piece_list = []
+
+        # Intialize variables needed for en passant and reverting moves (for is_king_in_check_after_move)
         self.en_passant_piece = None
         self.last_piece_captured = None
         self.has_moved_changed = False
@@ -29,21 +31,14 @@ class Board:
         """
         Returns a list of all pieces on the board.
         """
-        return self.__piece_list
+        return tuple(self.__piece_list)
 
-    @property
-    def board_table(self):
-        """
-        Returns a 2D array of pieces representing the board.
-        """
-        return self.__board_table
-
-    def refresh_legal_moves(self):
+    def __refresh_legal_moves(self):
         """
         Generates all valid moves for all pieces on the board.
         """
-        for piece in self.piece_list:
-            piece.refresh_legal_moves(self)
+        for piece in self.__piece_list:
+            piece._refresh_legal_moves(self)
 
     def get_piece_at_square(self, position):
         """
@@ -78,7 +73,7 @@ class Board:
             raise ValueError("Invalid position!")
         self.__board_table[piece.position[0]][piece.position[1]] = piece
         self.__piece_list.append(piece)
-        self.refresh_legal_moves()
+        self.__refresh_legal_moves()
 
     def _remove_piece_at_square(self, position):
         """
@@ -96,7 +91,7 @@ class Board:
 
         if piece is not None:
             self.__piece_list.remove(piece)
-            self.refresh_legal_moves()
+            self.__refresh_legal_moves()
 
     def move_piece_to_square(self, piece, new_position, change_en_passant=True):
         """
@@ -107,61 +102,58 @@ class Board:
             new_position (tuple): new position on the board in (x, y) format,
                 where x is the row and y is the column.
         """
+        # Check first if the move is to a valid position on the board
         if (
-            new_position[0] < 0
-            or new_position[0] > 7
-            or new_position[1] < 0
-            or new_position[1] > 7
+            not (0 <= new_position[0] <= 7
+                 and 0 <= new_position[1] <= 7)
         ):
-            raise ValueError("Invalid position!")
-        if piece is None:
-            raise ValueError("Piece is None!")
+            raise ValueError("New position is invalid!")
 
+        # Get the piece at the new position (if there is one)
         occupying_piece = self.get_piece_at_square(new_position)
 
+        # Set has_moved to True if the piece has not moved yet (used for castling/revert move)
+        self.has_moved_changed = not piece.has_moved
+        piece.has_moved = True
+
+        # En passant logic
+        if piece.name == "Pawn":
+            # Check if the move was an en passant capture and remove the captured piece
+            if (
+                self.en_passant_piece is not None
+                and self.en_passant_piece.position == (new_position[0] + (1 if piece.color == "white" else -1), new_position[1])
+                and self.en_passant_piece.color != piece.color
+            ):
+                occupying_piece = self.en_passant_piece
+                self.__board_table[self.en_passant_piece.position[0]][self.en_passant_piece.position[1]] = None
+
+            # Check if the move was a pawn leaping two squares (used to allow possible en passant next move)
+            # (used to detect possibility of en passant)
+            if (change_en_passant and
+                abs(new_position[0] - piece.position[0]) == 2):
+                    self.en_passant_piece = piece
+        elif change_en_passant:
+            self.en_passant_piece = None
+
+
+        # Clear the piece that was captured last time (used for reverting moves)
         if self.last_piece_captured is not None:
             self.last_piece_captured = None
 
-        # Check if the move was actually an en passant move
-        if (
-            self.en_passant_piece is not None
-            and piece.name == "Pawn"
-            and self.en_passant_piece.position == (new_position[0] + (1 if piece.color == "white" else -1), new_position[1])
-            and self.en_passant_piece.color != piece.color
-        ):
-            occupying_piece = self.en_passant_piece
-            self.__board_table[self.en_passant_piece.position[0]][self.en_passant_piece.position[1]] = None
-
+        # Remove the piece at the new position (if there is one)
         if occupying_piece is not None:
             self.last_piece_captured = occupying_piece
             self.__piece_list.remove(occupying_piece)
-
-        original_position = piece.position
-
+        
+        # Move the piece to the new position
         self.__board_table[piece.position[0]][piece.position[1]] = None
         piece.position = new_position
-
-        if piece.has_moved is False:
-            piece.has_moved = True
-            self.has_moved_changed = True
-        else:
-            self.has_moved_changed = False
-        
-        # For en passant
-        if (change_en_passant):
-            if (
-                piece.name == "Pawn"
-                and abs(new_position[0] - original_position[0]) == 2
-            ):
-                self.en_passant_piece = piece
-            else:
-                self.en_passant_piece = None
-
         self.__board_table[new_position[0]][new_position[1]] = piece
-        self.refresh_legal_moves()
+
+        # Refresh the legal moves for all pieces
+        self.__refresh_legal_moves()
         return occupying_piece
     
-
     def revert_move(self, piece, old_position):
         """
         Revert a move and replace any captured piece.
@@ -172,7 +164,6 @@ class Board:
                 where x is the row and y is the column.
         """
         if self.last_piece_captured is not None:
-            self.last_piece_captured.value = 100
             self.__piece_list.append(self.last_piece_captured)
             self.__board_table[piece.position[0]][
                 piece.position[1]
@@ -188,7 +179,7 @@ class Board:
         piece.position = old_position
         self.__board_table[old_position[0]][old_position[1]] = piece
 
-        self.refresh_legal_moves()
+        self.__refresh_legal_moves()
 
     def promote_pawn(self, piece, choice):
         """
@@ -323,7 +314,7 @@ class Board:
         self.__piece_list = [
             piece for row in self.__board_table for piece in row if piece is not None
         ]
-        self.refresh_legal_moves()
+        self.__refresh_legal_moves()
 
     @classmethod
     def instantiate_from_fen(cls, fen_path):
@@ -337,11 +328,11 @@ class Board:
             Board: board object.
         """
         board = cls()
-        board.__board_table = Board.parse_fen(fen_path)
-        board.__piece_list = [
-            piece for row in board.__board_table for piece in row if piece is not None
+        board._Board__board_table = Board.parse_fen(fen_path)
+        board._Board__piece_list = [
+            piece for row in board._Board__board_table for piece in row if piece is not None
         ]
-        board.refresh_legal_moves()
+        board._Board__refresh_legal_moves()
         return board
 
     def __repr__(self):
@@ -359,26 +350,6 @@ class Board:
             string += str(8 - i) + "\n"
         string += "  a b c d e f g h \n"
         return string
-
-    def print_board_from_piece_list(self):
-        """
-        Print the board in a pretty readable format from the piece list.
-        """
-        string = "  a b c d e f g h \n"
-        for i in range(8):
-            string += str(8 - i) + " "
-            for j in range(8):
-                found = False
-                for piece in self.piece_list:
-                    if piece.position == (i, j):
-                        string += piece.to_algebraic_notation() + " "
-                        found = True
-                        break
-                if not found:
-                    string += ". "
-            string += str(8 - i) + "\n"
-        string += "  a b c d e f g h \n"
-        print(string)
 
     @staticmethod
     def get_algebraic_notation(position):

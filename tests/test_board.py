@@ -13,7 +13,7 @@ class TestBoard(unittest.TestCase):
         self.board = board.Board()
         self.assertEqual(len(self.board._Board__board_table), 8)
         self.assertEqual(len(self.board._Board__board_table[0]), 8)
-        self.assertEqual(self.board.piece_list, [])
+        self.assertEqual(self.board.piece_list, ())
         self.assertEqual(self.board.last_piece_captured, None)
 
     def test_populate_board(self):
@@ -27,10 +27,10 @@ class TestBoard(unittest.TestCase):
         self.assertEqual(self.board.piece_list[0].color, "black")
 
     def test_refresh_legal_moves(self):
-        self.assertEqual(self.board.get_piece_at_square((7, 4)).legal_moves, set())
+        self.assertEqual(self.board.get_piece_at_square((7, 4)).legal_moves, ())
         self.board._remove_piece_at_square((6, 4))
-        self.board.refresh_legal_moves()
-        self.assertEqual(self.board.get_piece_at_square((7, 4)).legal_moves, {(6, 4)})
+        self.board._Board__refresh_legal_moves()
+        self.assertEqual(self.board.get_piece_at_square((7, 4)).legal_moves, ((6, 4),))
 
     def test_get_piece_at_square(self):
         self.assertEqual(self.board.get_piece_at_square((7, 0)).name, "Rook")
@@ -101,10 +101,6 @@ class TestBoard(unittest.TestCase):
         piece = self.board.get_piece_at_square((7, 0))
         with self.assertRaises(ValueError):
             self.board.move_piece_to_square(piece, (8, 0))
-
-    def test_move_none_piece_to_square(self):
-        with self.assertRaises(ValueError):
-            self.board.move_piece_to_square(None, (6, 0))
 
     def test_revert_move(self):
         piece = self.board.get_piece_at_square((7, 0))
@@ -218,7 +214,7 @@ class TestBoard(unittest.TestCase):
         test_board._place_piece(pieces.Pawn("white", (1, 5)))
         test_board._place_piece(pieces.King("white", (2, 5)))
 
-        self.assertEqual(test_fen_board.board_table, test_board.board_table)
+        self.assertEqual(test_fen_board._Board__board_table, test_board._Board__board_table)
         self.assertEqual(test_fen_board.piece_list, test_board.piece_list)
 
     def test_repr(self):
@@ -236,24 +232,6 @@ class TestBoard(unittest.TestCase):
         )
 
         self.assertEqual(repr(self.board), expected_board)
-
-    @unittest.mock.patch("sys.stdout", new_callable=io.StringIO)
-    def test_print(self, mock_stdout):
-        self.board.print_board_from_piece_list()
-        expected_board = (
-            "  a b c d e f g h \n"
-            "8 r n b q k b n r 8\n"
-            "7 p p p p p p p p 7\n"
-            "6 . . . . . . . . 6\n"
-            "5 . . . . . . . . 5\n"
-            "4 . . . . . . . . 4\n"
-            "3 . . . . . . . . 3\n"
-            "2 P P P P P P P P 2\n"
-            "1 R N B Q K B N R 1\n"
-            "  a b c d e f g h \n\n"
-        )
-
-        self.assertEqual(mock_stdout.getvalue(), expected_board)
 
     def test_get_algebraic_notation(self):
         self.assertEqual(self.board.get_algebraic_notation((0, 0)), "a8")
