@@ -8,7 +8,6 @@ it has a method for refreshing the legal moves for all pieces on the board.
 """
 from chess_game.pieces import *
 
-
 class Board:
     """
     Initializes the board with a 2D array of pieces and a list of all pieces on the board.
@@ -103,10 +102,7 @@ class Board:
                 where x is the row and y is the column.
         """
         # Check first if the move is to a valid position on the board
-        if (
-            not (0 <= new_position[0] <= 7
-                 and 0 <= new_position[1] <= 7)
-        ):
+        if not (0 <= new_position[0] <= 7 and 0 <= new_position[1] <= 7):
             raise ValueError("New position is invalid!")
 
         # Get the piece at the new position (if there is one)
@@ -117,23 +113,32 @@ class Board:
         piece.has_moved = True
 
         # En passant logic
-        if piece.name == "Pawn":
-            # Check if the move was an en passant capture and remove the captured piece
-            if (
-                self.en_passant_piece is not None
-                and self.en_passant_piece.position == (new_position[0] + (1 if piece.color == "white" else -1), new_position[1])
-                and self.en_passant_piece.color != piece.color
-            ):
-                occupying_piece = self.en_passant_piece
-                self.__board_table[self.en_passant_piece.position[0]][self.en_passant_piece.position[1]] = None
+        # Check if the move was an en passant capture and remove the captured piece
+        if (
+            piece.name == "Pawn"
+            and self.en_passant_piece is not None
+            and self.en_passant_piece.position
+            == (
+                new_position[0] + (1 if piece.color == "white" else -1),
+                new_position[1],
+            )
+            and self.en_passant_piece.color != piece.color
+        ):
+            occupying_piece = self.en_passant_piece
+            self.__board_table[self.en_passant_piece.position[0]][
+                self.en_passant_piece.position[1]
+            ] = None
 
-            # Check if the move was a pawn leaping two squares (used to allow possible en passant next move)
-            # (used to detect possibility of en passant)
-            if (change_en_passant and
-                abs(new_position[0] - piece.position[0]) == 2):
-                    self.en_passant_piece = piece
-        elif change_en_passant:
-            self.en_passant_piece = None
+        # Check if the move was a pawn leaping two squares (used to allow possible en passant next move)
+        # (used to detect possibility of en passant)
+        if change_en_passant:
+            if(
+                piece.name == "Pawn"
+                and abs(new_position[0] - piece.position[0]) == 2
+            ):
+                self.en_passant_piece = piece
+            else:
+                self.en_passant_piece = None
 
 
         # Clear the piece that was captured last time (used for reverting moves)
@@ -144,7 +149,7 @@ class Board:
         if occupying_piece is not None:
             self.last_piece_captured = occupying_piece
             self.__piece_list.remove(occupying_piece)
-        
+
         # Move the piece to the new position
         self.__board_table[piece.position[0]][piece.position[1]] = None
         piece.position = new_position
@@ -153,7 +158,7 @@ class Board:
         # Refresh the legal moves for all pieces
         self.__refresh_legal_moves()
         return occupying_piece
-    
+
     def revert_move(self, piece, old_position):
         """
         Revert a move and replace any captured piece.
@@ -330,7 +335,10 @@ class Board:
         board = cls()
         board._Board__board_table = Board.parse_fen(fen_path)
         board._Board__piece_list = [
-            piece for row in board._Board__board_table for piece in row if piece is not None
+            piece
+            for row in board._Board__board_table
+            for piece in row
+            if piece is not None
         ]
         board._Board__refresh_legal_moves()
         return board

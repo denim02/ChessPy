@@ -1,7 +1,5 @@
 import unittest
-import unittest.mock
-import io
-from chess_game import pieces, board, chess_logic, constants
+from chess_game import pieces, board
 
 
 class TestBoard(unittest.TestCase):
@@ -77,7 +75,10 @@ class TestBoard(unittest.TestCase):
 
         # Move piece to empty square
         self.board._remove_piece_at_square((6, 0))
+        piece_has_moved = piece.has_moved
         self.board.move_piece_to_square(piece, (6, 0))
+        self.assertNotEqual(piece.has_moved, piece_has_moved)
+        self.assertTrue(piece.has_moved)
         self.assertEqual(self.board.get_piece_at_square((6, 0)).name, "Rook")
         self.assertEqual(self.board.get_piece_at_square((6, 0)).color, "white")
         self.assertEqual(self.board.get_piece_at_square((7, 0)), None)
@@ -101,6 +102,53 @@ class TestBoard(unittest.TestCase):
         piece = self.board.get_piece_at_square((7, 0))
         with self.assertRaises(ValueError):
             self.board.move_piece_to_square(piece, (8, 0))
+
+    def test_move_piece_to_square_en_passant_attr(self):
+        # Initialize almost empty board
+        self.board = board.Board()
+        self.board._place_piece(pieces.Pawn("white", (5, 4)))
+        self.board._place_piece(pieces.Pawn("black", (3, 3)))
+
+        # Check the side-effects of moving a pawn two rows forward (do not need to keep track of has_moved)
+        # That would be done by generate_possible_moves()
+        self.board.move_piece_to_square(self.board.get_piece_at_square((5, 4)), (3, 4), change_en_passant=False)
+        self.assertIsNone(self.board.en_passant_piece)
+        self.board.move_piece_to_square(self.board.get_piece_at_square((3, 4)), (5, 4), change_en_passant=False)
+
+        self.board.move_piece_to_square(self.board.get_piece_at_square((5, 4)), (3, 4), change_en_passant=True)
+        self.assertEqual(self.board.en_passant_piece, self.board.get_piece_at_square((3, 4)))
+
+        # Do additional move to clear en passant
+        self.board.move_piece_to_square(self.board.get_piece_at_square((3, 4)), (2, 4), change_en_passant=True)
+        self.assertIsNone(self.board.en_passant_piece)
+
+    def test_move_piece_to_square_en_passant(self):
+        # Initialize almost empty board
+        self.board = board.Board()
+        self.board._place_piece(pieces.Pawn("white", (5, 4)))
+        self.board._place_piece(pieces.Pawn("black", (3, 3)))
+
+        # Test en passant capture with white pawn
+        capturing_piece = self.board.get_piece_at_square((5, 4))
+        captured_piece = self.board.get_piece_at_square((3, 3))
+        self.board.move_piece_to_square(self.board.get_piece_at_square((3, 3)), (5, 3), change_en_passant=True)
+        self.board.move_piece_to_square(self.board.get_piece_at_square((5, 4)), (4, 3), change_en_passant=True)
+        self.assertEqual(self.board.get_piece_at_square((5, 3)), None)
+        self.assertEqual(self.board.get_piece_at_square((4, 3)), capturing_piece)
+        self.assertEqual(self.board.last_piece_captured, captured_piece)
+
+        self.board = board.Board()
+        self.board._place_piece(pieces.Pawn("white", (5, 4)))
+        self.board._place_piece(pieces.Pawn("black", (3, 3)))
+
+        # Test en passant capture with black pawn
+        capturing_piece = self.board.get_piece_at_square((3, 3))
+        captured_piece = self.board.get_piece_at_square((5, 4))
+        self.board.move_piece_to_square(self.board.get_piece_at_square((5, 4)), (3, 4), change_en_passant=True)
+        self.board.move_piece_to_square(self.board.get_piece_at_square((3, 3)), (4, 4), change_en_passant=True)
+        self.assertEqual(self.board.get_piece_at_square((3, 4)), None)
+        self.assertEqual(self.board.get_piece_at_square((4, 4)), capturing_piece)
+        self.assertEqual(self.board.last_piece_captured, captured_piece)
 
     def test_revert_move(self):
         piece = self.board.get_piece_at_square((7, 0))
@@ -214,7 +262,9 @@ class TestBoard(unittest.TestCase):
         test_board._place_piece(pieces.Pawn("white", (1, 5)))
         test_board._place_piece(pieces.King("white", (2, 5)))
 
-        self.assertEqual(test_fen_board._Board__board_table, test_board._Board__board_table)
+        self.assertEqual(
+            test_fen_board._Board__board_table, test_board._Board__board_table
+        )
         self.assertEqual(test_fen_board.piece_list, test_board.piece_list)
 
     def test_repr(self):
