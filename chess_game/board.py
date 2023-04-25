@@ -216,6 +216,7 @@ class Board:
         self.__piece_list.remove(piece)
         self.__piece_list.append(new_piece)
         self.__board_table[piece.position[0]][piece.position[1]] = new_piece
+        self.__refresh_legal_moves()
 
     def is_square_occupied(self, position):
         """
@@ -420,3 +421,85 @@ class Board:
                             )
 
             return board
+        
+    def get_fen_board_state(self):
+        """
+        Return the FEN notation of the current board state.
+
+        Returns:
+            =dict: FEN notation of the current board state.
+        """
+        
+        return {
+            "piece_placement": self._get_fen_board(),
+            "castling_availability": self._get_fen_castling_rights(),
+            "en_passant_target_square": self._get_fen_en_passant_target_square()
+        }
+    
+    def _get_fen_board(self):
+        fen = ""
+        for row in self.__board_table:
+            empty_squares = 0
+            for piece in row:
+                if piece is None:
+                    empty_squares += 1
+                else:
+                    if empty_squares > 0:
+                        fen += str(empty_squares)
+                        empty_squares = 0
+                    fen += piece.to_algebraic_notation()
+            if empty_squares > 0:
+                fen += str(empty_squares)
+            fen += "/"
+
+        return fen[:-1]
+
+    def _get_fen_castling_rights(self):
+        """
+        Return the FEN notation of the castling rights.
+
+        Returns:
+            str: FEN notation of the castling rights.
+        """
+        fen = ""
+
+        black_king = self.get_piece_at_square((0, 4))
+        black_queenside_rook = self.get_piece_at_square((0, 0))
+        black_kingside_rook = self.get_piece_at_square((0, 7))
+
+        white_king = self.get_piece_at_square((7, 4))
+        white_queenside_rook = self.get_piece_at_square((7, 0))
+        white_kingside_rook = self.get_piece_at_square((7, 7))
+
+        if isinstance(white_king, King) and not white_king.has_moved:
+            if isinstance(white_kingside_rook, Rook) and not white_kingside_rook.has_moved:
+                fen += "K"
+            if isinstance(white_queenside_rook, Rook) and not white_queenside_rook.has_moved:
+                fen += "Q"
+            
+        if isinstance(black_king, King) and not black_king.has_moved:
+            if isinstance(black_kingside_rook, Rook) and not black_kingside_rook.has_moved:
+                fen += "k"
+            if isinstance(black_queenside_rook, Rook) and not black_queenside_rook.has_moved:
+                fen += "q"
+        
+        if fen == "":
+            fen = "-"
+
+        return fen
+            
+    def _get_fen_en_passant_target_square(self):
+        """
+        Return the FEN notation of the en passant target square.
+
+        Returns:
+            str: FEN notation of the en passant target square.
+        """
+        if self.en_passant_piece is None:
+            return "-"
+        else:
+            direction = 1 if self.en_passant_piece.color == "white" else -1
+            return Board.get_algebraic_notation(
+                (self.en_passant_piece.position[0] + direction, self.en_passant_piece.position[1])
+            )
+       

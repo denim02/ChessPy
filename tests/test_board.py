@@ -305,6 +305,55 @@ class TestBoard(unittest.TestCase):
 
         self.assertEqual(repr(new_board), repr(expected_board._Board__board_table))
 
+    def test_get_fen_board_state(self):
+        expected_output = {
+            "piece_placement": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR",
+            "castling_availability": "KQkq",
+            "en_passant_target_square": "-"
+        }
+        
+        actual_output = self.board.get_fen_board_state()
+        self.assertEqual(actual_output, expected_output)
+
+    def test_get_fen_board(self):
+        expected_output = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR"
+        actual_output = self.board._get_fen_board()
+        self.assertEqual(actual_output, expected_output)
+
+        self.board.move_piece_to_square(self.board.get_piece_at_square((1, 0)), (3, 0))
+        expected_output = "rnbqkbnr/1ppppppp/8/p7/8/8/PPPPPPPP/RNBQKBNR"
+        actual_output = self.board._get_fen_board()
+        self.assertEqual(actual_output, expected_output)
+
+    def test_get_fen_castling_rights(self):
+        # Total castling rights
+        expected_output = "KQkq"
+        actual_output = self.board._get_fen_castling_rights()
+        self.assertEqual(actual_output, expected_output)
+
+        # No castling rights for white
+        self.board.get_piece_at_square((0, 4)).has_moved = True
+        expected_output = "KQ"
+        actual_output = self.board._get_fen_castling_rights()
+        self.assertEqual(actual_output, expected_output)
+
+        # No castling rights at all
+        self.board.get_piece_at_square((7, 4)).has_moved = True
+        expected_output = "-"
+        actual_output = self.board._get_fen_castling_rights()
+        self.assertEqual(actual_output, expected_output)
+
+    def test_get_fen_en_passant_target_square(self):
+        # No en passant target square
+        expected_output = "-"
+        actual_output = self.board._get_fen_en_passant_target_square()
+        self.assertEqual(actual_output, expected_output)
+
+        # En passant target square
+        self.board.move_piece_to_square(self.board.get_piece_at_square((1, 4)), (3, 4))
+        expected_output = "e6"
+        actual_output = self.board._get_fen_en_passant_target_square()
+        self.assertEqual(actual_output, expected_output)
 
 if __name__ == "__main__":
     unittest.main()
