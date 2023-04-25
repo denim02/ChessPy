@@ -59,7 +59,9 @@ class Piece(ABC):
 
     @abstractmethod
     def _generate_possible_moves(self, board):
-        pass
+        """
+        Generates the possible moves for the piece.
+        """
 
     def _refresh_legal_moves(self, board):
         """
@@ -168,9 +170,8 @@ class Pawn(Piece):
             # check for a double step forward if the pawn has not moved yet
             if not self.has_moved:
                 x_new = self.position[0] + 2 * direction
-                if (
-                    0 <= x_new < 8
-                    and not board.is_square_occupied((x_new, self.position[1]))
+                if 0 <= x_new < 8 and not board.is_square_occupied(
+                    (x_new, self.position[1])
                 ):
                     possible_moves.add((x_new, self.position[1]))
 
@@ -187,7 +188,10 @@ class Pawn(Piece):
                     possible_moves.add((x_new, y_new))
 
         # check for en passant
-        if board.en_passant_piece is not None and board.en_passant_piece.color != self.color:
+        if (
+            board.en_passant_piece is not None
+            and board.en_passant_piece.color != self.color
+        ):
             if (
                 0 <= x_new < 8
                 and board.en_passant_piece.position[0] == self.position[0]
@@ -196,7 +200,6 @@ class Pawn(Piece):
                 possible_moves.add((x_new, board.en_passant_piece.position[1]))
 
         return possible_moves
-    
 
 
 class Rook(Piece):
