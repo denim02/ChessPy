@@ -183,7 +183,7 @@ class TestBoard(unittest.TestCase):
         # Test promotion on invalid piece
         test_board._place_piece(pieces.Rook("white", (0, 1)))
         with self.assertRaises(ValueError):
-            test_board.promote_pawn(test_board.get_piece_at_square((0, 1)), "Queen")
+            test_board.promote_pawn(test_board.get_piece_at_square((0, 1)), "Q")
 
         # Test promotion with invalid choice
         with self.assertRaises(ValueError):
@@ -193,28 +193,28 @@ class TestBoard(unittest.TestCase):
         test_board._place_piece(pieces.Pawn("white", (1, 1)))
         test_board._place_piece(pieces.Pawn("black", (6, 1)))
         with self.assertRaises(ValueError):
-            test_board.promote_pawn(test_board.get_piece_at_square((1, 1)), "Queen")
+            test_board.promote_pawn(test_board.get_piece_at_square((1, 1)), "Q")
         with self.assertRaises(ValueError):
-            test_board.promote_pawn(test_board.get_piece_at_square((6, 1)), "Queen")
+            test_board.promote_pawn(test_board.get_piece_at_square((6, 1)), "Q")
 
         # Test promotion to queen
-        test_board.promote_pawn(test_board.get_piece_at_square((7, 0)), "Queen")
-        self.assertEqual(test_board.get_piece_at_square((7, 0)).name, "Queen")
+        test_board.promote_pawn(test_board.get_piece_at_square((7, 0)), "Q")
+        self.assertEqual(test_board.get_piece_at_square((7, 0)).name[0], "Q")
         self.assertEqual(test_board.get_piece_at_square((7, 0)).color, "black")
 
         # Test promotion to rook
-        test_board.promote_pawn(test_board.get_piece_at_square((0, 0)), "Rook")
-        self.assertEqual(test_board.get_piece_at_square((0, 0)).name, "Rook")
+        test_board.promote_pawn(test_board.get_piece_at_square((0, 0)), "R")
+        self.assertEqual(test_board.get_piece_at_square((0, 0)).name[0], "R")
         self.assertEqual(test_board.get_piece_at_square((0, 0)).color, "white")
 
         # Test promotion to bishop
-        test_board.promote_pawn(test_board.get_piece_at_square((7, 2)), "Bishop")
-        self.assertEqual(test_board.get_piece_at_square((7, 2)).name, "Bishop")
+        test_board.promote_pawn(test_board.get_piece_at_square((7, 2)), "B")
+        self.assertEqual(test_board.get_piece_at_square((7, 2)).name[0], "B")
         self.assertEqual(test_board.get_piece_at_square((7, 2)).color, "black")
 
         # Test promotion to knight
-        test_board.promote_pawn(test_board.get_piece_at_square((0, 2)), "Knight")
-        self.assertEqual(test_board.get_piece_at_square((0, 2)).name, "Knight")
+        test_board.promote_pawn(test_board.get_piece_at_square((0, 2)), "N")
+        self.assertEqual(test_board.get_piece_at_square((0, 2)).to_algebraic_notation()[0].upper(), "N")
         self.assertEqual(test_board.get_piece_at_square((0, 2)).color, "white")
 
     def test_is_square_occupied(self):
