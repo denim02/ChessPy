@@ -202,13 +202,13 @@ class Board:
         ):
             raise ValueError("Pawn is not at the end of the board!")
 
-        if choice == "Queen":
+        if choice == "Q":
             new_piece = Queen(piece.color, piece.position)
-        elif choice == "Rook":
+        elif choice == "R":
             new_piece = Rook(piece.color, piece.position)
-        elif choice == "Bishop":
+        elif choice == "B":
             new_piece = Bishop(piece.color, piece.position)
-        elif choice == "Knight":
+        elif choice == "N":
             new_piece = Knight(piece.color, piece.position)
         else:
             raise ValueError("Invalid choice!")

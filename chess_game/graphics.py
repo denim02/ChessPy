@@ -229,7 +229,7 @@ class PromotionBox:
                 200,
                 f"./game/assets/{piece_color}-queen.png",
                 1,
-                "Queen",
+                "Q",
                 self.window,
             )
         )
@@ -239,7 +239,7 @@ class PromotionBox:
                 300,
                 f"./game/assets/{piece_color}-rook.png",
                 1,
-                "Rook",
+                "R",
                 self.window,
             )
         )
@@ -249,7 +249,7 @@ class PromotionBox:
                 400,
                 f"./game/assets/{piece_color}-bishop.png",
                 1,
-                "Bishop",
+                "B",
                 self.window,
             )
         )
@@ -259,7 +259,7 @@ class PromotionBox:
                 500,
                 f"./game/assets/{piece_color}-knight.png",
                 1,
-                "Knight",
+                "N",
                 self.window,
             )
         )
