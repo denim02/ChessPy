@@ -11,4 +11,4 @@ LIGHT = "#EEEEE2"
 FPS = 60
 STARTING_FEN_FILE = "./game/game_states/init_position.fen"
 MOVE_LOG_ENABLED = True
-MOVE_LOG_FILE = "./game/logs/move_log.txt"
+MOVE_LOG_DIRECTORY = "./game/logs/"

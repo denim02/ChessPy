@@ -6,11 +6,12 @@ game_over and methods make_move, run etc. It is responsible for managing the
 state of the game and making moves on the board.
 """
 import pygame
+import datetime
 import chess_game.chess_logic as chess_logic
+import chess_game.constants as constants
 from chess_game.graphics import ChessUI, PromotionBox
 from chess_game.pieces import King, Pawn
 from chess_game.board import Board
-from chess_game.constants import *
 
 
 class ChessGame:
@@ -37,12 +38,14 @@ class ChessGame:
         self.fifty_move_counter = 0
 
         # Variable for logging
-        self.game_position_log = []
+        self.position_log = []
+        self.move_log_enabled = constants.MOVE_LOG_ENABLED
+        self.move_log_file_path = constants.MOVE_LOG_DIRECTORY + "g_" + datetime.datetime.now().strftime("%y%m%d_%H%M") + ".txt"
         self.fullmove_counter = 0
         self.halfmove_counter = 0
 
         # Add initial position to the log
-        self.game_position_log.append(self.get_current_game_position())
+        self.position_log.append(self.get_current_game_position())
 
     def make_move(self, original_position, new_position):
         """
@@ -97,7 +100,6 @@ class ChessGame:
         # Keep track of captured pieces
         if captured_piece is not None:
             self.captured_pieces[self.turn].append(captured_piece)
-            print(self.captured_pieces)
         
         self.turn = "white" if self.turn == "black" else "black" 
 
@@ -109,7 +111,9 @@ class ChessGame:
             self.fullmove_counter += 1
 
         # Log the current position
-        self.game_position_log.append(self.get_current_game_position())
+        self.position_log.append(self.get_current_game_position())
+        if self.move_log_enabled:
+            self.log_move(piece, original_position, captured_piece)
 
         # Check for game over conditions
         self.is_checkmate = chess_logic.is_checkmate(self.board, self.turn)
@@ -130,7 +134,7 @@ class ChessGame:
         """
         Check if the current position has occurred three times.
         """
-        if self.game_position_log.count(self.get_current_game_position()) >= 3:
+        if self.position_log.count(self.get_current_game_position()) >= 3:
             return True
         return False
 
@@ -148,6 +152,66 @@ class ChessGame:
             "fullmove_counter": self.fullmove_counter
         }
 
+    def log_move(self, piece, original_position, captured_piece=None):
+        """
+        Log a move in algebraic notation.
+        """
+        move = self.get_move_in_algebraic_notation(piece, original_position, captured_piece)
+        
+        with open(self.move_log_file_path, "a") as file:
+            # Check if it is the first move of a new turn.
+            if self.halfmove_counter % 2 != 0:
+                file.write(str(self.fullmove_counter + 1) + ". " + move + " ")
+            else:
+                file.write(move + "\n")
+
+    def get_move_in_algebraic_notation(self, piece, original_position, captured_piece=None):
+        """
+        Get the algebraic notation for a move.
+        """
+        new_position = piece.position
+        piece_notation = piece.to_algebraic_notation().upper()
+        new_position_notation = self.board.get_algebraic_notation(new_position)
+
+        result = ""
+
+        # Check if the move is a castle.
+        if isinstance(piece, King) and abs(new_position[1] - original_position[1]) > 1:
+            # Check if the king is castling to the left (queenside).
+            if new_position[1] < original_position[1]:
+                result += "O-O-O"
+            # Check if the king is castling to the right (kingside).
+            else:
+                result += "O-O"
+        # Check if the move is a pawn promotion.
+        elif isinstance(piece, Pawn) and (new_position[0] == 0 or new_position[0] == 7):
+            result += new_position_notation + "=" + self.board.get_piece_at_square(new_position).to_algebraic_notation().upper()
+        # Check if the move is a capture.
+        elif captured_piece is not None:
+            # Check if the capture was done by a pawn
+            if isinstance(piece, Pawn):
+                result += self.board.get_algebraic_notation(original_position)[0] + "x" + new_position_notation
+                # If en passant
+                if isinstance(captured_piece, Pawn) and captured_piece.position[0] != new_position[0]:
+                    result += "e.p."
+            # Otherwise, the capture was done by a piece other than a pawn.
+            else:
+                result += piece_notation + "x" + new_position_notation
+        # Check if the move is a pawn move.
+        elif isinstance(piece, Pawn):
+            result += new_position_notation
+        # Then it must be a normal move.
+        else:
+            result += piece_notation + new_position_notation
+
+        # Check if the move is a checkmate.
+        if chess_logic.is_checkmate(self.board, self.turn):
+            result += "#"
+        # Check if the move is a check.
+        elif chess_logic.is_check(self.board, self.turn):
+            result += "+"
+
+        return result
 
 def run_game():
     # Initialize pygame.
@@ -160,7 +224,6 @@ def run_game():
 
     # Create flag for the game loop.
     is_running = True
-    is_game_over = False
 
     while is_running:
         clock.tick(60)
