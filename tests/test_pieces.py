@@ -124,6 +124,7 @@ class TestPiece(unittest.TestCase):
         self.assertNotEqual(piece1, piece4)
         self.assertNotEqual(piece1, piece5)
 
+
 class TestPawn(unittest.TestCase):
     def setUp(self):
         self.pawn = pieces.Pawn(color="white", position=(6, 0))
@@ -377,9 +378,7 @@ class TestKing(unittest.TestCase):
         self.king = pieces.King("white", (7, 4))
         self.board._place_piece(self.king)
 
-        self.board._place_piece(
-            pieces.Rook(color="white", position=(7, 7))
-        )
+        self.board._place_piece(pieces.Rook(color="white", position=(7, 7)))
 
         self.board._place_piece(pieces.Rook("white", (7, 0)))
         expected_moves = {(6, 4), (6, 3), (6, 5), (7, 5), (7, 3), (7, 6), (7, 2)}
@@ -397,29 +396,24 @@ class TestKing(unittest.TestCase):
         self.assertEqual(self.king._generate_possible_moves(self.board), expected_moves)
 
         # Castleing, queen and king side, but king is in check
-        self.board._place_piece(
-            pieces.Rook(color="black", position=(6, 4))
-            )
+        self.board._place_piece(pieces.Rook(color="black", position=(6, 4)))
         self.king.has_moved = False
         expected_moves = {(6, 3), (6, 5), (7, 5), (7, 3), (6, 4)}
         self.assertEqual(self.king._generate_possible_moves(self.board), expected_moves)
         self.board._remove_piece_at_square((6, 4))
 
         # Castleing, but path is blocked by friendly piece king side
-        self.board._place_piece(
-            pieces.Pawn(color="white", position=(7, 6))
-        )
+        self.board._place_piece(pieces.Pawn(color="white", position=(7, 6)))
         expected_moves = {(6, 3), (6, 4), (6, 5), (7, 3), (7, 2), (7, 5)}
         self.assertEqual(self.king._generate_possible_moves(self.board), expected_moves)
         self.board._remove_piece_at_square((7, 6))
 
         # Castleing, but path is under attack by distant enemy piece (enemy queen)
         self.board._remove_piece_at_square((5, 5))
-        self.board._place_piece(
-            pieces.Queen(color="black", position=(5, 5))
-            )
+        self.board._place_piece(pieces.Queen(color="black", position=(5, 5)))
         expected_moves = {(6, 4), (6, 3), (6, 5), (7, 5), (7, 3)}
         self.assertEqual(self.king._generate_possible_moves(self.board), expected_moves)
+
 
 if __name__ == "__main__":
     unittest.main()

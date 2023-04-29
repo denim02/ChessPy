@@ -1,5 +1,4 @@
-import chess_game.chess_logic as chess_logic
-from chess_game.constants import *
+from chess_game import constants, chess_logic
 from abc import ABC, abstractmethod
 
 
@@ -39,7 +38,10 @@ class Piece(ABC):
         """
         Determines the coordinates of the piece.
         """
-        self.__coords = self.position[1] * SQUARE_SIZE, self.position[0] * SQUARE_SIZE
+        self.__coords = (
+            self.position[1] * constants.SQUARE_SIZE,
+            self.position[0] * constants.SQUARE_SIZE,
+        )
 
     @property
     def position(self):

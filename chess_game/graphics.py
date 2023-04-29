@@ -8,7 +8,7 @@ and drop events for moving pieces on the board.
 import pygame
 from sys import exit
 from pygame import gfxdraw
-from chess_game.constants import *
+from chess_game import constants
 
 
 class ChessUI:
@@ -24,7 +24,9 @@ class ChessUI:
 
     def __init__(self, board):
         self.board = board
-        self.window = pygame.display.set_mode((720, 720))
+        self.window = pygame.display.set_mode(
+            (constants.WINDOW_WIDTH, constants.WINDOW_HEIGHT)
+        )
         pygame.display.set_caption("Chess Game")
 
         # Load piece images
@@ -59,13 +61,18 @@ class ChessUI:
         """
         Renders the board.
         """
-        self.window.fill(DARK)
-        for row in range(ROWS):
-            for col in range(row % 2, COLS, 2):
+        self.window.fill(constants.DARK)
+        for row in range(constants.ROWS):
+            for col in range(row % 2, constants.COLS, 2):
                 pygame.draw.rect(
                     self.window,
-                    LIGHT,
-                    (row * SQUARE_SIZE, col * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE),
+                    constants.LIGHT,
+                    (
+                        row * constants.SQUARE_SIZE,
+                        col * constants.SQUARE_SIZE,
+                        constants.SQUARE_SIZE,
+                        constants.SQUARE_SIZE,
+                    ),
                 )
 
     def render_pieces(self):
@@ -101,8 +108,10 @@ class ChessUI:
                 self.window,
                 (180, 180, 180),
                 (
-                    circle_square[1] * SQUARE_SIZE + SQUARE_SIZE // 2,
-                    circle_square[0] * SQUARE_SIZE + SQUARE_SIZE // 2,
+                    circle_square[1] * constants.SQUARE_SIZE
+                    + constants.SQUARE_SIZE // 2,
+                    circle_square[0] * constants.SQUARE_SIZE
+                    + constants.SQUARE_SIZE // 2,
                 ),
                 15,
             )
@@ -160,7 +169,7 @@ class ChessUI:
             coords (tuple): the coordinates of the square in (x, y) format,
                 where x is the row and y is the column.
         """
-        return (coords[1] // SQUARE_SIZE, coords[0] // SQUARE_SIZE)
+        return (coords[1] // constants.SQUARE_SIZE, coords[0] // constants.SQUARE_SIZE)
 
     @staticmethod
     def get_coords_of_square(position):
@@ -171,7 +180,10 @@ class ChessUI:
             position (tuple): the position of the square in (x, y) format,
                 where x is the row and y is the column.
         """
-        return (position[1] * SQUARE_SIZE, position[0] * SQUARE_SIZE)
+        return (
+            position[1] * constants.SQUARE_SIZE,
+            position[0] * constants.SQUARE_SIZE,
+        )
 
     @staticmethod
     def draw_circle(surface, color, coords, radius):
@@ -222,7 +234,7 @@ class PromotionBox:
 
         # Create buttons
         self.buttons = []
-        button_x = self.x + (self.width - SQUARE_SIZE) // 2
+        button_x = self.x + (self.width - constants.SQUARE_SIZE) // 2
         self.buttons.append(
             Button(
                 button_x,

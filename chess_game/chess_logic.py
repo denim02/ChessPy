@@ -3,6 +3,7 @@ chess_logic.py
 This module contains the logic for the chess game.
 """
 
+
 def is_check(board, color):
     """
     Check if a king of a given color is in check.

@@ -111,15 +111,25 @@ class TestBoard(unittest.TestCase):
 
         # Check the side-effects of moving a pawn two rows forward (do not need to keep track of has_moved)
         # That would be done by generate_possible_moves()
-        self.board.move_piece_to_square(self.board.get_piece_at_square((5, 4)), (3, 4), change_en_passant=False)
+        self.board.move_piece_to_square(
+            self.board.get_piece_at_square((5, 4)), (3, 4), change_en_passant=False
+        )
         self.assertIsNone(self.board.en_passant_piece)
-        self.board.move_piece_to_square(self.board.get_piece_at_square((3, 4)), (5, 4), change_en_passant=False)
+        self.board.move_piece_to_square(
+            self.board.get_piece_at_square((3, 4)), (5, 4), change_en_passant=False
+        )
 
-        self.board.move_piece_to_square(self.board.get_piece_at_square((5, 4)), (3, 4), change_en_passant=True)
-        self.assertEqual(self.board.en_passant_piece, self.board.get_piece_at_square((3, 4)))
+        self.board.move_piece_to_square(
+            self.board.get_piece_at_square((5, 4)), (3, 4), change_en_passant=True
+        )
+        self.assertEqual(
+            self.board.en_passant_piece, self.board.get_piece_at_square((3, 4))
+        )
 
         # Do additional move to clear en passant
-        self.board.move_piece_to_square(self.board.get_piece_at_square((3, 4)), (2, 4), change_en_passant=True)
+        self.board.move_piece_to_square(
+            self.board.get_piece_at_square((3, 4)), (2, 4), change_en_passant=True
+        )
         self.assertIsNone(self.board.en_passant_piece)
 
     def test_move_piece_to_square_en_passant(self):
@@ -131,8 +141,12 @@ class TestBoard(unittest.TestCase):
         # Test en passant capture with white pawn
         capturing_piece = self.board.get_piece_at_square((5, 4))
         captured_piece = self.board.get_piece_at_square((3, 3))
-        self.board.move_piece_to_square(self.board.get_piece_at_square((3, 3)), (5, 3), change_en_passant=True)
-        self.board.move_piece_to_square(self.board.get_piece_at_square((5, 4)), (4, 3), change_en_passant=True)
+        self.board.move_piece_to_square(
+            self.board.get_piece_at_square((3, 3)), (5, 3), change_en_passant=True
+        )
+        self.board.move_piece_to_square(
+            self.board.get_piece_at_square((5, 4)), (4, 3), change_en_passant=True
+        )
         self.assertEqual(self.board.get_piece_at_square((5, 3)), None)
         self.assertEqual(self.board.get_piece_at_square((4, 3)), capturing_piece)
         self.assertEqual(self.board.last_piece_captured, captured_piece)
@@ -144,8 +158,12 @@ class TestBoard(unittest.TestCase):
         # Test en passant capture with black pawn
         capturing_piece = self.board.get_piece_at_square((3, 3))
         captured_piece = self.board.get_piece_at_square((5, 4))
-        self.board.move_piece_to_square(self.board.get_piece_at_square((5, 4)), (3, 4), change_en_passant=True)
-        self.board.move_piece_to_square(self.board.get_piece_at_square((3, 3)), (4, 4), change_en_passant=True)
+        self.board.move_piece_to_square(
+            self.board.get_piece_at_square((5, 4)), (3, 4), change_en_passant=True
+        )
+        self.board.move_piece_to_square(
+            self.board.get_piece_at_square((3, 3)), (4, 4), change_en_passant=True
+        )
         self.assertEqual(self.board.get_piece_at_square((3, 4)), None)
         self.assertEqual(self.board.get_piece_at_square((4, 4)), capturing_piece)
         self.assertEqual(self.board.last_piece_captured, captured_piece)
@@ -214,7 +232,10 @@ class TestBoard(unittest.TestCase):
 
         # Test promotion to knight
         test_board.promote_pawn(test_board.get_piece_at_square((0, 2)), "N")
-        self.assertEqual(test_board.get_piece_at_square((0, 2)).to_algebraic_notation()[0].upper(), "N")
+        self.assertEqual(
+            test_board.get_piece_at_square((0, 2)).to_algebraic_notation()[0].upper(),
+            "N",
+        )
         self.assertEqual(test_board.get_piece_at_square((0, 2)).color, "white")
 
     def test_is_square_occupied(self):
@@ -309,9 +330,9 @@ class TestBoard(unittest.TestCase):
         expected_output = {
             "piece_placement": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR",
             "castling_availability": "KQkq",
-            "en_passant_target_square": "-"
+            "en_passant_target_square": "-",
         }
-        
+
         actual_output = self.board.get_fen_board_state()
         self.assertEqual(actual_output, expected_output)
 
@@ -354,6 +375,7 @@ class TestBoard(unittest.TestCase):
         expected_output = "e6"
         actual_output = self.board._get_fen_en_passant_target_square()
         self.assertEqual(actual_output, expected_output)
+
 
 if __name__ == "__main__":
     unittest.main()

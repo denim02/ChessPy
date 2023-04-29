@@ -27,7 +27,7 @@ class ChessGame:
         self.board.populate_board()
         self.captured_pieces = {"white": [], "black": []}
         self.turn = "white"
-        
+
         # Variable specifically for pawn promotion
         self.promotion_choice = None
 
@@ -40,7 +40,12 @@ class ChessGame:
         # Variable for logging
         self.position_log = []
         self.move_log_enabled = constants.MOVE_LOG_ENABLED
-        self.move_log_file_path = constants.MOVE_LOG_DIRECTORY + "g_" + datetime.datetime.now().strftime("%y%m%d_%H%M") + ".txt"
+        self.move_log_file_path = (
+            constants.MOVE_LOG_DIRECTORY
+            + "g_"
+            + datetime.datetime.now().strftime("%y%m%d_%H%M")
+            + ".txt"
+        )
         self.fullmove_counter = 0
         self.halfmove_counter = 0
 
@@ -85,12 +90,12 @@ class ChessGame:
 
         # Move the piece to the new position.
         captured_piece = self.board.move_piece_to_square(piece, new_position)
-        
+
         # Check if the desired move is a pawn promotion
         if self.promotion_choice is not None:
             self.board.promote_pawn(piece, self.promotion_choice)
             self.promotion_choice = None
-        
+
         # Counter for fifty-move-draw rule.
         if captured_piece is None and not isinstance(piece, Pawn):
             self.fifty_move_counter += 1
@@ -100,8 +105,8 @@ class ChessGame:
         # Keep track of captured pieces
         if captured_piece is not None:
             self.captured_pieces[self.turn].append(captured_piece)
-        
-        self.turn = "white" if self.turn == "black" else "black" 
+
+        self.turn = "white" if self.turn == "black" else "black"
 
         # Increment the halfmove clock
         self.halfmove_counter += 1
@@ -119,7 +124,7 @@ class ChessGame:
         self.is_checkmate = chess_logic.is_checkmate(self.board, self.turn)
         self.is_stalemate = chess_logic.is_stalemate(self.board, self.turn)
         self.is_threefold_repetition = self.check_threefold_repetition()
-        
+
     def get_current_game_position(self):
         game_state = self.get_fen_game_state()
 
@@ -145,19 +150,21 @@ class ChessGame:
         board_state = self.board.get_fen_board_state()
         return {
             "piece_placement": board_state["piece_placement"],
-            "turn": self.turn[0].lower(), 
-            "castling_availability": board_state['castling_availability'],
-            "en_passant_target_square": board_state['en_passant_target_square'],
+            "turn": self.turn[0].lower(),
+            "castling_availability": board_state["castling_availability"],
+            "en_passant_target_square": board_state["en_passant_target_square"],
             "halfmove_clock": self.halfmove_counter,
-            "fullmove_counter": self.fullmove_counter
+            "fullmove_counter": self.fullmove_counter,
         }
 
     def log_move(self, piece, original_position, captured_piece=None):
         """
         Log a move in algebraic notation.
         """
-        move = self.get_move_in_algebraic_notation(piece, original_position, captured_piece)
-        
+        move = self.get_move_in_algebraic_notation(
+            piece, original_position, captured_piece
+        )
+
         with open(self.move_log_file_path, "a") as file:
             # Check if it is the first move of a new turn.
             if self.halfmove_counter % 2 != 0:
@@ -165,7 +172,9 @@ class ChessGame:
             else:
                 file.write(move + "\n")
 
-    def get_move_in_algebraic_notation(self, piece, original_position, captured_piece=None):
+    def get_move_in_algebraic_notation(
+        self, piece, original_position, captured_piece=None
+    ):
         """
         Get the algebraic notation for a move.
         """
@@ -185,14 +194,27 @@ class ChessGame:
                 result += "O-O"
         # Check if the move is a pawn promotion.
         elif isinstance(piece, Pawn) and (new_position[0] == 0 or new_position[0] == 7):
-            result += new_position_notation + "=" + self.board.get_piece_at_square(new_position).to_algebraic_notation().upper()
+            result += (
+                new_position_notation
+                + "="
+                + self.board.get_piece_at_square(new_position)
+                .to_algebraic_notation()
+                .upper()
+            )
         # Check if the move is a capture.
         elif captured_piece is not None:
             # Check if the capture was done by a pawn
             if isinstance(piece, Pawn):
-                result += self.board.get_algebraic_notation(original_position)[0] + "x" + new_position_notation
+                result += (
+                    self.board.get_algebraic_notation(original_position)[0]
+                    + "x"
+                    + new_position_notation
+                )
                 # If en passant
-                if isinstance(captured_piece, Pawn) and captured_piece.position[0] != new_position[0]:
+                if (
+                    isinstance(captured_piece, Pawn)
+                    and captured_piece.position[0] != new_position[0]
+                ):
                     result += "e.p."
             # Otherwise, the capture was done by a piece other than a pawn.
             else:
@@ -213,6 +235,7 @@ class ChessGame:
 
         return result
 
+
 def run_game():
     # Initialize pygame.
     pygame.init()
@@ -230,15 +253,15 @@ def run_game():
 
         for event in pygame.event.get():
             # Check if the user presses the close button.
-            if (
-                event.type == pygame.QUIT
-            ):
+            if event.type == pygame.QUIT:
                 is_running = False
 
             # If the user left clicks on the board, check whether they clicked on a piece.
             # If they did, then set the ui.dragged_piece to that piece.
             elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-                clicked_piece = game.board.get_piece_at_square(ui.get_square_at_coords(event.pos))
+                clicked_piece = game.board.get_piece_at_square(
+                    ui.get_square_at_coords(event.pos)
+                )
                 if clicked_piece and clicked_piece.color == game.turn:
                     ui.dragged_piece = clicked_piece
                     ui.is_dragging = True
@@ -266,8 +289,8 @@ def run_game():
                     if new_square:
                         # Check if the move is a pawn promotion.
                         if (
-                            ui.dragged_piece.name == "Pawn" 
-                            and new_square[0] in (0, 7) 
+                            ui.dragged_piece.name == "Pawn"
+                            and new_square[0] in (0, 7)
                             and new_square in ui.dragged_piece.legal_moves
                         ):
                             ui.promotion_box = PromotionBox(
@@ -291,15 +314,15 @@ def run_game():
                             or game.is_threefold_repetition
                             or game.fifty_move_counter >= 50
                         ):
-                            if(game.is_checkmate):
+                            if game.is_checkmate:
                                 print("Checkmate!")
-                            elif(game.is_stalemate):
+                            elif game.is_stalemate:
                                 print("Stalemate!")
-                            elif(game.is_threefold_repetition):
+                            elif game.is_threefold_repetition:
                                 print("Threefold repetition!")
-                            elif(game.fifty_move_counter >= 50):
+                            elif game.fifty_move_counter >= 50:
                                 print("Fifty-move rule!")
-                            
+
                             is_running = False
                     else:
                         ui.dragged_piece.coords = ui.original_coords

@@ -6,7 +6,8 @@ The class contains methods for moving pieces, checking if a square is occupied,
 checking if a square is attacked, and checking if a path is blocked. Additionally,
 it has a method for refreshing the legal moves for all pieces on the board.
 """
-from chess_game.pieces import *
+from chess_game import pieces, constants
+
 
 class Board:
     """
@@ -132,14 +133,10 @@ class Board:
         # Check if the move was a pawn leaping two squares (used to allow possible en passant next move)
         # (used to detect possibility of en passant)
         if change_en_passant:
-            if(
-                piece.name == "Pawn"
-                and abs(new_position[0] - piece.position[0]) == 2
-            ):
+            if piece.name == "Pawn" and abs(new_position[0] - piece.position[0]) == 2:
                 self.en_passant_piece = piece
             else:
                 self.en_passant_piece = None
-
 
         # Clear the piece that was captured last time (used for reverting moves)
         if self.last_piece_captured is not None:
@@ -203,13 +200,13 @@ class Board:
             raise ValueError("Pawn is not at the end of the board!")
 
         if choice == "Q":
-            new_piece = Queen(piece.color, piece.position)
+            new_piece = pieces.Queen(piece.color, piece.position)
         elif choice == "R":
-            new_piece = Rook(piece.color, piece.position)
+            new_piece = pieces.Rook(piece.color, piece.position)
         elif choice == "B":
-            new_piece = Bishop(piece.color, piece.position)
+            new_piece = pieces.Bishop(piece.color, piece.position)
         elif choice == "N":
-            new_piece = Knight(piece.color, piece.position)
+            new_piece = pieces.Knight(piece.color, piece.position)
         else:
             raise ValueError("Invalid choice!")
 
@@ -316,7 +313,7 @@ class Board:
         Returns:
             list: 2D array of pieces representing the board.
         """
-        self.__board_table = Board.parse_fen("./game/game_states/init_position.fen")
+        self.__board_table = Board.parse_fen(constants.STARTING_FEN_FILE)
         self.__piece_list = [
             piece for row in self.__board_table for piece in row if piece is not None
         ]
@@ -417,11 +414,13 @@ class Board:
                             board[i].extend([None] * int(j))
                         else:
                             board[i].append(
-                                Piece.from_algebraic_notation(j, (i, len(board[i])))
+                                pieces.Piece.from_algebraic_notation(
+                                    j, (i, len(board[i]))
+                                )
                             )
 
             return board
-        
+
     def get_fen_board_state(self):
         """
         Return the FEN notation of the current board state.
@@ -429,13 +428,13 @@ class Board:
         Returns:
             =dict: FEN notation of the current board state.
         """
-        
+
         return {
             "piece_placement": self._get_fen_board(),
             "castling_availability": self._get_fen_castling_rights(),
-            "en_passant_target_square": self._get_fen_en_passant_target_square()
+            "en_passant_target_square": self._get_fen_en_passant_target_square(),
         }
-    
+
     def _get_fen_board(self):
         fen = ""
         for row in self.__board_table:
@@ -471,23 +470,35 @@ class Board:
         white_queenside_rook = self.get_piece_at_square((7, 0))
         white_kingside_rook = self.get_piece_at_square((7, 7))
 
-        if isinstance(white_king, King) and not white_king.has_moved:
-            if isinstance(white_kingside_rook, Rook) and not white_kingside_rook.has_moved:
+        if isinstance(white_king, pieces.King) and not white_king.has_moved:
+            if (
+                isinstance(white_kingside_rook, pieces.Rook)
+                and not white_kingside_rook.has_moved
+            ):
                 fen += "K"
-            if isinstance(white_queenside_rook, Rook) and not white_queenside_rook.has_moved:
+            if (
+                isinstance(white_queenside_rook, pieces.Rook)
+                and not white_queenside_rook.has_moved
+            ):
                 fen += "Q"
-            
-        if isinstance(black_king, King) and not black_king.has_moved:
-            if isinstance(black_kingside_rook, Rook) and not black_kingside_rook.has_moved:
+
+        if isinstance(black_king, pieces.King) and not black_king.has_moved:
+            if (
+                isinstance(black_kingside_rook, pieces.Rook)
+                and not black_kingside_rook.has_moved
+            ):
                 fen += "k"
-            if isinstance(black_queenside_rook, Rook) and not black_queenside_rook.has_moved:
+            if (
+                isinstance(black_queenside_rook, pieces.Rook)
+                and not black_queenside_rook.has_moved
+            ):
                 fen += "q"
-        
+
         if fen == "":
             fen = "-"
 
         return fen
-            
+
     def _get_fen_en_passant_target_square(self):
         """
         Return the FEN notation of the en passant target square.
@@ -500,6 +511,8 @@ class Board:
         else:
             direction = 1 if self.en_passant_piece.color == "white" else -1
             return Board.get_algebraic_notation(
-                (self.en_passant_piece.position[0] + direction, self.en_passant_piece.position[1])
+                (
+                    self.en_passant_piece.position[0] + direction,
+                    self.en_passant_piece.position[1],
+                )
             )
-       
