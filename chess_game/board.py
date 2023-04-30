@@ -1,23 +1,17 @@
-"""
-board.py
-This module contains the implementation of the Board class,
-which is responsible for maintaining the chess board and its state.
-The class contains methods for moving pieces, checking if a square is occupied,
-checking if a square is attacked, and checking if a path is blocked. Additionally,
-it has a method for refreshing the legal moves for all pieces on the board.
-"""
+"""The board module contains the Board class, which represents the chess board.
+
+The Board class is responsible for maintaining the chess board and its state. It contains methods 
+for moving pieces, promoting pawns, checking if a square is occupied, checking if a square is attacked, 
+and checking  if a path is blocked. Additionally, it has a method for refreshing the legal moves 
+for all pieces on the board."""
+from typing import Union, Optional
 from chess_game import pieces, constants
 
 
 class Board:
-    """
-    Initializes the board with a 2D array of pieces and a list of all pieces on the board.
-    """
+    """Class representing the chess board and its pieces/state."""
 
     def __init__(self):
-        """
-        Initializes the board with a 2D array of pieces and a list of all pieces on the board.
-        """
         self.__board_table = [[None for _ in range(8)] for _ in range(8)]
         self.__piece_list = []
 
@@ -27,41 +21,34 @@ class Board:
         self.has_moved_changed = False
 
     @property
-    def piece_list(self):
-        """
-        Returns a list of all pieces on the board.
-        """
+    def piece_list(self) -> tuple:
+        """A tuple containing all pieces on the board."""
         return tuple(self.__piece_list)
 
-    def __refresh_legal_moves(self):
-        """
-        Generates all valid moves for all pieces on the board.
-        """
+    def __refresh_legal_moves(self) -> None:
+        # Refreshes the legal moves for all pieces on the board by calling the refresh_legal_moves method for each
         for piece in self.__piece_list:
-            piece._refresh_legal_moves(self)
+            piece.refresh_legal_moves(self)
 
-    def get_piece_at_square(self, position):
-        """
-        Returns the piece at the given position on the board.
+    def get_piece_at_square(self, position: tuple) -> Union["pieces.Piece", None]:
+        """Returns the piece at a given position on the board.
 
-        Parameters:
-            position (tuple): position on the board in (x, y) format,
-                where x is the row and y is the column.
+        Parameters
+        ----------
+        position : tuple
+            Position on the board in (x, y) format, where x is the rank and y is the file.
 
-        Returns:
-            Piece: piece at the given position or None if the position is empty.
+        Returns
+        -------
+        piece : Piece, None
+            piece at the given position on the board.
         """
         if position[0] < 0 or position[0] > 7 or position[1] < 0 or position[1] > 7:
             return None
         return self.__board_table[position[0]][position[1]]
 
-    def _place_piece(self, piece):
-        """
-        Places a piece on the board.
-
-        Parameters:
-            piece (Piece): piece to be placed on the board.
-        """
+    def _place_piece(self, piece: pieces.Piece) -> None:
+        # Places a piece on the board at a given position
         if self.get_piece_at_square(piece.position) is not None:
             raise ValueError("Square is already occupied!")
         elif (
@@ -75,14 +62,8 @@ class Board:
         self.__piece_list.append(piece)
         self.__refresh_legal_moves()
 
-    def _remove_piece_at_square(self, position):
-        """
-        Removes a piece from the board.
-
-        Parameters:
-            position (tuple): position on the board in (x, y) format,
-                where x is the row and y is the column.
-        """
+    def _remove_piece_at_square(self, position: tuple) -> None:
+        # Removes a piece from the board at a given position
         if position[0] < 0 or position[0] > 7 or position[1] < 0 or position[1] > 7:
             raise ValueError("Invalid position!")
 
@@ -93,14 +74,38 @@ class Board:
             self.__piece_list.remove(piece)
             self.__refresh_legal_moves()
 
-    def move_piece_to_square(self, piece, new_position, change_en_passant=True):
-        """
-        Move a piece to a new position on the board.
+    def move_piece_to_square(
+        self,
+        piece: "pieces.Piece",
+        new_position: tuple,
+        change_en_passant: Optional[bool] = True,
+    ) -> Union["pieces.Piece", None]:
+        """Move a piece to a new position on the board.
 
-        Parameters:
-            piece (Piece): piece to be moved.
-            new_position (tuple): new position on the board in (x, y) format,
-                where x is the row and y is the column.
+        This method is used to move a piece to a new position on the board. It also handles en passant logic.
+        In order to allow reverting moves (for checking if the king is in check after a move), the method
+        modifies a series of attributes in the Board object, such as has_move_changed, en_passant_piece, and
+        last_piece_captured. These attributes are used by the revert_move method.
+
+        Parameters
+        ----------
+        piece : Piece
+            Piece to be moved.
+        new_position : tuple
+            New position on the board in (x, y) format, where x is the rank and y is the file.
+        change_en_passant : bool, optional
+            Whether or not to change the en passant piece (default is True). This is used to allow en passant
+            on the next move.
+
+        Returns
+        -------
+        occupying_piece : Piece, None
+            The piece that was at the new position before the move. None if there was no piece at the new position.
+
+        Raises
+        ------
+        ValueError
+            If the new position is invalid.
         """
         # Check first if the move is to a valid position on the board
         if not (0 <= new_position[0] <= 7 and 0 <= new_position[1] <= 7):
@@ -156,15 +161,17 @@ class Board:
         self.__refresh_legal_moves()
         return occupying_piece
 
-    def revert_move(self, piece, old_position):
-        """
-        Revert a move and replace any captured piece.
+    def revert_move(self, piece: "pieces.Piece", old_position: tuple) -> None:
+        """Revert a move made by a piece (must be the last move made on the board).
 
-        Parameters:
-            piece (Piece): piece to be moved.
-            old_position (tuple): old position on the board in (x, y) format,
-                where x is the row and y is the column.
+        Parameters
+        ----------
+        piece : Piece
+            Piece to be revert the move of.
+        old_position : tuple
+            Old position of the piece in (x, y) format, where x is the rank and y is the file.
         """
+        # Revert the capturing of a piece (if there was one)
         if self.last_piece_captured is not None:
             self.__piece_list.append(self.last_piece_captured)
             self.__board_table[piece.position[0]][
@@ -174,22 +181,36 @@ class Board:
         else:
             self.__board_table[piece.position[0]][piece.position[1]] = None
 
+        # If the piece moved for the first time, set has_moved to False
         if self.has_moved_changed is True:
             piece.has_moved = False
             self.has_moved_changed = False
 
+        # Set the piece's position to the old position
         piece.position = old_position
         self.__board_table[old_position[0]][old_position[1]] = piece
 
         self.__refresh_legal_moves()
 
-    def promote_pawn(self, piece, choice):
-        """
-        Promote a pawn to a new piece.
+    def promote_pawn(self, piece: "pieces.Piece", choice: str) -> None:
+        """Promote a pawn to a different piece.
 
-        Parameters:
-            piece (Piece): pawn to be promoted.
-            choice (str): type of piece to promote to.
+        This method is used to promote a pawn to a different piece. It swaps the piece
+        in place, meaning that the pawn is replaced by the new piece without changing
+        the position of the piece. Thus, the position must be changed manually.
+
+        Parameters
+        ----------
+        piece : Piece
+            Pawn to be promoted.
+        choice : str
+            Choice of piece to promote to. Must be one of "Q", "R", "B", or "N".
+
+        Raises
+        ------
+        ValueError
+            If the piece is not a pawn, if the choice is invalid, or if
+            the pawn is not at the end of the board.
         """
         if piece.name != "Pawn":
             raise ValueError("Piece is not a pawn!")
@@ -215,34 +236,48 @@ class Board:
         self.__board_table[piece.position[0]][piece.position[1]] = new_piece
         self.__refresh_legal_moves()
 
-    def is_square_occupied(self, position):
-        """
-        Check if a given position on the board is occupied by a piece.
+    def is_square_occupied(self, position: tuple) -> bool:
+        """Check if a given position on the board is occupied by a piece.
 
-        Parameters:
-            position (tuple): position on the board in (x, y)
-                format, where x is the row and y is the column.
+        Parameters
+        ----------
+        position : tuple
+            Position on the board in (x, y) format, where x is the rank and y is the file.
 
-        Returns:
-            bool: True if the position is occupied, False otherwise.
+        Returns
+        -------
+        bool
+            True if the position is occupied, False otherwise.
+
+        Raises
+        ------
+        ValueError
+            If the position is invalid.
         """
         if position[0] < 0 or position[0] > 7 or position[1] < 0 or position[1] > 7:
             raise ValueError("Invalid position!")
 
         return self.__board_table[position[0]][position[1]] is not None
 
-    def is_square_attacked(self, position, color):
-        """
-        Check if a given position on the board is attacked by any piece of a different color.
+    def is_square_attacked(self, position: tuple, color: str) -> bool:
+        """Check if a given position on the board is under attack for a given color.
 
-        Parameters:
-            position (tuple): position on the board in (x, y)
-                format, where x is the row and y is the column.
-            color (str): color of the attacking pieces,
-                either "white" or "black".
+        Parameters
+        ----------
+        position : tuple
+            Position on the board in (x, y) format, where x is the rank and y is the file.
+        color : str
+            Color to check whether it is under attack. Must be either "white" or "black".
 
-        Returns:
-            bool: True if the position is attacked, False otherwise.
+        Returns
+        -------
+        bool
+            True if the position is under attack, False otherwise.
+
+        Raises
+        ------
+        ValueError
+            If the position is invalid.
         """
         if position[0] < 0 or position[0] > 7 or position[1] < 0 or position[1] > 7:
             raise ValueError("Invalid position!")
@@ -253,66 +288,84 @@ class Board:
             if piece.color != color
         )
 
-    def is_horizontal_path_attacked(self, start_position, end_position, color):
+    def is_horizontal_path_attacked(
+        self, start_position: tuple, end_position: tuple, color: str
+    ) -> bool:
+        """Check if a horizontal path on the board is under attack for a given color.
+
+        Parameters
+        ----------
+        start_position : tuple
+            Starting position of the path on the board in (x, y) format, where x is the rank and y is the file.
+        end_position : tuple
+            Ending position of the path on the board in (x, y) format, where x is the rank and y is the file.
+        color : str
+            Color to check whether it is under attack. Must be either "white" or "black".
+
+        Returns
+        -------
+        bool
+            True if the path is under attack, False otherwise.
+        """
         return any(
             self.is_square_attacked((start_position[0], i), color)
             for i in range(start_position[1], end_position[1] + 1)
         )
 
-    def is_path_blocked(self, original_position, new_position):
-        """
-        Check if there is a piece blocking the path between two positions on the board.
+    def is_path_blocked(self, start_position: tuple, end_position: tuple) -> bool:
+        """Check if the path between two positions is blocked by a piece.
 
-        Parameters:
-            original_position (tuple): original position on the board
-                in (x, y) format, where x is the row and y is the column.
-            new_position (tuple): new position on the board
-                in (x, y) format, where x is the row and y is the column.
+        This method can be used to check if the path between two positions is blocked,
+        regardless of whether that path is horizontal, vertical, or diagonal.
 
-        Returns:
-            bool: True if the path is blocked, False otherwise.
+        Parameters
+        ----------
+        start_position : tuple
+            Starting position of the path on the board in (x, y) format, where x is the rank and y is the file.
+        end_position : tuple
+            Ending position of the path on the board in (x, y) format, where x is the rank and y is the file.
+
+        Returns
+        -------
+        bool
+            True if the path is blocked, False otherwise.
         """
         # Path on same row
-        if original_position[0] == new_position[0]:
+        if start_position[0] == end_position[0]:
             for i in range(
-                min(original_position[1], new_position[1]) + 1,
-                max(original_position[1], new_position[1]),
+                min(start_position[1], end_position[1]) + 1,
+                max(start_position[1], end_position[1]),
             ):
-                if self.is_square_occupied((original_position[0], i)):
+                if self.is_square_occupied((start_position[0], i)):
                     return True
         # Path on same column
-        elif original_position[1] == new_position[1]:
+        elif start_position[1] == end_position[1]:
             for i in range(
-                min(original_position[0], new_position[0]) + 1,
-                max(original_position[0], new_position[0]),
+                min(start_position[0], end_position[0]) + 1,
+                max(start_position[0], end_position[0]),
             ):
-                if self.is_square_occupied((i, original_position[1])):
+                if self.is_square_occupied((i, start_position[1])):
                     return True
         # Path on diagonal
-        elif abs(original_position[0] - new_position[0]) == abs(
-            original_position[1] - new_position[1]
+        elif abs(start_position[0] - end_position[0]) == abs(
+            start_position[1] - end_position[1]
         ):
-            for i in range(1, abs(original_position[0] - new_position[0])):
+            for i in range(1, abs(start_position[0] - end_position[0])):
                 if self.is_square_occupied(
                     (
-                        original_position[0] + i
-                        if original_position[0] < new_position[0]
-                        else original_position[0] - i,
-                        original_position[1] - i
-                        if original_position[1] >= new_position[1]
-                        else original_position[1] + i,
+                        start_position[0] + i
+                        if start_position[0] < end_position[0]
+                        else start_position[0] - i,
+                        start_position[1] - i
+                        if start_position[1] >= end_position[1]
+                        else start_position[1] + i,
                     )
                 ):
                     return True
         return False
 
-    def populate_board(self):
-        """
-        Populate the board with pieces from a file in FEN notation.
-
-        Returns:
-            list: 2D array of pieces representing the board.
-        """
+    def populate_board(self) -> None:
+        """Populate the board with pieces in their starting positions in a standard chess game."""
         self.__board_table = Board.parse_fen(constants.STARTING_FEN_FILE)
         self.__piece_list = [
             piece for row in self.__board_table for piece in row if piece is not None
@@ -320,16 +373,18 @@ class Board:
         self.__refresh_legal_moves()
 
     @classmethod
-    def instantiate_from_fen(cls, fen_path):
-        """
-        Instantiate a board from a file in FEN notation.
+    def instantiate_from_fen(cls, fen_path: str) -> "Board":
+        """Instantiate a board from a FEN file.
 
-        Parameters:
-            fen_path (str): path to the FEN file.
+        Parameters
+        ----------
+        fen_path : str
+            Path to the FEN file.
 
-        Returns:
-            Board: board object.
-        """
+        Returns
+        -------
+        Board
+            Board object instantiated from the FEN file."""
         board = cls()
         board._Board__board_table = Board.parse_fen(fen_path)
         board._Board__piece_list = [
@@ -341,10 +396,8 @@ class Board:
         board._Board__refresh_legal_moves()
         return board
 
-    def __repr__(self):
-        """
-        Print the board in a pretty readable format.
-        """
+    def __repr__(self) -> str:
+        # Returns a string representation of the board.
         string = "  a b c d e f g h \n"
         for i in range(8):
             string += str(8 - i) + " "
@@ -358,16 +411,23 @@ class Board:
         return string
 
     @staticmethod
-    def get_algebraic_notation(position):
-        """
-        Convert a position in the board to algebraic notation.
+    def get_algebraic_notation(position: tuple) -> str:
+        """Returns the algebraic notation of a position on the board.
 
-        Parameters:
-            position (tuple): position on the board in
-                (x, y) format, where x is the row and y is the column.
+        Parameters
+        ----------
+        position : tuple
+            Position on the board in (x, y) format, where x is the row and y is the column.
 
-        Returns:
-            str: algebraic notation of the position.
+        Returns
+        -------
+        str
+            Algebraic notation of the position (e.g. "a1", "e5", "h8").
+
+        Raises
+        ------
+        ValueError
+            If the position is not valid.
         """
         if position[0] < 0 or position[0] > 7 or position[1] < 0 or position[1] > 7:
             raise ValueError("Invalid position!")
@@ -375,28 +435,34 @@ class Board:
         return chr(position[1] + 97) + str(8 - position[0])
 
     @staticmethod
-    def get_square_from_algebraic_notation(algebraic_notation):
-        """
-        Convert a position in algebraic notation to a position on the board.
+    def get_square_from_algebraic_notation(algebraic_notation: str) -> tuple:
+        """Returns the position on the board from its algebraic notation.
 
-        Parameters:
-            algebraic_notation (str): algebraic notation of the position.
+        Parameters
+        ----------
+        algebraic_notation : str
+            Algebraic notation of the position (e.g. "a1", "e5", "h8").
 
-        Returns:
-            tuple: position on the board in (x, y) format, where x is the row and y is the column.
+        Returns
+        -------
+        tuple
+            Position on the board in (x, y) format, where x is the rank and y is the file.
         """
         return (8 - int(algebraic_notation[1]), ord(algebraic_notation[0]) - 97)
 
     @staticmethod
-    def parse_fen(file_path):
-        """
-        Parse the FEN notation from a file and return a 2D array of pieces.
+    def parse_fen(file_path: str) -> list:
+        """Parse a FEN file and return a list with the pieces that should be on the board.
 
-        Parameters:
-            file_path (str): path to the file containing the FEN notation.
+        Parameters
+        ----------
+        file_path : str
+            Path to the FEN file.
 
-        Returns:
-            list: 2D array of pieces representing the board.
+        Returns
+        -------
+        list
+            List with the pieces that should be on the board.
         """
         with open(file_path, encoding="utf8") as file:
             string_fen = file.read()
@@ -421,21 +487,26 @@ class Board:
 
             return board
 
-    def get_fen_board_state(self):
-        """
-        Return the FEN notation of the current board state.
+    def get_fen_board_state(self) -> dict:
+        """Returns a dictionary with the state of the board.
 
-        Returns:
-            =dict: FEN notation of the current board state.
-        """
+        This dictionary contains the positions of the pieces on the board in FEN notation,
+        the castling rights of each player and the en passant target square (i.e. the square
+        where a pawn would move if it can perform an en passant capture).
 
+        Returns
+        -------
+        dict
+            Dictionary with the state of the board.
+        """
         return {
             "piece_placement": self._get_fen_board(),
             "castling_availability": self._get_fen_castling_rights(),
             "en_passant_target_square": self._get_fen_en_passant_target_square(),
         }
 
-    def _get_fen_board(self):
+    def _get_fen_board(self) -> str:
+        # Returns a string representing the board in FEN notation.
         fen = ""
         for row in self.__board_table:
             empty_squares = 0
@@ -453,13 +524,8 @@ class Board:
 
         return fen[:-1]
 
-    def _get_fen_castling_rights(self):
-        """
-        Return the FEN notation of the castling rights.
-
-        Returns:
-            str: FEN notation of the castling rights.
-        """
+    def _get_fen_castling_rights(self) -> str:
+        # Returns a string representing the castling rights in FEN notation.
         fen = ""
 
         black_king = self.get_piece_at_square((0, 4))
@@ -499,13 +565,8 @@ class Board:
 
         return fen
 
-    def _get_fen_en_passant_target_square(self):
-        """
-        Return the FEN notation of the en passant target square.
-
-        Returns:
-            str: FEN notation of the en passant target square.
-        """
+    def _get_fen_en_passant_target_square(self) -> str:
+        # Returns a string representing the en passant target square in FEN notation.
         if self.en_passant_piece is None:
             return "-"
         else:

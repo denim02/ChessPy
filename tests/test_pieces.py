@@ -49,19 +49,19 @@ class TestPiece(unittest.TestCase):
     def test_legal_moves(self):
         self.assertEqual(self.piece.legal_moves, ((1, 0), (2, 0)))
         self.piece.position = (7, 7)
-        self.piece._refresh_legal_moves(self.board)
+        self.piece.refresh_legal_moves(self.board)
         self.assertEqual(self.piece.legal_moves, ())
 
     def test__generate_possible_moves(self):
         self.assertEqual(self.piece.legal_moves, ((1, 0), (2, 0)))
         self.piece.position = (7, 7)
-        self.piece._refresh_legal_moves(self.board)
+        self.piece.refresh_legal_moves(self.board)
         self.assertEqual(self.piece.legal_moves, ())
 
     def test_refresh_legal_moves(self):
         self.assertEqual(self.piece.legal_moves, ((1, 0), (2, 0)))
         self.piece.position = (6, 5)
-        self.piece._refresh_legal_moves(self.board)
+        self.piece.refresh_legal_moves(self.board)
         self.assertEqual(self.piece.legal_moves, ((7, 5),))
 
     def test_from_algebraic_notation(self):

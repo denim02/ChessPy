@@ -1,10 +1,24 @@
+"""The pieces module contains the Piece class and its subclasses, which represent the pieces of the chess game.
+
+Each class contains the same data fields and methods, but with different implementations. 
+The only abstract method is _generate_possible_moves, which defines how to generate the possible moves for 
+a piece, and, therefore, how each piece is supposed to move according to the rules of chess. It is thus 
+implemented differently for each subclass.
+"""
 from chess_game import constants, chess_logic
+from typing import TYPE_CHECKING
 from abc import ABC, abstractmethod
+
+# FOR TYPE HINTS ONLY
+# The following import is only used for type checking to avoid circular imports.
+if TYPE_CHECKING:
+    from chess_game.board import Board
 
 
 class Piece(ABC):
-    def __init__(self, name, value, color, position):
+    """Abstract class that represents a piece of the chess game."""
 
+    def __init__(self, name: str, value: int, color: str, position: tuple) -> None:
         self.name = name
         self.value = value
         self.__color = color
@@ -16,28 +30,30 @@ class Piece(ABC):
         self.__refresh_coords()
 
     @property
-    def color(self):
+    def color(self) -> str:
+        """The color of the piece: "white" or "black"."""
         return self.__color
 
     @color.setter
-    def color(self, color):
+    def color(self, color: str) -> None:
         if color not in ("white", "black"):
             raise ValueError("Invalid color.")
         else:
             self.__color = color
 
     @property
-    def coords(self):
+    def coords(self) -> tuple:
+        """The coordinates of the piece in (x, y) format, where x is the horizontal
+        coordinate and y is the vertical one."""
         return self.__coords
 
     @coords.setter
-    def coords(self, coords):
+    def coords(self, coords: tuple) -> None:
         self.__coords = coords
 
-    def __refresh_coords(self):
-        """
-        Determines the coordinates of the piece.
-        """
+    def __refresh_coords(self) -> None:
+        # Determines the coordinates of the piece based on its rank, file, and the
+        # defined square size of the GUI.
         self.__coords = (
             self.position[1] * constants.SQUARE_SIZE,
             self.position[0] * constants.SQUARE_SIZE,
@@ -45,10 +61,12 @@ class Piece(ABC):
 
     @property
     def position(self):
+        """The position of the piece in (x, y) format, where x is the rank and y is the file.
+        Both x and y are integers between 0 and 7, inclusive."""
         return self.__position
 
     @position.setter
-    def position(self, position):
+    def position(self, position: tuple):
         if not (0 <= position[0] <= 7 and 0 <= position[1] <= 7):
             raise ValueError("Invalid position.")
         else:
@@ -56,47 +74,72 @@ class Piece(ABC):
             self.__refresh_coords()
 
     @property
-    def legal_moves(self):
+    def legal_moves(self) -> tuple:
+        """The legal moves of the piece in a tuple of tuples, where each tuple
+        is a position on the board in (x, y) format."""
         return tuple(self.__legal_moves)
 
     @abstractmethod
-    def _generate_possible_moves(self, board):
-        """
-        Generates the possible moves for the piece.
+    def _generate_possible_moves(self, board: "Board") -> set:
+        """Generates the possible moves for the piece.
+
+        Parameters
+        ----------
+        board : Board
+            The board on which the piece is placed.
+
+        Returns
+        -------
+        possible_moves : set
+            A set of tuples, where each tuple is a position in (x, y) format.
         """
 
-    def _refresh_legal_moves(self, board):
-        """
-        Refreshes the legal moves for the piece.
+    def refresh_legal_moves(self, board: "Board") -> None:
+        """Refreshes the legal moves of the piece.
 
-        Parameters:
-        board (Board): the board on which the piece is placed."""
+        Parameters
+        ----------
+        board : Board
+            The board on which the piece is placed.
+        """
         self.__legal_moves = self._generate_legal_moves(board)
 
-    def _generate_legal_moves(self, board):
-        """
-        Generates the legal moves for the piece.
-
-        Parameters:
-        board (Board): the board on which the piece is placed."""
+    def _generate_legal_moves(self, board: "Board") -> set:
+        # Generate the legal moves for a piece by checking if they comply with the rules of chess
         possible_moves = self._generate_possible_moves(board)
-        legal_moves = {
-            move
-            for move in possible_moves
-            if move != self.position and chess_logic.is_legal_move(board, self, move)
-        }
+        legal_moves = set(
+            filter(
+                lambda move: (
+                    move != self.position
+                    and chess_logic.is_legal_move(board, self, move)
+                ),
+                possible_moves,
+            )
+        )
         return legal_moves
 
-    # Define a constructor to create piece from algebraic notation
+    # Define a 'constructor' to create piece from algebraic notation
     @staticmethod
-    def from_algebraic_notation(algebraic_notation, position):
-        """
-        Creates a piece from algebraic notation.
+    def from_algebraic_notation(algebraic_notation: str, position: tuple) -> "Piece":
+        """Returns a piece based on its algebraic notation and position.
 
-        Parameters:
-        algebraic_notation (str): the algebraic notation of the piece.
-        position (tuple): the position of the piece in (x, y) format,
-        where x is the row and y is the column."""
+        Parameters
+        ----------
+        algebraic_notation : str
+            The algebraic notation of the piece (e.g. "K" for a white king).
+        position : tuple
+            The position of the piece in (x, y) format, where x is the rank and y is the file.
+
+        Returns
+        -------
+        piece : Piece
+            The piece corresponding to the algebraic notation and position.
+
+        Raises
+        ------
+        ValueError
+            If the algebraic notation is invalid.
+        """
         name = algebraic_notation.lower()
         color = "black" if name == algebraic_notation else "white"
 
@@ -116,21 +159,24 @@ class Piece(ABC):
             case _:
                 raise ValueError("Impossible algebraic notation")
 
-    def to_algebraic_notation(self):
+    def to_algebraic_notation(self) -> str:
+        """Returns the algebraic notation of the piece.
+
+        Returns
+        -------
+        algebraic_notation : str
+            The algebraic notation of the piece (e.g. "K" for a white king).
         """
-        Converts a piece to algebraic notation."""
         if self.name == "Knight":
             return "n" if self.color == "black" else "N"
         return self.name[0].lower() if self.color == "black" else self.name[0].upper()
 
-    def __repr__(self):
-        """
-        Returns a string representation of the piece."""
+    def __repr__(self) -> str:
+        # Returns a string representation of the piece (i.e. its color and name, e.g. "White King")
         return f"{self.color.title()} {self.name}"
 
-    def __eq__(self, other):
-        """
-        Returns True if the piece is equal to other piece."""
+    def __eq__(self, other: "Piece") -> bool:
+        # Returns True if the pieces' names, colors, and positions are equal, False otherwise
         if not isinstance(other, Piece):
             return False
 
@@ -142,24 +188,12 @@ class Piece(ABC):
 
 
 class Pawn(Piece):
-    """
-    Pawn:
-    This is a class for representing a Pawn piece.
-    It inherits from the Piece class and overrides the generate_possible_moves method.
-    It also has properties like name, value, color and position, that are inherited
-    from the Piece class.
-    """
+    """Class representing a pawn piece."""
 
-    def __init__(self, color, position):
+    def __init__(self, color: str, position: tuple) -> None:
         super().__init__(name="Pawn", value=1, position=position, color=color)
 
-    def _generate_possible_moves(self, board):
-        """
-        Generates the possible moves for the pawn.
-
-        Parameters:
-        board (Board): the board on which the piece is placed.
-        """
+    def _generate_possible_moves(self, board: "Board") -> set:
         possible_moves = set()
         # set the direction of the pawn based on its color
         direction = -1 if self.color == "white" else 1
@@ -205,26 +239,14 @@ class Pawn(Piece):
 
 
 class Rook(Piece):
-    """
-    Rook:
-    This is a class for representing a Rook piece.
-    It inherits from the Piece class and overrides the generate_possible_moves method.
-    It also has properties like name, value, color and position, that are inherited
-    from the Piece class.
-    """
+    """Class representing a rook piece."""
 
-    def __init__(self, color, position):
+    def __init__(self, color: str, position: tuple) -> None:
         super().__init__(name="Rook", value=5, position=position, color=color)
 
-    def _generate_possible_moves(self, board):
-        """
-        Generates the possible moves for the rook.
-
-        Parameters:
-        board (Board): the board on which the piece is placed.
-        """
+    def _generate_possible_moves(self, board: "Board") -> set:
         possible_moves = set()
-        x_current, y_current = self.position  # unpack the current position of the rook
+        x_current, y_current = self.position
 
         for i, j in [(1, 0), (-1, 0), (0, 1), (0, -1)]:
             x_new, y_new = x_current + i, y_current + j
@@ -236,18 +258,12 @@ class Rook(Piece):
 
 
 class Knight(Piece):
-    """
-    Knight:
-    This is a class for representing a Knight piece.
-    It inherits from the Piece class and overrides the generate_possible_moves method.
-    It also has properties like name, value, color and position, that are inherited
-    from the Piece class.
-    """
+    """Class representing a knight piece."""
 
-    def __init__(self, color, position):
+    def __init__(self, color: str, position: tuple) -> None:
         super().__init__(name="Knight", value=3, position=position, color=color)
 
-    def _generate_possible_moves(self, board):
+    def _generate_possible_moves(self, board: "Board") -> set:
         """
         Generates the possible moves for the knight.
 
@@ -277,18 +293,12 @@ class Knight(Piece):
 
 
 class Bishop(Piece):
-    """
-    Bishop:
-    This is a class for representing a Bishop piece.
-    It inherits from the Piece class and overrides the generate_possible_moves method.
-    It also has properties like name, value, color and position, that are inherited
-    from the Piece class.
-    """
+    """Class representing a bishop piece."""
 
-    def __init__(self, color, position):
+    def __init__(self, color: str, position: tuple) -> None:
         super().__init__(name="Bishop", value=3, position=position, color=color)
 
-    def _generate_possible_moves(self, board):
+    def _generate_possible_moves(self, board: "Board") -> set:
         """
         Generates the possible moves for the bishop.
 
@@ -299,7 +309,7 @@ class Bishop(Piece):
         (
             x_current,
             y_current,
-        ) = self.position  # unpack the current position of the bishop
+        ) = self.position
         for i, j in [(1, 1), (1, -1), (-1, 1), (-1, -1)]:
             x_new, y_new = x_current + i, y_current + j
             while 0 <= x_new < 8 and 0 <= y_new < 8:
@@ -310,26 +320,14 @@ class Bishop(Piece):
 
 
 class Queen(Piece):
-    """
-    Queen:
-    This is a class for representing a Queen piece.
-    It inherits from the Piece class and overrides the generate_possible_moves method.
-    It also has properties like name, value, color and position, that are inherited
-    from the Piece class.
-    """
+    """Class representing a queen piece."""
 
-    def __init__(self, color, position):
+    def __init__(self, color: str, position: tuple) -> None:
         super().__init__(name="Queen", value=9, position=position, color=color)
 
-    def _generate_possible_moves(self, board):
-        """
-        Generates the possible moves for the queen.
-
-        Parameters:
-        board (Board): the board on which the piece is placed.
-        """
+    def _generate_possible_moves(self, board: "Board") -> set:
         possible_moves = set()
-        x_current, y_current = self.position  # unpack the current position of the queen
+        x_current, y_current = self.position
         # Diagonal moves
         for i, j in [(1, 1), (1, -1), (-1, 1), (-1, -1)]:
             x_new, y_new = x_current + i, y_current + j
@@ -349,26 +347,14 @@ class Queen(Piece):
 
 
 class King(Piece):
-    """
-    King:
-    This is a class for representing a King piece.
-    It inherits from the Piece class and overrides the generate_possible_moves method.
-    It also has properties like name, value, color and position, that are inherited
-    from the Piece class.
-    """
+    """Class representing a king piece."""
 
-    def __init__(self, color, position):
+    def __init__(self, color: str, position: tuple) -> None:
         super().__init__(name="King", value=100, position=position, color=color)
 
-    def _generate_possible_moves(self, board):
-        """
-        Generates the possible moves for the king.
-
-        Parameters:
-        board (Board): the board on which the piece is placed.
-        """
+    def _generate_possible_moves(self, board: "Board") -> set:
         possible_moves = set()
-        x_current, y_current = self.position  # unpack the current position of the king
+        x_current, y_current = self.position
         for i, j in [
             (1, 1),
             (1, 0),
@@ -383,9 +369,9 @@ class King(Piece):
             if (i, j) != (0, 0) and 0 <= x_new < 8 and 0 <= y_new < 8:
                 possible_moves.add((x_new, y_new))
 
-        # Castling - check whether the path is blocked or not (use is_path_blocked), whether any squares in the path are under attack,
-        # whether the king has moved or not, whether the rook has moved or not
-        # and whether the king is under attack or not
+        # Castling - check whether the path is blocked or not (use is_path_blocked), 
+        # whether any squares in the path are under attack, whether the king has moved or not, 
+        # whether the rook has moved or not, and whether the king is under attack or not.
         if not self.has_moved:
             queen_side_rook = board.get_piece_at_square((self.position[0], 0))
             # Check whether the king can castle queen side
