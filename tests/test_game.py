@@ -170,7 +170,7 @@ class TestChessGame(unittest.TestCase):
 
     def test_make_move_game_over_conditions(self):
         # Test checkmate
-        self.game.board = board.Board.instantiate_from_fen(
+        self.game.board = board.Board.instantiate_from_fen_file(
             "./game/game_states/test_checkmate.fen"
         )
         self.assertFalse(self.game.is_checkmate)
@@ -181,7 +181,7 @@ class TestChessGame(unittest.TestCase):
         self.game = ChessGame()
         self.game.move_log_enabled = False
 
-        self.game.board = board.Board.instantiate_from_fen(
+        self.game.board = board.Board.instantiate_from_fen_file(
             "./game/game_states/test_stalemate.fen"
         )
         # Place random white piece to move
@@ -441,7 +441,7 @@ class TestChessGame(unittest.TestCase):
         rook = pieces.Rook(color="white", position=(0, 6))
 
         # Create new board
-        self.game.board = board.Board().instantiate_from_fen(
+        self.game.board = board.Board().instantiate_from_fen_file(
             "./game/game_states/test_checkmate.fen"
         )
         self.game.turn = "black"

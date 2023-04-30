@@ -5,7 +5,7 @@ from chess_game import chess_logic, board, pieces
 class TestChessLogic(unittest.TestCase):
     def test_is_check(self):
         # First, no king is in check
-        test_board = board.Board.instantiate_from_fen(
+        test_board = board.Board.instantiate_from_fen_file(
             "./game/game_states/test_check.fen"
         )
         self.assertFalse(chess_logic.is_check(test_board, "black"))
@@ -23,7 +23,7 @@ class TestChessLogic(unittest.TestCase):
 
     def test_is_checkmate(self):
         # Test simple checkmate for both colors where they have no valid moves to block
-        test_board = board.Board.instantiate_from_fen(
+        test_board = board.Board.instantiate_from_fen_file(
             "./game/game_states/test_checkmate.fen"
         )
         self.assertFalse(chess_logic.is_checkmate(test_board, "black"))
@@ -44,7 +44,7 @@ class TestChessLogic(unittest.TestCase):
         self.assertFalse(chess_logic.is_checkmate(test_board, "white"))
 
     def test_is_king_in_check_after_move(self):
-        test_board = board.Board.instantiate_from_fen(
+        test_board = board.Board.instantiate_from_fen_file(
             "./game/game_states/test_checkmate.fen"
         )
 
@@ -65,7 +65,7 @@ class TestChessLogic(unittest.TestCase):
         )
 
     def test_is_stalemate(self):
-        test_board = board.Board.instantiate_from_fen(
+        test_board = board.Board.instantiate_from_fen_file(
             "./game/game_states/test_stalemate.fen"
         )
 

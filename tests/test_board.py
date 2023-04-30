@@ -1,5 +1,7 @@
 import unittest
-from chess_game import pieces, board
+import unittest.mock
+import io
+from chess_game import pieces, board, constants
 
 
 class TestBoard(unittest.TestCase):
@@ -18,6 +20,27 @@ class TestBoard(unittest.TestCase):
         self.assertEqual(len(self.board.piece_list), 32)
         self.assertEqual(self.board._Board__board_table[7][0].name, "Rook")
         self.assertEqual(self.board._Board__board_table[7][0].color, "white")
+
+    @unittest.mock.patch('sys.stdout', new_callable=io.StringIO)
+    def test_populate_board_init_file_missing(self, mock_stdout):
+        # Change init file path in constants to one that doesn't exist
+        old_init_file = constants.STARTING_FEN_FILE
+        constants.STARTING_FEN_FILE = "nonexistent_file.txt"
+        new_board = board.Board()
+        new_board.populate_board()
+
+        # Check that the board is still populated with the pieces of a standard game
+        self.assertEqual(new_board._Board__board_table, self.board._Board__board_table)
+        self.assertEqual(new_board.piece_list, self.board.piece_list)
+
+        # Check that the error message is printed
+        self.assertEqual(
+            mock_stdout.getvalue(),
+            "Starting FEN file not found! Using default starting position.\n"
+        )
+
+        # Reset the constants file
+        constants.STARTING_FEN_FILE = old_init_file
 
     def test_board_piece_list(self):
         self.assertEqual(len(self.board.piece_list), 32)
@@ -275,7 +298,7 @@ class TestBoard(unittest.TestCase):
         self.assertFalse(self.board.is_path_blocked((3, 0), (5, 2)))
 
     def test_instantiate_from_fen(self):
-        test_fen_board = board.Board.instantiate_from_fen(
+        test_fen_board = board.Board.instantiate_from_fen_file(
             "./game/game_states/test_stalemate.fen"
         )
         test_board = board.Board()
@@ -317,14 +340,26 @@ class TestBoard(unittest.TestCase):
         self.assertEqual(self.board.get_square_from_algebraic_notation("h1"), (7, 7))
 
     def test_parse_fen(self):
+        test_fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR"
+        new_board = self.board.parse_fen(test_fen)
+        expected_board = board.Board()
+        expected_board.populate_board()
+
+        self.assertListEqual(new_board, expected_board._Board__board_table)
+
+    def test_parse_fen_from_file(self):
         test_fen_path = "./game/game_states/test_parse.fen"
-        new_board = self.board.parse_fen(test_fen_path)
+        new_board = self.board.parse_fen_from_file(test_fen_path)
         expected_board = board.Board()
 
         for i in range(4):
             expected_board._place_piece(pieces.Pawn("black", (1, i)))
 
         self.assertEqual(repr(new_board), repr(expected_board._Board__board_table))
+
+        # Test when the file does not exist
+        with self.assertRaises(FileNotFoundError):
+            self.board.parse_fen_from_file("does_not_exist.fen")
 
     def test_get_fen_board_state(self):
         expected_output = {

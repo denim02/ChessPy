@@ -365,20 +365,26 @@ class Board:
         return False
 
     def populate_board(self) -> None:
-        """Populate the board with pieces in their starting positions in a standard chess game."""
-        self.__board_table = Board.parse_fen(constants.STARTING_FEN_FILE)
-        self.__piece_list = [
-            piece for row in self.__board_table for piece in row if piece is not None
-        ]
-        self.__refresh_legal_moves()
+        """Populate the board with pieces in their starting positions as specified by the STARTING_FEN_FILE
+        parameter in the game constants."""
+        try:
+            self.__board_table = Board.parse_fen_from_file(constants.STARTING_FEN_FILE)
+        except FileNotFoundError:
+            print("Starting FEN file not found! Using default starting position.")
+            self.__board_table = Board.parse_fen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR")
+        finally:
+            self.__piece_list = [
+                piece for row in self.__board_table for piece in row if piece is not None
+            ]
+            self.__refresh_legal_moves()
 
     @classmethod
-    def instantiate_from_fen(cls, fen_path: str) -> "Board":
+    def instantiate_from_fen_file(cls, fen_filepath: str) -> "Board":
         """Instantiate a board from a FEN file.
 
         Parameters
         ----------
-        fen_path : str
+        fen_filepath : str
             Path to the FEN file.
 
         Returns
@@ -386,7 +392,7 @@ class Board:
         Board
             Board object instantiated from the FEN file."""
         board = cls()
-        board._Board__board_table = Board.parse_fen(fen_path)
+        board._Board__board_table = Board.parse_fen_from_file(fen_filepath)
         board._Board__piece_list = [
             piece
             for row in board._Board__board_table
@@ -451,41 +457,67 @@ class Board:
         return (8 - int(algebraic_notation[1]), ord(algebraic_notation[0]) - 97)
 
     @staticmethod
-    def parse_fen(file_path: str) -> list:
-        """Parse a FEN file and return a list with the pieces that should be on the board.
+    def parse_fen(fen_string: str) -> list:
+        """Parse a string representing a board in FEN notation and return 
+        a list with the pieces that should be on the board.
 
         Parameters
         ----------
-        file_path : str
-            Path to the FEN file.
+        fen_string : str
+            String containing FEN representation of a chess board.
 
         Returns
         -------
         list
             List with the pieces that should be on the board.
         """
-        with open(file_path, encoding="utf8") as file:
-            string_fen = file.read()
-            ranks = string_fen.split("/")
+        ranks = fen_string.split("/")
 
-            board = []
+        board = []
 
-            for i in range(8):
-                if ranks[i] == "8":
-                    board.append([None] * 8)
-                else:
-                    board.append([])
-                    for j in ranks[i]:
-                        if j.isdigit():
-                            board[i].extend([None] * int(j))
-                        else:
-                            board[i].append(
-                                pieces.Piece.from_algebraic_notation(
-                                    j, (i, len(board[i]))
-                                )
+        for i in range(8):
+            if ranks[i] == "8":
+                board.append([None] * 8)
+            else:
+                board.append([])
+                for j in ranks[i]:
+                    if j.isdigit():
+                        board[i].extend([None] * int(j))
+                    else:
+                        board[i].append(
+                            pieces.Piece.from_algebraic_notation(
+                                j, (i, len(board[i]))
                             )
+                        )
 
-            return board
+        return board
+
+    @staticmethod
+    def parse_fen_from_file(fen_filepath: str) -> list:
+        """Returns a list with the pieces that should be on the board from a FEN file.
+        
+        Parameters
+        ----------
+        fen_filepath : str
+            Path to the FEN file.
+            
+        Returns
+        -------
+        list
+            List with the pieces that should be on the board.
+
+        Raises
+        ------
+        FileNotFoundError
+            If the FEN file does not exist at the specified path.
+        """
+        try:
+            with open(fen_filepath, encoding="utf8") as file:
+                string_fen = file.read()
+                return Board.parse_fen(string_fen)
+        except FileNotFoundError:
+            raise
+        
 
     def get_fen_board_state(self) -> dict:
         """Returns a dictionary with the state of the board.
