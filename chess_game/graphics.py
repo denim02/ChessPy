@@ -116,6 +116,29 @@ class ChessUI:
                 15,
             )
 
+    def render_gameover(self, status, winner=None):
+        """
+        Renders the game over screen.
+        """
+        self.window.fill(constants.DARK)
+        font = pygame.font.SysFont("Arial", 50)
+        text = font.render("Game Over", True, constants.LIGHT)
+        text_rect = text.get_rect(center=(constants.WINDOW_WIDTH // 2, 50))
+        self.window.blit(text, text_rect)
+
+        if status == "checkmate":
+            text = font.render(f"Checkmate! {winner} wins!", True, constants.LIGHT)
+        elif status == "stalemate":
+            text = font.render("Stalemate!", True, constants.LIGHT)
+        elif status == "threefold repetition":
+            text = font.render("Draw by repetition!", True, constants.LIGHT)
+        elif status == "fifty move rule":
+            text = font.render("Draw by fifty moves with no pawn moves or captures!", True, constants.LIGHT)
+
+        self.window.blit(text, text.get_rect(center=(constants.WINDOW_WIDTH // 2, 100)))
+
+        pygame.display.flip()
+        
     @classmethod
     def initialize_images(cls):
         """

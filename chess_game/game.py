@@ -248,86 +248,96 @@ def run_game():
     # Create flag for the game loop.
     is_running = True
 
+    # Create flag for displaying game_over screen.
+    is_game_over = False
+    game_status = ""
+
     while is_running:
         clock.tick(60)
-
+        
         for event in pygame.event.get():
             # Check if the user presses the close button.
             if event.type == pygame.QUIT:
                 is_running = False
 
-            # If the user left clicks on the board, check whether they clicked on a piece.
-            # If they did, then set the ui.dragged_piece to that piece.
-            elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-                clicked_piece = game.board.get_piece_at_square(
-                    ui.get_square_at_coords(event.pos)
-                )
-                if clicked_piece and clicked_piece.color == game.turn:
-                    ui.dragged_piece = clicked_piece
-                    ui.is_dragging = True
-                    ui.original_coords = ui.dragged_piece.coords
-                    ui.offset = (
-                        event.pos[0] - ui.dragged_piece.coords[0],
-                        event.pos[1] - ui.dragged_piece.coords[1],
+            if not is_game_over and is_running:
+                # If the user left clicks on the board, check whether they clicked on a piece.
+                # If they did, then set the ui.dragged_piece to that piece.
+                if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                    clicked_piece = game.board.get_piece_at_square(
+                        ui.get_square_at_coords(event.pos)
                     )
+                    if clicked_piece and clicked_piece.color == game.turn:
+                        ui.dragged_piece = clicked_piece
+                        ui.is_dragging = True
+                        ui.original_coords = ui.dragged_piece.coords
+                        ui.offset = (
+                            event.pos[0] - ui.dragged_piece.coords[0],
+                            event.pos[1] - ui.dragged_piece.coords[1],
+                        )
 
-            # If the user is dragging a piece, then update the position of the piece.
-            elif event.type == pygame.MOUSEMOTION:
-                if ui.is_dragging:
-                    ui.dragged_piece.coords = (
-                        event.pos[0] - ui.offset[0],
-                        event.pos[1] - ui.offset[1],
-                    )
+                # If the user is dragging a piece, then update the position of the piece.
+                elif event.type == pygame.MOUSEMOTION:
+                    if ui.is_dragging:
+                        ui.dragged_piece.coords = (
+                            event.pos[0] - ui.offset[0],
+                            event.pos[1] - ui.offset[1],
+                        )
 
-            # If the user was dragging a piece, then check whether they dropped it on a valid square.
-            # If they did, then make the move.
-            elif event.type == pygame.MOUSEBUTTONUP:
-                if ui.is_dragging:
-                    ui.is_dragging = False
-                    new_square = ui.get_square_at_coords(event.pos)
+                # If the user was dragging a piece, then check whether they dropped it on a valid square.
+                # If they did, then make the move.
+                elif event.type == pygame.MOUSEBUTTONUP:
+                    if ui.is_dragging:
+                        ui.is_dragging = False
+                        new_square = ui.get_square_at_coords(event.pos)
 
-                    if new_square:
-                        # Check if the move is a pawn promotion.
-                        if (
-                            ui.dragged_piece.name == "Pawn"
-                            and new_square[0] in (0, 7)
-                            and new_square in ui.dragged_piece.legal_moves
-                        ):
-                            ui.promotion_box = PromotionBox(
-                                ui.window, ui.dragged_piece.color
-                            )
-                            game.promotion_choice = ui.promotion_box.final_choice
-                            ui.promotion_box = None
+                        if new_square:
+                            # Check if the move is a pawn promotion.
+                            if (
+                                ui.dragged_piece.name == "Pawn"
+                                and new_square[0] in (0, 7)
+                                and new_square in ui.dragged_piece.legal_moves
+                            ):
+                                ui.promotion_box = PromotionBox(
+                                    ui.window, ui.dragged_piece.color
+                                )
+                                game.promotion_choice = ui.promotion_box.final_choice
+                                ui.promotion_box = None
 
-                        # Make the move.
-                        try:
-                            game.make_move(ui.dragged_piece.position, new_square)
-                        except Exception as ex:
-                            print(ex)
+                            # Make the move.
+                            try:
+                                game.make_move(ui.dragged_piece.position, new_square)
+                            except Exception as ex:
+                                print(ex)
+                                ui.dragged_piece.coords = ui.original_coords
+
+                            ui.dragged_piece = None
+
+                            if (
+                                game.is_checkmate
+                                or game.is_stalemate
+                                or game.is_threefold_repetition
+                                or game.fifty_move_counter >= 50
+                            ):
+                                if game.is_checkmate:
+                                    game_status = "checkmate"
+                                elif game.is_stalemate:
+                                    game_status = "stalemate"
+                                elif game.is_threefold_repetition:
+                                    game_status = "threefold repetition"
+                                elif game.fifty_move_counter >= 50:
+                                    game_status = "fifty move rule"
+
+                                is_game_over = True
+
+                        else:
                             ui.dragged_piece.coords = ui.original_coords
 
-                        ui.dragged_piece = None
-
-                        if (
-                            game.is_checkmate
-                            or game.is_stalemate
-                            or game.is_threefold_repetition
-                            or game.fifty_move_counter >= 50
-                        ):
-                            if game.is_checkmate:
-                                print("Checkmate!")
-                            elif game.is_stalemate:
-                                print("Stalemate!")
-                            elif game.is_threefold_repetition:
-                                print("Threefold repetition!")
-                            elif game.fifty_move_counter >= 50:
-                                print("Fifty-move rule!")
-
-                            is_running = False
-                    else:
-                        ui.dragged_piece.coords = ui.original_coords
-
-        ui.render_all()
+        if is_game_over:
+            winner = "White" if game.turn == "black" else "Black"
+            ui.render_gameover(game_status, winner)
+        else:
+            ui.render_all()
         pygame.display.update()
 
     pygame.quit()
