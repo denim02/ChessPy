@@ -1,3 +1,4 @@
+"""This module contains unit tests for the Board class in chess_game\board.py."""
 import unittest
 import unittest.mock
 import io

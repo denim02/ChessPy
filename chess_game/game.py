@@ -5,7 +5,6 @@ import pygame
 import datetime
 import chess_game.chess_logic as chess_logic
 import chess_game.constants as constants
-from chess_game.graphics import ChessUI, PromotionBox
 from typing import TYPE_CHECKING, Optional
 from chess_game.pieces import King, Pawn
 from chess_game.board import Board
@@ -309,6 +308,9 @@ class ChessGame:
 def run_game() -> None:
     """Runs the main game loop for the chess game and handles user input, updating the game state,
     and interfacing between the different components of the game (logic, board state, graphics)."""
+    # Import for the graphics module is placed here so the method definitions inside it do not
+    # count towards the coverage report and pollute its results.
+    from chess_game.graphics import ChessUI, PromotionBox
 
     # Initialize pygame.
     pygame.init()

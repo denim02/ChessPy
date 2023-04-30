@@ -1,3 +1,4 @@
+"""This module contains unit tests for the pieces module in chess_game/pieces.py."""
 from chess_game import pieces, board, constants
 import unittest
 

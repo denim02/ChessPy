@@ -1,3 +1,4 @@
+"""This module contains unit tests for the ChessGame class in chess_game/game.py."""
 import unittest
 from unittest.mock import patch, mock_open
 from chess_game.game import ChessGame

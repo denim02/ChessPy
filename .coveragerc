@@ -1,3 +1,10 @@
 [run]
 source = ./chess_game
 command_line = -m unittest discover -s tests/
+
+[report]
+exclude_lines =
+    pragma: no cover
+    @(abc\.)?abstractmethod
+    raise NotImplementedError
+    if TYPE_CHECKING:
