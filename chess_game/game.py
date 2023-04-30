@@ -1,25 +1,23 @@
-"""
-game.py
-This module contains the ChessGame class.
-This class is used to represent a chess game. It has properties like board, turn,
-game_over and methods make_move, run etc. It is responsible for managing the
-state of the game and making moves on the board.
-"""
+"""The game module contains the ChessGame class, which is responsible for managing the state
+of the game and making moves on the board. It also contains the run_game function (i.e. the main function)
+which bootstraps the game logic and the UI and runs the game loop."""
 import pygame
 import datetime
 import chess_game.chess_logic as chess_logic
 import chess_game.constants as constants
 from chess_game.graphics import ChessUI, PromotionBox
+from typing import TYPE_CHECKING, Optional
 from chess_game.pieces import King, Pawn
 from chess_game.board import Board
 
 
+if TYPE_CHECKING:
+    from chess_game.pieces import Piece
+
+
 class ChessGame:
-    """
-    ChessGame:
-    This is a class for representing a chess game.
-    It has properties like board, turn and game_over, and methods make_move, run etc.
-    It is responsible for managing the state of the game and making moves on the board."""
+    """The ChessGame class is responsible for managing the state of the game and making moves on the board.
+    Additionally, it is responsible for logging the moves and checking for game over conditions."""
 
     def __init__(self):
         # Variables for handling the game mechanics
@@ -52,15 +50,31 @@ class ChessGame:
         # Add initial position to the log
         self.position_log.append(self.get_current_game_position())
 
-    def make_move(self, original_position, new_position):
-        """
-        Make a move on the board.
+    def make_move(self, original_position: tuple, new_position: tuple) -> None:
+        """Execute a move on the board.
 
-        Parameters:
-            original_position (tuple): original position on the board
-                in (x, y) format, where x is the row and y is the column.
-            new_position (tuple): new position on the board
-                in (x, y) format, where x is the row and y is the column.
+        This method is responsible for executing a move on the board, checking if the move is legal,
+        checking for game over conditions and logging the move. It distinguishes between a normal move,
+        a capture, a pawn promotion and a castle and handles each case accordingly. Additionally, it
+        contains some side effects such as updating the turn, incrementing the fifty-move-draw counter,
+        and updating the position log.
+
+        Parameters
+        ----------
+        original_position : tuple
+            Position of the piece to be moved.
+        new_position : tuple
+            New position of the piece to be moved.
+
+        Raises
+        ------
+        TypeError
+            If there is no piece at the given position.
+        ValueError
+            If the move is illegal.
+        Exception
+            If it is not the turn of the player whose piece is being moved or if the move
+            would put the player's king in check
         """
         piece = self.board.get_piece_at_square(original_position)
 
@@ -111,7 +125,8 @@ class ChessGame:
         # Increment the halfmove clock
         self.halfmove_counter += 1
 
-        # Incremented by one every time black moves; if the turn is white then black just moved.
+        # Incremented by one every time black moves; if the turn is white then
+        # black just moved.
         if self.turn == "white":
             self.fullmove_counter += 1
 
@@ -125,7 +140,17 @@ class ChessGame:
         self.is_stalemate = chess_logic.is_stalemate(self.board, self.turn)
         self.is_threefold_repetition = self.check_threefold_repetition()
 
-    def get_current_game_position(self):
+    def get_current_game_position(self) -> dict:
+        """Returns a dictionary containing information about the current game position.
+
+        The dictionary has information on the placement of pieces on the board in FEN notation,
+        the color which has the next move, castling rights, and the en passant target square.
+
+        Returns
+        -------
+        dict
+            A dictionary containing information about the current game position.
+        """
         game_state = self.get_fen_game_state()
 
         return {
@@ -135,17 +160,29 @@ class ChessGame:
             "en_passant_target_square": game_state["en_passant_target_square"],
         }
 
-    def check_threefold_repetition(self):
-        """
-        Check if the current position has occurred three times.
+    def check_threefold_repetition(self) -> bool:
+        """Checks if the current position has occurred three times or more.
+
+        Returns
+        -------
+        bool
+            True if the current position has occurred three times or more, False otherwise.
         """
         if self.position_log.count(self.get_current_game_position()) >= 3:
             return True
         return False
 
-    def get_fen_game_state(self):
-        """
-        Get the FEN string for the current game state.
+    def get_fen_game_state(self) -> dict:
+        """Returns a dictionary containing information about the current game state in FEN notation.
+
+        The dictionary has information on the placement of pieces on the board in FEN notation,
+        the color which has the next move, castling rights, the en passant target square, the
+        halfmove clock, and the fullmove counter.
+
+        Returns
+        -------
+        dict
+            A dictionary containing information about the current game state in FEN notation.
         """
         board_state = self.board.get_fen_board_state()
         return {
@@ -157,14 +194,26 @@ class ChessGame:
             "fullmove_counter": self.fullmove_counter,
         }
 
-    def log_move(self, piece, original_position, captured_piece=None):
-        """
-        Log a move in algebraic notation.
+    def log_move(
+        self,
+        piece: "Piece",
+        original_position: tuple,
+        captured_piece: Optional["Piece"] = None,
+    ) -> None:
+        """Logs a move represented in algebraic notation to a move log file.
+
+        Parameters
+        ----------
+        piece : Piece
+            The piece that is being moved.
+        original_position : tuple
+            The original position of the piece.
+        captured_piece : Piece, optional
+            The piece that was captured by the move, if there is one. Defaults to None.
         """
         move = self.get_move_in_algebraic_notation(
             piece, original_position, captured_piece
         )
-
         with open(self.move_log_file_path, "a") as file:
             # Check if it is the first move of a new turn.
             if self.halfmove_counter % 2 != 0:
@@ -173,10 +222,31 @@ class ChessGame:
                 file.write(move + "\n")
 
     def get_move_in_algebraic_notation(
-        self, piece, original_position, captured_piece=None
-    ):
-        """
-        Get the algebraic notation for a move.
+        self,
+        piece: "Piece",
+        original_position: tuple,
+        captured_piece: Optional["Piece"] = None,
+    ) -> str:
+        """Returns a move represented in algebraic notation.
+
+        The function takes in a piece, its original position, and the piece that was captured by
+        the move (if there is one) and returns the move in algebraic notation. To parse the move into
+        algebraic notation, the function distinguishes between regular moves, captures, en passants,
+        pawn promotions, castles, and moves that place a player into check or checkmate.
+
+        Parameters
+        ----------
+        piece : Piece
+            The piece that is being moved.
+        original_position : tuple
+            The original position of the piece.
+        captured_piece : Piece, optional
+            The piece that was captured by the move, if there is one. Defaults to None.
+
+        Returns
+        -------
+        str
+            The move represented in algebraic notation.
         """
         new_position = piece.position
         piece_notation = piece.to_algebraic_notation().upper()
@@ -236,7 +306,10 @@ class ChessGame:
         return result
 
 
-def run_game():
+def run_game() -> None:
+    """Runs the main game loop for the chess game and handles user input, updating the game state,
+    and interfacing between the different components of the game (logic, board state, graphics)."""
+
     # Initialize pygame.
     pygame.init()
     clock = pygame.time.Clock()
@@ -254,7 +327,7 @@ def run_game():
 
     while is_running:
         clock.tick(60)
-        
+
         for event in pygame.event.get():
             # Check if the user presses the close button.
             if event.type == pygame.QUIT:
@@ -276,7 +349,8 @@ def run_game():
                             event.pos[1] - ui.dragged_piece.coords[1],
                         )
 
-                # If the user is dragging a piece, then update the position of the piece.
+                # If the user is dragging a piece, then update the position of
+                # the piece.
                 elif event.type == pygame.MOUSEMOTION:
                     if ui.is_dragging:
                         ui.dragged_piece.coords = (

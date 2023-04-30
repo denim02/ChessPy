@@ -1,19 +1,28 @@
-"""
-chess_logic.py
-This module contains the logic for the chess game.
-"""
+"""The chess_logic module contains implementations of the basic logic and rules of chess.
+
+It provides functions to check if a move is legal, if a king is in check, checkmate or stalemate."""
+from typing import TYPE_CHECKING
+
+# USED FOR TYPE HINTING ONLY
+if TYPE_CHECKING:
+    from chess_game.board import Board
+    from chess_game.pieces import Piece
 
 
-def is_check(board, color):
-    """
-    Check if a king of a given color is in check.
+def is_check(board: "Board", color: str) -> bool:
+    """Check if a king of a given color is in check.
 
-    Parameters:
-        board (Board): board on which the move is being made.
-        color (str): color of the king to be checked.
+    Parameters
+    ----------
+    board : Board
+        Board on which the move is being made.
+    color : str
+        Color of the king to be checked. Must be either "white" or "black".
 
-    Returns:
-        bool: True if the king is in check, False otherwise.
+    Returns
+    -------
+    bool
+        True if the king is in check, False otherwise.
     """
     king = [
         piece
@@ -23,16 +32,20 @@ def is_check(board, color):
     return board.is_square_attacked(king.position, color)
 
 
-def is_checkmate(board, color):
-    """
-    Check if a king of a given color is in checkmate.
+def is_checkmate(board: "Board", color: str) -> bool:
+    """Check if a king of a given color is in checkmate.
 
-    Parameters:
-        board (Board): board on which the move is being made.
-        color (str): color of the king to be checked.
+    Parameters
+    ----------
+    board : Board
+        Board on which the move is being made.
+    color : str
+        Color of the king to be checked. Must be either "white" or "black".
 
-    Returns:
-        bool: True if the king is in checkmate, False otherwise.
+    Returns
+    -------
+    bool
+        True if the king is in checkmate, False otherwise.
     """
     if is_check(board, color):
         for piece in board.piece_list:
@@ -45,18 +58,26 @@ def is_checkmate(board, color):
     return False
 
 
-def is_king_in_check_after_move(board, piece, new_position):
-    """
-    Check if a king of a given color is in check after a move.
+def is_king_in_check_after_move(
+    board: "Board", piece: "Piece", new_position: tuple
+) -> bool:
+    """Check if a king of a given color is in check after a move.
 
-    Parameters:
-        board (Board): board on which the move is being made.
-        piece (Piece): piece to be moved.
-        new_position (tuple): new position on the board
-            in (x, y) format, where x is the row and y is the column.
+    The method makes the move on the board, checks if the king is in check and then reverts the move.
 
-    Returns:
-        bool: True if the king is in check, False otherwise.
+    Parameters
+    ----------
+    board : Board
+        Board on which the move is being made.
+    piece : Piece
+        Piece to be moved.
+    new_position : tuple
+        New position on the board in (x, y) format, where x is the rank and y is the file.
+
+    Returns
+    -------
+    bool
+        True if the king is in check after the move, False otherwise.
     """
     color = piece.color
     old_position = piece.position
@@ -66,16 +87,20 @@ def is_king_in_check_after_move(board, piece, new_position):
     return is_checked
 
 
-def is_stalemate(board, color):
-    """
-    Check if a king of a given color is in stalemate.
+def is_stalemate(board: "Board", color: str) -> bool:
+    """Check if a king of a given color is in stalemate.
 
-    Parameters:
-        board (Board): board on which the move is being made.
-        color (str): color of the king to be checked.
+    Parameters
+    ----------
+    board : Board
+        Board on which the move is being made.
+    color : str
+        Color of the king to be checked. Must be either "white" or "black".
 
-    Returns:
-        bool: True if the king is in stalemate, False otherwise.
+    Returns
+    -------
+    bool
+        True if the king is in stalemate, False otherwise.
     """
     if not is_check(board, color):
         for piece in board.piece_list:
@@ -87,18 +112,28 @@ def is_stalemate(board, color):
     return False
 
 
-def is_legal_move(board, piece, new_position):
-    """
-    Check if a move is legal (if the king is not in check after the move).
+def is_legal_move(board: "Board", piece: "Piece", new_position: tuple) -> bool:
+    """Check if a move is legal.
 
-    Parameters:
-        board (Board): board on which the move is being made.
-        piece (Piece): piece to be moved.
-        new_position (tuple): new position on the board
-            in (x, y) format, where x is the row and y is the column.
+    A move is defined as legal if:
+    - the piece is moving to a position that is possible for it to move to (e.g. a rook can't move diagonally)
+    - the piece is not moving to a square occupied by a piece of the same color
+    - the piece is not moving through a square occupied by another piece (except for knights)
+    - the piece is not moving to a square occupied by a piece of the opposite color, if it is a pawn
 
-    Returns:
-        bool: True if the move is legal, False otherwise.
+    Parameters
+    ----------
+    board : Board
+        Board on which the move is being made.
+    piece : Piece
+        Piece to be moved.
+    new_position : tuple
+        New position on the board in (x, y) format, where x is the rank and y is the file.
+
+    Returns
+    -------
+    bool
+        True if the move is legal, False otherwise.
     """
     if (
         board.get_piece_at_square(new_position) is not None

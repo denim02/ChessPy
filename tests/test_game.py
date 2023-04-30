@@ -1,7 +1,7 @@
 import unittest
 from unittest.mock import patch, mock_open
 from chess_game.game import ChessGame
-from chess_game import board, pieces, constants
+from chess_game import board, pieces
 
 
 class TestChessGame(unittest.TestCase):
@@ -34,21 +34,21 @@ class TestChessGame(unittest.TestCase):
 
     def test_make_move_errors(self):
         # No piece at position
-        with self.assertRaises(TypeError) as e:
+        with self.assertRaises(TypeError):
             self.game.make_move((4, 4), (5, 5))
 
         # Wrong color piece
-        with self.assertRaises(Exception) as e:
+        with self.assertRaises(Exception):
             self.game.make_move((1, 0), (2, 0))
 
         # Illegal move
-        with self.assertRaises(ValueError) as e:
+        with self.assertRaises(ValueError):
             self.game.make_move((6, 0), (4, 4))
 
         # The move places the player's own king in check
         self.game.board._place_piece(pieces.Queen(color="black", position=(5, 2)))
 
-        with self.assertRaises(Exception) as e:
+        with self.assertRaises(Exception):
             self.game.make_move((6, 3), (5, 3))
 
     def test_make_move_castle(self):
@@ -94,7 +94,7 @@ class TestChessGame(unittest.TestCase):
         self.game.board._place_piece(white_pawn)
 
         # Test wrong promotion choice
-        with self.assertRaises(ValueError) as e:
+        with self.assertRaises(ValueError):
             self.game.promotion_choice = "F"
             self.game.make_move((1, 0), (0, 0))
 

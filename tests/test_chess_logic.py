@@ -22,7 +22,8 @@ class TestChessLogic(unittest.TestCase):
         self.assertTrue(chess_logic.is_check(test_board, "white"))
 
     def test_is_checkmate(self):
-        # Test simple checkmate for both colors where they have no valid moves to block
+        # Test simple checkmate for both colors where they have no valid moves
+        # to block
         test_board = board.Board.instantiate_from_fen_file(
             "./game/game_states/test_checkmate.fen"
         )
@@ -48,7 +49,8 @@ class TestChessLogic(unittest.TestCase):
             "./game/game_states/test_checkmate.fen"
         )
 
-        # Test that although the black king is in check after the move, the white king that initiated the move is not in check
+        # Test that although the black king is in check after the move, the
+        # white king that initiated the move is not in check
         self.assertFalse(
             chess_logic.is_king_in_check_after_move(
                 test_board, test_board.get_piece_at_square((1, 7)), (0, 7)
@@ -56,7 +58,8 @@ class TestChessLogic(unittest.TestCase):
         )
         test_board.move_piece_to_square(test_board.get_piece_at_square((1, 7)), (0, 7))
 
-        # Place defending piece in front of black king and test that the function returns true if the piece is moved
+        # Place defending piece in front of black king and test that the
+        # function returns true if the piece is moved
         test_board._place_piece(pieces.Pawn("black", (0, 2)))
         self.assertTrue(
             chess_logic.is_king_in_check_after_move(
@@ -117,7 +120,8 @@ class TestChessLogic(unittest.TestCase):
             )
         )
 
-        # Test that the same logic applies to knights (since they can jump over pieces)
+        # Test that the same logic applies to knights (since they can jump over
+        # pieces)
         test_board._remove_piece_at_square((5, 0))
         test_board._place_piece(pieces.Knight("white", (5, 0)))
         test_board._place_piece(pieces.Knight("white", (4, 2)))

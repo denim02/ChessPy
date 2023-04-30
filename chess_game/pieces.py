@@ -1,8 +1,8 @@
 """The pieces module contains the Piece class and its subclasses, which represent the pieces of the chess game.
 
-Each class contains the same data fields and methods, but with different implementations. 
-The only abstract method is _generate_possible_moves, which defines how to generate the possible moves for 
-a piece, and, therefore, how each piece is supposed to move according to the rules of chess. It is thus 
+Each class contains the same data fields and methods, but with different implementations.
+The only abstract method is _generate_possible_moves, which defines how to generate the possible moves for
+a piece, and, therefore, how each piece is supposed to move according to the rules of chess. It is thus
 implemented differently for each subclass.
 """
 from chess_game import constants, chess_logic
@@ -10,7 +10,8 @@ from typing import TYPE_CHECKING
 from abc import ABC, abstractmethod
 
 # FOR TYPE HINTS ONLY
-# The following import is only used for type checking to avoid circular imports.
+# The following import is only used for type checking to avoid circular
+# imports.
 if TYPE_CHECKING:
     from chess_game.board import Board
 
@@ -105,7 +106,8 @@ class Piece(ABC):
         self.__legal_moves = self._generate_legal_moves(board)
 
     def _generate_legal_moves(self, board: "Board") -> set:
-        # Generate the legal moves for a piece by checking if they comply with the rules of chess
+        # Generate the legal moves for a piece by checking if they comply with
+        # the rules of chess
         possible_moves = self._generate_possible_moves(board)
         legal_moves = set(
             filter(
@@ -172,11 +174,13 @@ class Piece(ABC):
         return self.name[0].lower() if self.color == "black" else self.name[0].upper()
 
     def __repr__(self) -> str:
-        # Returns a string representation of the piece (i.e. its color and name, e.g. "White King")
+        # Returns a string representation of the piece (i.e. its color and
+        # name, e.g. "White King")
         return f"{self.color.title()} {self.name}"
 
     def __eq__(self, other: "Piece") -> bool:
-        # Returns True if the pieces' names, colors, and positions are equal, False otherwise
+        # Returns True if the pieces' names, colors, and positions are equal,
+        # False otherwise
         if not isinstance(other, Piece):
             return False
 
@@ -369,9 +373,10 @@ class King(Piece):
             if (i, j) != (0, 0) and 0 <= x_new < 8 and 0 <= y_new < 8:
                 possible_moves.add((x_new, y_new))
 
-        # Castling - check whether the path is blocked or not (use is_path_blocked), 
-        # whether any squares in the path are under attack, whether the king has moved or not, 
-        # whether the rook has moved or not, and whether the king is under attack or not.
+        # Castling - check whether the path is blocked or not (use is_path_blocked),
+        # whether any squares in the path are under attack, whether the king has moved or not,
+        # whether the rook has moved or not, and whether the king is under
+        # attack or not.
         if not self.has_moved:
             queen_side_rook = board.get_piece_at_square((self.position[0], 0))
             # Check whether the king can castle queen side

@@ -250,7 +250,8 @@ class TestRook(unittest.TestCase):
         }
         self.assertEqual(expected_moves, self.rook._generate_possible_moves(self.board))
 
-        # Test rook with pieces in front of it (both vertically and horizontally)
+        # Test rook with pieces in front of it (both vertically and
+        # horizontally)
         self.board._place_piece(pieces.Pawn(color="black", position=(0, 3)))
         self.board._place_piece(pieces.Pawn(color="black", position=(3, 0)))
         expected_moves = {
@@ -408,7 +409,8 @@ class TestKing(unittest.TestCase):
         self.assertEqual(self.king._generate_possible_moves(self.board), expected_moves)
         self.board._remove_piece_at_square((7, 6))
 
-        # Castleing, but path is under attack by distant enemy piece (enemy queen)
+        # Castleing, but path is under attack by distant enemy piece (enemy
+        # queen)
         self.board._remove_piece_at_square((5, 5))
         self.board._place_piece(pieces.Queen(color="black", position=(5, 5)))
         expected_moves = {(6, 4), (6, 3), (6, 5), (7, 5), (7, 3)}

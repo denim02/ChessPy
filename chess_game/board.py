@@ -1,8 +1,8 @@
 """The board module contains the Board class, which represents the chess board.
 
-The Board class is responsible for maintaining the chess board and its state. It contains methods 
-for moving pieces, promoting pawns, checking if a square is occupied, checking if a square is attacked, 
-and checking  if a path is blocked. Additionally, it has a method for refreshing the legal moves 
+The Board class is responsible for maintaining the chess board and its state. It contains methods
+for moving pieces, promoting pawns, checking if a square is occupied, checking if a square is attacked,
+and checking  if a path is blocked. Additionally, it has a method for refreshing the legal moves
 for all pieces on the board."""
 from typing import Union, Optional
 from chess_game import pieces, constants
@@ -15,7 +15,8 @@ class Board:
         self.__board_table = [[None for _ in range(8)] for _ in range(8)]
         self.__piece_list = []
 
-        # Intialize variables needed for en passant and reverting moves (for is_king_in_check_after_move)
+        # Intialize variables needed for en passant and reverting moves (for
+        # is_king_in_check_after_move)
         self.en_passant_piece = None
         self.last_piece_captured = None
         self.has_moved_changed = False
@@ -26,7 +27,8 @@ class Board:
         return tuple(self.__piece_list)
 
     def __refresh_legal_moves(self) -> None:
-        # Refreshes the legal moves for all pieces on the board by calling the refresh_legal_moves method for each
+        # Refreshes the legal moves for all pieces on the board by calling the
+        # refresh_legal_moves method for each
         for piece in self.__piece_list:
             piece.refresh_legal_moves(self)
 
@@ -114,12 +116,14 @@ class Board:
         # Get the piece at the new position (if there is one)
         occupying_piece = self.get_piece_at_square(new_position)
 
-        # Set has_moved to True if the piece has not moved yet (used for castling/revert move)
+        # Set has_moved to True if the piece has not moved yet (used for
+        # castling/revert move)
         self.has_moved_changed = not piece.has_moved
         piece.has_moved = True
 
         # En passant logic
-        # Check if the move was an en passant capture and remove the captured piece
+        # Check if the move was an en passant capture and remove the captured
+        # piece
         if (
             piece.name == "Pawn"
             and self.en_passant_piece is not None
@@ -143,7 +147,8 @@ class Board:
             else:
                 self.en_passant_piece = None
 
-        # Clear the piece that was captured last time (used for reverting moves)
+        # Clear the piece that was captured last time (used for reverting
+        # moves)
         if self.last_piece_captured is not None:
             self.last_piece_captured = None
 
@@ -371,10 +376,15 @@ class Board:
             self.__board_table = Board.parse_fen_from_file(constants.STARTING_FEN_FILE)
         except FileNotFoundError:
             print("Starting FEN file not found! Using default starting position.")
-            self.__board_table = Board.parse_fen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR")
+            self.__board_table = Board.parse_fen(
+                "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR"
+            )
         finally:
             self.__piece_list = [
-                piece for row in self.__board_table for piece in row if piece is not None
+                piece
+                for row in self.__board_table
+                for piece in row
+                if piece is not None
             ]
             self.__refresh_legal_moves()
 
@@ -458,7 +468,7 @@ class Board:
 
     @staticmethod
     def parse_fen(fen_string: str) -> list:
-        """Parse a string representing a board in FEN notation and return 
+        """Parse a string representing a board in FEN notation and return
         a list with the pieces that should be on the board.
 
         Parameters
@@ -485,9 +495,7 @@ class Board:
                         board[i].extend([None] * int(j))
                     else:
                         board[i].append(
-                            pieces.Piece.from_algebraic_notation(
-                                j, (i, len(board[i]))
-                            )
+                            pieces.Piece.from_algebraic_notation(j, (i, len(board[i])))
                         )
 
         return board
@@ -495,12 +503,12 @@ class Board:
     @staticmethod
     def parse_fen_from_file(fen_filepath: str) -> list:
         """Returns a list with the pieces that should be on the board from a FEN file.
-        
+
         Parameters
         ----------
         fen_filepath : str
             Path to the FEN file.
-            
+
         Returns
         -------
         list
@@ -517,7 +525,6 @@ class Board:
                 return Board.parse_fen(string_fen)
         except FileNotFoundError:
             raise
-        
 
     def get_fen_board_state(self) -> dict:
         """Returns a dictionary with the state of the board.
@@ -598,7 +605,8 @@ class Board:
         return fen
 
     def _get_fen_en_passant_target_square(self) -> str:
-        # Returns a string representing the en passant target square in FEN notation.
+        # Returns a string representing the en passant target square in FEN
+        # notation.
         if self.en_passant_piece is None:
             return "-"
         else:

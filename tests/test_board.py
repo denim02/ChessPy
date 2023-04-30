@@ -21,7 +21,7 @@ class TestBoard(unittest.TestCase):
         self.assertEqual(self.board._Board__board_table[7][0].name, "Rook")
         self.assertEqual(self.board._Board__board_table[7][0].color, "white")
 
-    @unittest.mock.patch('sys.stdout', new_callable=io.StringIO)
+    @unittest.mock.patch("sys.stdout", new_callable=io.StringIO)
     def test_populate_board_init_file_missing(self, mock_stdout):
         # Change init file path in constants to one that doesn't exist
         old_init_file = constants.STARTING_FEN_FILE
@@ -29,14 +29,15 @@ class TestBoard(unittest.TestCase):
         new_board = board.Board()
         new_board.populate_board()
 
-        # Check that the board is still populated with the pieces of a standard game
+        # Check that the board is still populated with the pieces of a standard
+        # game
         self.assertEqual(new_board._Board__board_table, self.board._Board__board_table)
         self.assertEqual(new_board.piece_list, self.board.piece_list)
 
         # Check that the error message is printed
         self.assertEqual(
             mock_stdout.getvalue(),
-            "Starting FEN file not found! Using default starting position.\n"
+            "Starting FEN file not found! Using default starting position.\n",
         )
 
         # Reset the constants file

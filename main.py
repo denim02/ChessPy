@@ -1,9 +1,9 @@
-"""
-main.py
-This module contains the main script for running a chess game with a graphical user interface.
-It imports the ChessGame and ChessUI classes from the game and graphics modules, respectively.
-It creates an instance of the ChessGame and ChessUI classes, and runs the game with the UI.
-"""
+"""Project: ChessPy
+Student: Deni Mastori (ID: 200149096)
+Class: Programming in Python
+
+This is the main file for the chess game. It simply runs the game through
+the run_game() function from the game module."""
 from chess_game.game import run_game
 
 
