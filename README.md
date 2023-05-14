@@ -50,7 +50,7 @@ To start the game as the client, use the following command:
 python main.py --client  # or -c
 ```
 
-Note: The client should run the command after the server has started.
+Note: The client should run the command after the server has started and they should set the `HOST` and `PORT` settings in the `chess_game/constants.py` file to those of the server.
 
 ## Running Unit Tests
 
