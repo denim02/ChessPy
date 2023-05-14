@@ -17,3 +17,11 @@ FPS = 60
 STARTING_FEN_FILE = "./game/game_states/init_position.fen"
 MOVE_LOG_ENABLED = True
 MOVE_LOG_DIRECTORY = "./game/logs/"
+
+"""Multiplayer settings"""
+START_IN_ONLINE_MODE = True
+START_AS_WHITE = (
+    True  # If set to True, the player will be the TCP server for communication
+)
+HOST = "localhost"  # The host to connect to (IP address of server)
+PORT = 5000  # The port to connect to (port of server)

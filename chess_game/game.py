@@ -5,10 +5,9 @@ import pygame
 import datetime
 import chess_game.chess_logic as chess_logic
 import chess_game.constants as constants
-from typing import TYPE_CHECKING, Optional
 from chess_game.pieces import King, Pawn
 from chess_game.board import Board
-
+from typing import TYPE_CHECKING, Optional
 
 if TYPE_CHECKING:
     from chess_game.pieces import Piece
@@ -75,6 +74,10 @@ class ChessGame:
             If it is not the turn of the player whose piece is being moved or if the move
             would put the player's king in check
         """
+        print(
+            f"Original position: {self.board.get_algebraic_notation(original_position)}\n"
+            f"New position: {self.board.get_algebraic_notation(new_position)}"
+        )
         piece = self.board.get_piece_at_square(original_position)
 
         # Check for invalid moves
@@ -408,6 +411,176 @@ def run_game() -> None:
 
                         else:
                             ui.dragged_piece.coords = ui.original_coords
+
+        if is_game_over:
+            winner = "White" if game.turn == "black" else "Black"
+            ui.render_gameover(game_status, winner)
+        else:
+            ui.render_all()
+        pygame.display.update()
+
+    pygame.quit()
+
+
+def run_multiplayer() -> None:
+    """Runs the main game loop for the chess game and handles user input, updating the game state,
+    and interfacing between the different components of the game (logic, board state, graphics)."""
+    # Import for the graphics module is placed here so the method definitions inside it do not
+    # count towards the coverage report and pollute its results.
+    from chess_game.graphics import ChessUI, PromotionBox
+    from chess_game.networking import ClientConnect, ServerConnect
+
+    # Initialize pygame.
+    pygame.init()
+    clock = pygame.time.Clock()
+
+    # Create the game and ui objects.
+    game = ChessGame()
+    ui = ChessUI(game.board)
+    socket = (
+        ServerConnect("127.0.0.1", constants.PORT)
+        if constants.START_AS_WHITE
+        else ClientConnect(constants.HOST, constants.PORT)
+    )
+    player_color = "white" if constants.START_AS_WHITE else "black"
+
+    # Create flag for the game loop.
+    is_running = True
+
+    # Create flag for displaying game_over screen.
+    is_game_over = False
+    game_status = ""
+
+    # If the player is the server, then wait for 30s for the client to connect.
+    if constants.START_AS_WHITE:
+        socket.wait_for_client()
+
+    while is_running:
+        clock.tick(60)
+
+        for event in pygame.event.get():
+            # Check if the user presses the close button.
+            if event.type == pygame.QUIT:
+                is_running = False
+
+            if not is_game_over and is_running:
+                if player_color == game.turn:
+                    # If the user left clicks on the board, check whether they clicked on a piece.
+                    # If they did, then set the ui.dragged_piece to that piece.
+                    if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                        clicked_piece = game.board.get_piece_at_square(
+                            ui.get_square_at_coords(event.pos)
+                        )
+                        if clicked_piece and clicked_piece.color == game.turn:
+                            ui.dragged_piece = clicked_piece
+                            ui.is_dragging = True
+                            ui.original_coords = ui.dragged_piece.coords
+                            ui.offset = (
+                                event.pos[0] - ui.dragged_piece.coords[0],
+                                event.pos[1] - ui.dragged_piece.coords[1],
+                            )
+
+                    # If the user is dragging a piece, then update the position of
+                    # the piece.
+                    elif event.type == pygame.MOUSEMOTION:
+                        if ui.is_dragging:
+                            ui.dragged_piece.coords = (
+                                event.pos[0] - ui.offset[0],
+                                event.pos[1] - ui.offset[1],
+                            )
+
+                    # If the user was dragging a piece, then check whether they dropped it on a valid square.
+                    # If they did, then make the move.
+                    elif event.type == pygame.MOUSEBUTTONUP:
+                        if ui.is_dragging:
+                            ui.is_dragging = False
+                            new_square = ui.get_square_at_coords(event.pos)
+
+                            if new_square:
+                                # Check if the move is a pawn promotion.
+                                if (
+                                    ui.dragged_piece.name == "Pawn"
+                                    and new_square[0] in (0, 7)
+                                    and new_square in ui.dragged_piece.legal_moves
+                                ):
+                                    ui.promotion_box = PromotionBox(
+                                        ui.window, ui.dragged_piece.color
+                                    )
+                                    game.promotion_choice = (
+                                        ui.promotion_box.final_choice
+                                    )
+                                    ui.promotion_box = None
+
+                                # Make the move.
+                                try:
+                                    original_square = ui.dragged_piece.position
+                                    promotion_choice = game.promotion_choice
+                                    game.make_move(
+                                        ui.dragged_piece.position, new_square
+                                    )
+                                    socket.send_move(
+                                        original_square, new_square, promotion_choice
+                                    )
+                                except ConnectionAbortedError:  # Connection closed.
+                                    is_running = False
+                                    print("Connection closed.")
+                                except Exception as ex:
+                                    print(ex)
+                                    ui.dragged_piece.coords = ui.original_coords
+
+                                ui.dragged_piece = None
+
+                                if (
+                                    game.is_checkmate
+                                    or game.is_stalemate
+                                    or game.is_threefold_repetition
+                                    or game.fifty_move_counter >= 50
+                                ):
+                                    if game.is_checkmate:
+                                        game_status = "checkmate"
+                                    elif game.is_stalemate:
+                                        game_status = "stalemate"
+                                    elif game.is_threefold_repetition:
+                                        game_status = "threefold repetition"
+                                    elif game.fifty_move_counter >= 50:
+                                        game_status = "fifty move rule"
+
+                                    is_game_over = True
+
+                            else:
+                                ui.dragged_piece.coords = ui.original_coords
+
+                else:
+                    try:
+                        move = socket.receive_move()
+                        print(move)
+                        game.promotion_choice = move["promotion_choice"]
+                        game.make_move(move["old_position"], move["new_position"])
+
+                        if (
+                            game.is_checkmate
+                            or game.is_stalemate
+                            or game.is_threefold_repetition
+                            or game.fifty_move_counter >= 50
+                        ):
+                            if game.is_checkmate:
+                                game_status = "checkmate"
+                            elif game.is_stalemate:
+                                game_status = "stalemate"
+                            elif game.is_threefold_repetition:
+                                game_status = "threefold repetition"
+                            elif game.fifty_move_counter >= 50:
+                                game_status = "fifty move rule"
+
+                            is_game_over = True
+                    except BlockingIOError:  # No data received.
+                        pass
+                    except ConnectionAbortedError:  # Connection closed.
+                        is_running = False
+                        print("Connection closed.")
+                    except Exception as ex:
+                        print(ex)
+                        ui.dragged_piece.coords = ui.original_coords
 
         if is_game_over:
             winner = "White" if game.turn == "black" else "Black"
