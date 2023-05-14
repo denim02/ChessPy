@@ -81,7 +81,7 @@ You can generate coverage reports to assess the code coverage of ChessPy's unit 
 2. Execute the following command to run coverage.
 
    ```bash
-   coverage run -m unittest discover -s tests/
+   coverage run
    ```
 
 3. Once the tests finish running, generate the coverage report.
