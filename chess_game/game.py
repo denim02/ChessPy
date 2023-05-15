@@ -2,6 +2,7 @@
 of the game and making moves on the board. It also contains the run_game function (i.e. the main function)
 which bootstraps the game logic and the UI and runs the game loop."""
 import pygame
+import os.path
 import datetime
 import chess_game.chess_logic as chess_logic
 import chess_game.constants as constants
@@ -42,6 +43,9 @@ class ChessGame:
             + datetime.datetime.now().strftime("%y%m%d_%H%M")
             + ".txt"
         )
+        if self.move_log_enabled and os.path.exists(self.move_log_file_path):
+            self.move_log_file_path = self.move_log_file_path[:-4] + "_1.txt"
+
         self.fullmove_counter = 0
         self.halfmove_counter = 0
 
@@ -438,7 +442,7 @@ def run_multiplayer() -> None:
     game = ChessGame()
     ui = ChessUI(game.board)
     socket = (
-        ServerConnect("127.0.0.1", constants.PORT)
+        ServerConnect(constants.PORT)
         if constants.START_AS_WHITE
         else ClientConnect(constants.HOST, constants.PORT)
     )

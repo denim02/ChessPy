@@ -39,11 +39,10 @@ class ClientConnect:
 
 
 class ServerConnect:
-    def __init__(self, host: str, port: int) -> None:
-        self.host = host
+    def __init__(self, port: int) -> None:
         self.port = port
         self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.server.bind((self.host, self.port))
+        self.server.bind(("0.0.0.0", self.port))
         self.server.listen(1)
 
     def send_move(
