@@ -9,11 +9,11 @@ SQUARE_SIZE = WINDOW_WIDTH // COLS
 DARK = "#769656"
 LIGHT = "#EEEEE2"
 
-# Assets
-ASSETS_PATH = "./game/assets/"
+# Assets - Modified for web
+ASSETS_PATH = "static/assets/"
 
 """Game settings"""
 FPS = 60
-STARTING_FEN_FILE = "./game/game_states/init_position.fen"
+STARTING_FEN_FILE = "static/game_states/init_position.fen"
 MOVE_LOG_ENABLED = True
-MOVE_LOG_DIRECTORY = "./game/logs/"
+MOVE_LOG_DIRECTORY = "static/logs/"
